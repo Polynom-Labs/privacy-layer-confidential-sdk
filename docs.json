@@ -1,0 +1,37 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Privacy Layer SDK",
+  "description": "Arcane privacy layer TypeScript SDK documentation",
+  "theme": "mint",
+  "colors": {
+    "primary": "#2563EB",
+    "light": "#DBEAFE",
+    "dark": "#1E3A8A"
+  },
+  "navigation": {
+    "groups": [
+      {
+        "group": "Overview",
+        "pages": [
+          "docs/introduction",
+          "docs/quickstart"
+        ]
+      },
+      {
+        "group": "Packages",
+        "pages": [
+          "docs/packages/core",
+          "docs/packages/stellar"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "docs/guides/prepared-operations",
+          "docs/guides/errors-and-progress",
+          "docs/guides/node-usage"
+        ]
+      }
+    ]
+  }
+}

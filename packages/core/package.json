@@ -1,0 +1,28 @@
+{
+  "name": "@arcane/privacy-sdk-core",
+  "version": "0.1.0",
+  "description": "Network-agnostic privacy SDK core types, client contracts, and operation orchestration",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
+  },
+  "sideEffects": false,
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "public"
+  }
+}

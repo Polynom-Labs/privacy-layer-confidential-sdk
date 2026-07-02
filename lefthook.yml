@@ -1,0 +1,10 @@
+pre-commit:
+  parallel: true
+  commands:
+    eslint:
+      glob: '*.{ts,mts,cts}'
+      run: npm run lint
+    fallow-dead-code:
+      run: npm run fallow:dead-code
+    fallow-dupes:
+      run: npm run fallow:dupes

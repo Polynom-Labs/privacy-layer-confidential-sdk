@@ -1,0 +1,45 @@
+{
+  "name": "@arcane/privacy-sdk-stellar",
+  "version": "0.1.0",
+  "description": "Stellar preset for the Arcane privacy SDK",
+  "type": "module",
+  "browser": "./dist/index.js",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "node": "./dist/node.js",
+      "import": "./dist/node.js",
+      "default": "./dist/node.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js",
+      "default": "./dist/testing/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
+  },
+  "dependencies": {
+    "@arcane/privacy-sdk-core": "0.1.0",
+    "@auditable/privacy-pool-zk-sdk": "^0.6.1-rc.5"
+  },
+  "sideEffects": false,
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "public"
+  }
+}

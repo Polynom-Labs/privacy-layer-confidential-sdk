@@ -1,0 +1,79 @@
+---
+description: Use composition, observer, visitor, factory, or abstract factory when designing TypeScript SDK modules, adapters, clients, or execution pipelines in privacy-layer-sdk.
+globs: **/*.ts
+alwaysApply: false
+---
+
+# Design Patterns For Privacy Layer SDK
+
+Apply these patterns when adding SDK orchestration, adapters, client factories, or execution flow in this repository.
+
+## Composition
+
+Compose behavior from adapters instead of putting network logic inside the core client.
+
+```ts
+const client = new AdapterPrivacyClient({
+  wallet,
+  storage,
+  network,
+  policy,
+});
+```
+
+Use composition when a client is built from interchangeable dependencies and you want thin classes with explicit boundaries.
+
+## Observer
+
+Publish stable progress events without exposing low-level network details in the public stage names.
+
+```ts
+await operation.execute({
+  onEvent(event) {
+    if (event.stage === 'submission' && event.status === 'begin') {
+      renderProgress(event);
+    }
+  },
+});
+```
+
+Use the observer pattern when execution has multiple stages and UI or logging needs incremental updates.
+
+## Visitor
+
+Route operation-specific behavior through dedicated handlers instead of repeated `switch (kind)` blocks.
+
+```ts
+const handlers = {
+  deposit: (intent) => policy.validateDeposit(intent),
+  transfer: (intent) => policy.validateTransfer(intent),
+  withdraw: (intent) => policy.validateWithdraw(intent),
+};
+```
+
+Use a visitor-style handler map when each operation kind needs different validation or transformation logic.
+
+## Factory
+
+Create configured clients from caller-provided adapters and assets.
+
+```ts
+export async function createStellarPrivacyClient(config: StellarPrivacyClientConfig) {
+  const resolved = await resolveStellarPrivacyClientConfig(config, createDefaultTransactEngine);
+  return createStellarPrivacyClientFromResolvedConfig(resolved.config);
+}
+```
+
+Use a factory when construction requires validation and assembly steps callers should not repeat.
+
+## Abstract Factory
+
+Provide environment-specific factories that share orchestration but use different asset loading strategies.
+
+```ts
+export async function createStellarPrivacyClientFromNodeConfig(config: StellarPrivacyClientConfig) {
+  return resolveWithAssets(config, loadNodeAssets);
+}
+```
+
+Use an abstract factory when browser and Node builds must expose different creation paths without duplicating client logic.

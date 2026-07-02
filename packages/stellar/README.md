@@ -1,0 +1,69 @@
+# @arcane/privacy-sdk-stellar
+
+Stellar preset for the Arcane privacy SDK.
+
+## Overview
+
+This package provides:
+
+- `createStellarPrivacyClient()` for browser usage (preloaded `ArrayBuffer` assets)
+- `@arcane/privacy-sdk-stellar/node` for Node.js filesystem asset loading
+- `@arcane/privacy-sdk-stellar/testing` for fake transact engines in unit tests
+- Stellar wallet, storage, and policy adapter contracts
+- disclosure validation for currently supported Stellar routes
+- orchestration over `@auditable/privacy-pool-zk-sdk`
+
+## Browser Example
+
+```ts
+import {
+  createStellarPrivacyClient,
+  isStellarPrivacyClient,
+} from '@arcane/privacy-sdk-stellar';
+
+const clientOrRejected = await createStellarPrivacyClient({
+  network,
+  wallet,
+  storage,
+  assets: {
+    sdkWasm,
+    circuitWasm,
+    provingKey,
+  },
+});
+
+if (!isStellarPrivacyClient(clientOrRejected)) {
+  throw new Error('Client creation failed');
+}
+
+const operation = await clientOrRejected.deposit(intent);
+if (operation.status === 'prepared') {
+  await operation.execute({ onEvent: console.log });
+}
+```
+
+## Node Example
+
+```ts
+import { createStellarPrivacyClientFromNodeConfig } from '@arcane/privacy-sdk-stellar/node';
+
+const clientOrRejected = await createStellarPrivacyClientFromNodeConfig({
+  network,
+  wallet,
+  storage,
+  assets: {
+    sdkWasmPath: './assets/client_sdk_wasm_bg.wasm',
+    circuitWasmPath: './assets/main.wasm',
+    provingKeyPath: './assets/main_final.zkey',
+  },
+});
+```
+
+## Required Assets
+
+The Stellar preset expects caller-provided circuit and proving artifacts. Do not regenerate `ptau` or Groth16 zkey files inside this repository.
+
+## Related Docs
+
+- [Root README](../../README.md)
+- [Mintlify Stellar docs](../../docs/packages/stellar.mdx)

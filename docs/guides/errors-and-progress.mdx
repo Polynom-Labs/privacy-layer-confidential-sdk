@@ -1,0 +1,25 @@
+---
+title: Errors and Progress
+description: Runtime errors and user-facing progress stages
+---
+
+# Errors and Progress
+
+## Errors
+
+Rejected operations return structured errors such as:
+
+- `unsupported_disclosure`
+- `missing_dependency`
+- `invalid_intent`
+- `insufficient_state`
+- `user_rejected`
+- `execution_error`
+
+## Progress Stages
+
+Execution emits stable stages:
+
+`validation`, `stateRead`, `authorization`, `preparation`, `policyCheck`, `submission`, `confirmation`, `storageCommit`
+
+Integrations may attach low-level diagnostics to `details`, but public stage names stay stable.

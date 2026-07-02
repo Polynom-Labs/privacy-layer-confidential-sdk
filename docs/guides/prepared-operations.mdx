@@ -1,0 +1,21 @@
+---
+title: Prepared Operations
+description: Two-phase prepare and execute workflow
+---
+
+# Prepared Operations
+
+The SDK separates validation and preparation from execution.
+
+```ts
+const operation = await client.transfer(intent);
+
+if (operation.status === 'rejected') {
+  renderErrors(operation.errors);
+  return;
+}
+
+await operation.execute({ onEvent: renderProgress });
+```
+
+TypeScript only exposes `execute()` on prepared results, which prevents executing unchecked intents.

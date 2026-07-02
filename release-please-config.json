@@ -1,0 +1,13 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "packages": {
+    "packages/core": {
+      "component": "privacy-sdk-core",
+      "release-type": "node"
+    },
+    "packages/stellar": {
+      "component": "privacy-sdk-stellar",
+      "release-type": "node"
+    }
+  }
+}
