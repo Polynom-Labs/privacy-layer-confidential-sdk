@@ -21,7 +21,7 @@ export interface UnsupportedDisclosureError extends BasePrivacySdkError {
 
 export interface MissingDependencyError extends BasePrivacySdkError {
   code: 'missing_dependency';
-  dependency: 'wallet' | 'storage' | 'network' | 'crypto' | 'policy';
+  dependency: 'wallet' | 'storage' | 'state' | 'network' | 'crypto' | 'policy';
 }
 
 export interface InvalidIntentError extends BasePrivacySdkError {

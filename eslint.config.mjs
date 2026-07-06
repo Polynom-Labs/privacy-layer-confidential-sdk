@@ -21,6 +21,7 @@ export default defineConfig([
       'docs/**',
       'eslint.config.mjs',
       '**/*.config.ts',
+      '**/generated/**',
     ],
   },
   js.configs.recommended,
@@ -74,7 +75,13 @@ export default defineConfig([
     },
   },
   {
-    files: ['packages/stellar/src/load-node-assets.ts'],
+    files: ['packages/**/src/**/*.ts', 'packages/**/test/**/*.ts'],
+    rules: {
+      'unicorn/prefer-node-protocol': 'off',
+    },
+  },
+  {
+    files: ['packages/stellar/src/assets/load-node.ts'],
     rules: {
       'security/detect-non-literal-fs-filename': 'off',
     },
@@ -95,10 +102,7 @@ export default defineConfig([
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-floating-promises': 'error',
-      '@typescript-eslint/no-unused-vars': [
-        'error',
-        { argsIgnorePattern: '^_' },
-      ],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       'prettier/prettier': ['error', { endOfLine: 'auto' }],
     },
   },

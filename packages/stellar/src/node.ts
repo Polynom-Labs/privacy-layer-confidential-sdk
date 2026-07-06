@@ -1,22 +1,22 @@
 import { createRejectedOperation } from '@arcane/privacy-sdk-core';
-import { loadNodeAssets } from './load-node-assets.js';
+import { loadNodeAssets } from './assets/load-node.js';
 import {
   createStellarPrivacyClientFromResolvedConfig,
   resolveStellarPrivacyClientConfig,
-} from './stellar-privacy-client.js';
-import { createDefaultTransactEngine } from './transact-engine.browser.js';
+} from './client/resolve-config.js';
+import { createDefaultTransactEngine } from './transact/engine/default-factory.js';
 import type { StellarNodePrivacyClientConfig } from './types.node.js';
 
-export type { CreateStellarPrivacyClientResult } from './create-stellar-privacy-client.js';
+export type { CreateStellarPrivacyClientResult } from './client/create.js';
 export {
   createStellarPrivacyClient,
   isPreparedOperation,
   isStellarPrivacyClient,
-} from './create-stellar-privacy-client.js';
+} from './client/create.js';
 export type {
   StellarBrowserPrivacyClientConfig,
   StellarPrivacyClientConfig,
-} from './create-stellar-privacy-client.js';
+} from './client/create.js';
 
 export type {
   StellarNodeAssets,

@@ -5,14 +5,20 @@
     ".github/**",
     ".cursor/**",
     "packages/**/test/**",
-    "packages/**/src/testing/**"
+    "packages/stellar/generated/**"
   ],
   "ignoreDependencies": [
-    "eslint-config-prettier"
+    "eslint-config-prettier",
+    "contract",
+    "registry",
+    "@arcane/privacy-sdk-state-redux",
+    "@reduxjs/toolkit"
   ],
   "usedClassMembers": [
     "deposit",
     "transfer",
-    "withdraw"
+    "withdraw",
+    "deploy",
+    "fromJSON"
   ]
 }

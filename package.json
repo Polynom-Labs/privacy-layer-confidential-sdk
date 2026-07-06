@@ -5,7 +5,8 @@
   "description": "Arcane privacy layer TypeScript SDK monorepo",
   "type": "module",
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "packages/state/*"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",

@@ -1,0 +1,176 @@
+---
+title: Setup
+description: Bootstrap the Stellar privacy client with Redux state, a wallet adapter, and optional persistence
+---
+
+This page shows the infrastructure code you add once before calling deposit, transfer, or withdraw. All examples use TypeScript and React.
+
+## Redux state adapter
+
+Create the SDK state branch, register it in your store, and bind the adapter before creating the client.
+
+```tsx
+import { configureStore } from '@reduxjs/toolkit';
+import {
+  bindReduxStateAdapter,
+  createReduxStateAdapter,
+} from '@arcane/privacy-sdk-state-redux';
+
+export const privacySdkState = createReduxStateAdapter({
+  reducerPath: 'privacySdkState',
+});
+
+export const store = configureStore({
+  reducer: {
+    [privacySdkState.reducerPath]: privacySdkState.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware().concat(privacySdkState.middleware),
+});
+
+bindReduxStateAdapter(privacySdkState, store);
+```
+
+## Wallet adapter
+
+The client signs messages and transactions through a wallet adapter. Implement the three methods against your wallet SDK.
+
+```ts
+import type { StellarWalletAdapter } from '@arcane/privacy-sdk-stellar';
+
+export const wallet: StellarWalletAdapter = {
+  getAddress: async () => 'GDSENDER7EXAMPLEPUBLICKEYAAAAAAAAAAAAAAAAAAAA',
+  authorizeMessage: async (message) =>
+    new TextEncoder().encode(typeof message === 'string' ? message : ''),
+  signTransactionPayload: async (payload) => ({ ...payload, signed: true }),
+};
+```
+
+## Client bootstrap
+
+Load browser circuit assets, pass network configuration, and create the client once at startup.
+
+```ts
+import {
+  createStellarPolicyAdapterFromEnvironment,
+  createStellarPrivacyClient,
+  isStellarPrivacyClient,
+  loadDefaultStellarBrowserAssets,
+} from '@arcane/privacy-sdk-stellar';
+import type { StellarTransactEnvironment } from '@arcane/privacy-sdk-stellar/transact';
+import { privacySdkState } from './store';
+import { wallet } from './wallet';
+
+const transactEnvironment: StellarTransactEnvironment = {
+  network: {
+    id: 'stellar-testnet',
+    rpcUrl: 'https://soroban-testnet.stellar.org',
+    networkPassphrase: 'Test SDF Network ; September 2015',
+    poolContract: 'CBVQTSTSIJ4UZMN5FQBFHPUIYSW3ATGSP57BZDJNKTOBNQODQTRGE4K5',
+    registryContract: 'CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC',
+    applicationId: '00000000-0000-0000-0000-000000000001',
+  },
+  kyt: {
+    apiBaseUrl: 'https://example.invalid',
+    kytPassageRegistryContract: 'CKYTEXAMPLECONTRACTIDAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  signTransaction: async ({ xdr }) => ({ signedTxXdr: xdr }),
+};
+
+export async function bootstrapPrivacyClient() {
+  const assets = await loadDefaultStellarBrowserAssets();
+  const created = await createStellarPrivacyClient({
+    network: transactEnvironment.network,
+    wallet,
+    state: privacySdkState.adapter,
+    assets,
+    auditPublicKeyHex:
+      'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
+    transactEnvironment,
+    policy: createStellarPolicyAdapterFromEnvironment(transactEnvironment),
+  });
+  if (!isStellarPrivacyClient(created)) {
+    throw new Error('Privacy client rejected during initialization.');
+  }
+  return created;
+}
+```
+
+## React provider and hook
+
+Expose the client through context so feature code can call `usePrivacySdkClient()`.
+
+```tsx
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import type { StellarPrivacyClient } from '@arcane/privacy-sdk-stellar';
+import { bootstrapPrivacyClient } from './bootstrap-privacy-client';
+
+const PrivacySdkContext = createContext<{
+  client: StellarPrivacyClient | undefined;
+  ready: boolean;
+}>({ client: undefined, ready: false });
+
+export function usePrivacySdkClient() {
+  return useContext(PrivacySdkContext);
+}
+
+export function PrivacySdkProvider({ children }: { children: React.ReactNode }) {
+  const [client, setClient] = useState<StellarPrivacyClient>();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    bootstrapPrivacyClient()
+      .then((created) => {
+        setClient(created);
+        setReady(true);
+      })
+      .catch(() => setReady(false));
+  }, []);
+
+  const value = useMemo(() => ({ client, ready }), [client, ready]);
+  return (
+    <PrivacySdkContext.Provider value={value}>{children}</PrivacySdkContext.Provider>
+  );
+}
+```
+
+Wrap your app root with `PrivacySdkProvider` and read `client` from the hook before calling operations.
+
+## Persist state in local storage
+
+SDK state lives in the Redux branch created above. Save and restore that branch per wallet owner so private records and registry cache survive reloads.
+
+```tsx
+import { useEffect } from 'react';
+import { hydrateReduxPrivacySdkState } from '@arcane/privacy-sdk-state-redux';
+import { store } from './store';
+
+const STORAGE_KEY = 'privacy-sdk-state:v1';
+
+function loadSavedBranch(owner: string) {
+  const raw = localStorage.getItem(`${STORAGE_KEY}:${owner}`);
+  return raw ? (JSON.parse(raw) as Record<string, unknown>) : undefined;
+}
+
+function saveBranch(owner: string, branch: Record<string, unknown>) {
+  localStorage.setItem(`${STORAGE_KEY}:${owner}`, JSON.stringify(branch));
+}
+
+export function usePrivacySdkPersistence(walletAddress: string | undefined) {
+  useEffect(() => {
+    const owner = walletAddress?.trim();
+    if (!owner) return;
+
+    const saved = loadSavedBranch(owner);
+    if (saved && Object.keys(store.getState().privacySdkState).length === 0) {
+      store.dispatch(hydrateReduxPrivacySdkState(saved));
+    }
+
+    return store.subscribe(() => {
+      saveBranch(owner, store.getState().privacySdkState);
+    });
+  }, [walletAddress]);
+}
+```
+
+Call `usePrivacySdkPersistence(walletAddress)` inside `PrivacySdkProvider` after the client is ready. Amount fields in private records are stored as strings in JSON; the SDK normalizes them on read.

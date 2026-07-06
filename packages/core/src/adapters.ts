@@ -20,7 +20,9 @@ export interface StorageAdapter<TAddress, TAsset, TAmount, TPrivateRecord> {
 
 export interface NetworkAdapter<TAddress, TAsset, TAmount, TPrepared, TReceipt> {
   prepareDeposit(input: DepositIntent<TAddress, TAsset, TAmount>): Promise<TPrepared>;
-  prepareTransfer(input: TransferIntent<TAddress, TAsset, TAmount>): Promise<TPrepared>;
+  prepareTransfer(
+    input: TransferIntent<TAddress, TAsset, TAmount, TAddress>,
+  ): Promise<TPrepared>;
   prepareWithdraw(input: WithdrawIntent<TAddress, TAsset, TAmount>): Promise<TPrepared>;
   submit(prepared: TPrepared, options?: ExecuteOptions): Promise<TReceipt>;
 }
@@ -30,7 +32,7 @@ export interface PolicyAdapter<TAddress, TAsset, TAmount> {
     intent: DepositIntent<TAddress, TAsset, TAmount>,
   ): Promise<PrivacySdkError[]>;
   validateTransfer(
-    intent: TransferIntent<TAddress, TAsset, TAmount>,
+    intent: TransferIntent<TAddress, TAsset, TAmount, TAddress>,
   ): Promise<PrivacySdkError[]>;
   validateWithdraw(
     intent: WithdrawIntent<TAddress, TAsset, TAmount>,

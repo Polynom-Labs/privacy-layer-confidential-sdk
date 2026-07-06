@@ -1,0 +1,89 @@
+---
+title: Withdraw
+description: Seed private records and run a withdraw through the Stellar privacy client
+---
+
+import { OperationDisclosures } from '../../snippets/operation-disclosures.jsx';
+
+## Disclosure policy
+
+<OperationDisclosures operation="withdraw" />
+
+## Example
+
+### Seed state
+
+```tsx
+const POOL = 'CBVQTSTSIJ4UZMN5FQBFHPUIYSW3ATGSP57BZDJNKTOBNQODQTRGE4K5';
+const OWNER = 'GDSENDER7EXAMPLEPUBLICKEYAAAAAAAAAAAAAAAAAAAA';
+const PRIVATE_ADDRESS = 'stpl1sender7exampleprivateaddress0000000000';
+
+await client.upsertAssets([
+  {
+    id: 1,
+    assetId: 'usdc',
+    name: 'USDC',
+    logoUrl: null,
+    issuerAddress: null,
+    clientContract: 'CTOKENCONTRACTEXAMPLEAAAAAAAAAAAAAAAAAAAAAA',
+    poolContracts: [POOL],
+    poolContract: POOL,
+    mintable: false,
+    mintAmount: null,
+  },
+]);
+await client.setPoolMerkleState({
+  poolContract: POOL,
+  commitments: ['0xmerklecommitmenthexexample00000000000000000000000000000000'],
+  commitmentCount: 1,
+  merkleRootHex: '0xmerkleroothexexample000000000000000000000000000000000000',
+  updatedAt: Date.now(),
+});
+await client.saveWalletPrivateAddressScalar({
+  owner: OWNER,
+  nonce: '1',
+  scalarHex: '0xabc123scalarhexexample000000000000000000000000000000000000',
+});
+await client.upsertPrivateRecords([
+  {
+    id: '0xnotecommitmenthexexample000000000000000000000000000000000000',
+    owner: OWNER,
+    privateAddress: PRIVATE_ADDRESS,
+    asset: 'usdc',
+    amount: 100_0000000n,
+    consumed: false,
+    poolContract: POOL,
+    coinNote: {
+      value: '1000000000',
+      nullifier: '0xnullifierhexexample000000000000000000000000000000000000',
+      secret: '0xsecrethexexample0000000000000000000000000000000000000000',
+      commitment: '0xnotecommitmenthexexample000000000000000000000000000000000000',
+      asset_hi: '0xassethihexexample00000000000000000000000000000000000000',
+      asset_lo: '0xassetlohexexample00000000000000000000000000000000000000',
+    },
+  },
+]);
+```
+
+### Run operation
+
+```tsx
+const operation = await client.withdraw({
+  from: 'stpl1sender7exampleprivateaddress0000000000',
+  to: 'GDSENDER7EXAMPLEPUBLICKEYAAAAAAAAAAAAAAAAAAAA',
+  asset: 'usdc',
+  amount: 40_0000000n,
+  disclosure: {
+    senderAddress: 'private',
+    recipientAddress: 'public',
+    assetAddress: 'public',
+    amount: 'public',
+  },
+});
+
+if (operation.status === 'rejected') {
+  throw new Error(operation.errors[0]?.message);
+}
+
+await operation.execute({});
+```

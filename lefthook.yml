@@ -1,6 +1,8 @@
 pre-commit:
   parallel: true
   commands:
+    test:
+      run: npm run test
     eslint:
       glob: '*.{ts,mts,cts}'
       run: npm run lint

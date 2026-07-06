@@ -36,7 +36,7 @@ export class AdapterPrivacyClient<
   }
 
   transfer(
-    intent: TransferIntent<TAddress, TAsset, TAmount>,
+    intent: TransferIntent<TAddress, TAsset, TAmount, TAddress>,
   ): Promise<
     OperationResult<'transfer', TAddress, TAsset, TAmount, TPrepared, TReceipt>
   > {

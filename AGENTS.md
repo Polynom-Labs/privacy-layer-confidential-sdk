@@ -5,6 +5,21 @@
 - Do not bypass lint or Fallow checks by weakening config files or adding disable comments.
 - Do not regenerate or commit ptau/zkey artifacts inside this repository.
 
+## Learned Workspace Facts
+
+- `@arcane/privacy-sdk-stellar` owns generated pool/registry bindings under `packages/stellar/generated/`; public `.d.ts` must not export generated contract client types (`PoolTransactClient`, `RegistryContractClient`, `createPoolClient`).
+- SDK composes Soroban RPC (`packages/stellar/src/rpc/`) and contract clients internally via `attachContractContext()`; consuming apps pass domain config and adapters only.
+- Public `StellarPrivacyClient` methods are domain-level (`checkRegistrationStatus`, `registerPrivateAddress`, `resolveTransferRecipient`, transaction confirmation/details) — not thin wrappers over raw Soroban RPC.
+- Apps supply `transactEnvironment.signTransaction` only; `StellarTransactEnvironment.createPoolClient` is internal and must not appear in public API or app bootstrap.
+- State bridge operation registration (`stellarStateDefinitions` / `bridge.init`) runs inside SDK client initialization; consuming apps bind a state adapter but must not register bridge operations themselves.
+- `StellarPrivateRecord.id` must always be the commitment hex (never a random UUID) and `owner` must always be the Stellar G-address (never a private `stpl1` address); `privateAddress` holds the stpl1 address separately. Deposit/transfer/withdraw output-record builders take an explicit `walletPublicKey` to set `owner` correctly. Withdraw's execute finalize must enrich `outputRecords` from `proof.changeCoin` (`commitmentHex`/`coinNote`) the same way transfer's `enrichTransferOutputRecords` does — otherwise change notes silently vanish from the UI because `mapPrivateRecordToCoinWithMetadata` drops records missing `coinNote`.
+- SDK state reads/writes must be defensive: pool JSONPath reads (`getPoolMerkleState`) treat a missing `$.pools.*` branch as an empty cache (`undefined`) instead of throwing `JSONPath segment not found`; `upsertPrivateRecords` must be idempotent and skip the state-bridge write when the merged result is unchanged, to avoid infinite bidirectional sync loops with app-level state (e.g. a Redux coin slice that re-dispatches on every SDK write).
+- Bootstrap and the transact engine must share exactly one `transactEnvironment` object instance (from `resolved.config.transactEnvironment`); never create a second copy (e.g. via `attachPoolStatePorts`) — resolvers (transfer recipient/token/wallet) registered on one copy are invisible to another and cause `"Transfer recipient resolver is not configured."`.
+- Private record `amount` must be synced from the actual coin note value (`coinNote.value`), not recomputed via display-amount-to-stroops conversion; a mismatch lets prepare select a note that fails proof validation with `"Transfer amount exceeds note value"`.
+- When a transfer's `toAddress` is a public Stellar G-address, `recipientAddress`, `assetAddress`, and `amount` disclosure must be public; `senderAddress` may be public or private.
+- SDK adapter method-existence checks on upstream objects (e.g. `@auditable/privacy-pool-zk-sdk`) must read the property from the instance/prototype chain, not `Object.hasOwn(sdk, name)` (which is `false` for prototype methods and causes false "Missing SDK method" errors); never use `Reflect`.
+- `@arcane/privacy-sdk-stellar/transact` exports `assetLegToTokenAddress(assetHi, assetLo)` (symmetric to `tokenAddressToAssetLeg`) so callers can resolve a contract id back from hi/lo asset legs — needed because backend `/pending-claims` only returns `assetHiHex`/`assetLoHex`, not an `assetId` string.
+
 ## Repository Tooling
 
 | Area | Tooling |

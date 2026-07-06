@@ -23,19 +23,43 @@
       "types": "./dist/testing/index.d.ts",
       "import": "./dist/testing/index.js",
       "default": "./dist/testing/index.js"
+    },
+    "./transact": {
+      "types": "./dist/transact/index.d.ts",
+      "import": "./dist/transact/index.js",
+      "default": "./dist/transact/index.js"
+    },
+    "./state": {
+      "types": "./dist/state/index.d.ts",
+      "import": "./dist/state/index.js",
+      "default": "./dist/state/index.js"
     }
   },
   "files": [
     "dist",
+    "generated",
     "README.md"
   ],
   "scripts": {
+    "bindings:generate": "soroban contract bindings typescript --rpc-url https://soroban-testnet.stellar.org --network-passphrase \"Test SDF Network ; September 2015\" --contract-id CBVQTSTSIJ4UZMN5FQBFHPUIYSW3ATGSP57BZDJNKTOBNQODQTRGE4K5 --output-dir ./generated/contract --overwrite && soroban contract bindings typescript --rpc-url https://soroban-testnet.stellar.org --network-passphrase \"Test SDF Network ; September 2015\" --contract-id CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC --output-dir ./generated/registry --overwrite",
+    "bindings:build": "npm run build --prefix generated/contract && npm run build --prefix generated/registry",
+    "prebuild": "npm run bindings:build",
     "build": "tsup",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
     "@arcane/privacy-sdk-core": "0.1.0",
-    "@auditable/privacy-pool-zk-sdk": "^0.6.1-rc.5"
+    "@auditable/privacy-pool-zk-sdk": "^0.6.1-rc.5",
+    "@stellar/stellar-sdk": "^14.6.1",
+    "buffer": "^6.0.3",
+    "contract": "file:./generated/contract",
+    "registry": "file:./generated/registry",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@arcane/privacy-sdk-state-memory": "0.1.0",
+    "@arcane/privacy-sdk-state-redux": "0.1.0",
+    "@reduxjs/toolkit": "^2.6.1"
   },
   "sideEffects": false,
   "license": "UNLICENSED",

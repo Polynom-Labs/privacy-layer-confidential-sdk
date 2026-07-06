@@ -10,9 +10,9 @@ export interface DepositIntent<TAddress, TAsset, TAmount> {
   disclosure: DisclosurePolicy;
 }
 
-export interface TransferIntent<TAddress, TAsset, TAmount> {
-  from: TAddress;
-  to: TAddress;
+export interface TransferIntent<TFrom, TAsset, TAmount, TTo = TFrom> {
+  from: TFrom;
+  to: TTo;
   asset: TAsset;
   amount: TAmount;
   disclosure: DisclosurePolicy;

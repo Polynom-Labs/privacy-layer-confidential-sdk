@@ -87,7 +87,14 @@ await operation.execute();
 
 ## Documentation
 
-Mintlify docs live under [`docs/`](./docs) and are configured by [`docs.json`](./docs.json).
+Mintlify docs live under [`docs/`](./docs). Run the local preview from that directory:
+
+```bash
+cd docs
+mint dev
+```
+
+Site configuration is in [`docs/docs.json`](./docs/docs.json). The repository root [`docs.json`](./docs.json) mirrors navigation paths for hosted deployment.
 
 ## Release Process
 

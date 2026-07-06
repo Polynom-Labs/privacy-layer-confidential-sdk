@@ -11,25 +11,19 @@
   "navigation": {
     "groups": [
       {
-        "group": "Overview",
+        "group": "Application development",
         "pages": [
-          "introduction",
-          "quickstart"
-        ]
-      },
-      {
-        "group": "Packages",
-        "pages": [
-          "packages/core",
-          "packages/stellar"
-        ]
-      },
-      {
-        "group": "Guides",
-        "pages": [
-          "guides/prepared-operations",
-          "guides/errors-and-progress",
-          "guides/node-usage"
+          "application-development/install",
+          "application-development/setup",
+          {
+            "group": "How to",
+            "pages": [
+              "application-development/how-to/deposit",
+              "application-development/how-to/withdraw",
+              "application-development/how-to/transfer-registered-recipient",
+              "application-development/how-to/transfer-unregistered-recipient"
+            ]
+          }
         ]
       }
     ]

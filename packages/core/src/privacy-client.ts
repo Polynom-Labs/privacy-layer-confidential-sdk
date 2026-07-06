@@ -9,7 +9,7 @@ export abstract class PrivacyClient<TAddress, TAsset, TAmount, TPrepared, TRecei
   >;
 
   abstract transfer(
-    intent: TransferIntent<TAddress, TAsset, TAmount>,
+    intent: TransferIntent<TAddress, TAsset, TAmount, TAddress>,
   ): Promise<
     OperationResult<'transfer', TAddress, TAsset, TAmount, TPrepared, TReceipt>
   >;

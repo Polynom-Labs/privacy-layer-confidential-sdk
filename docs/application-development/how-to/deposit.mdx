@@ -1,0 +1,76 @@
+---
+title: Deposit
+description: Seed SDK state and run a deposit through the Stellar privacy client
+---
+
+import { OperationDisclosures } from '../../snippets/operation-disclosures.jsx';
+
+## Disclosure policy
+
+<OperationDisclosures operation="deposit" />
+
+## Example
+
+### Seed state
+
+```tsx
+const POOL = 'CBVQTSTSIJ4UZMN5FQBFHPUIYSW3ATGSP57BZDJNKTOBNQODQTRGE4K5';
+const OWNER = 'GDSENDER7EXAMPLEPUBLICKEYAAAAAAAAAAAAAAAAAAAA';
+const PRIVATE_ADDRESS = 'stpl1sender7exampleprivateaddress0000000000';
+
+await client.upsertAssets([
+  {
+    id: 1,
+    assetId: 'usdc',
+    name: 'USDC',
+    logoUrl: null,
+    issuerAddress: null,
+    clientContract: 'CTOKENCONTRACTEXAMPLEAAAAAAAAAAAAAAAAAAAAAA',
+    poolContracts: [POOL],
+    poolContract: POOL,
+    mintable: false,
+    mintAmount: null,
+  },
+]);
+await client.saveWalletPrivateAddressRecord({
+  owner: OWNER,
+  nonce: '1',
+  privateAddress: PRIVATE_ADDRESS,
+  createdAt: Date.now(),
+});
+await client.saveWalletPrivateAddressScalar({
+  owner: OWNER,
+  nonce: '1',
+  scalarHex: '0xabc123scalarhexexample000000000000000000000000000000000000',
+});
+await client.setPoolMerkleState({
+  poolContract: POOL,
+  commitments: ['0xmerklecommitmenthexexample00000000000000000000000000000000'],
+  commitmentCount: 1,
+  merkleRootHex: '0xmerkleroothexexample000000000000000000000000000000000000',
+  updatedAt: Date.now(),
+});
+```
+
+### Run operation
+
+```tsx
+const operation = await client.deposit({
+  from: 'GDSENDER7EXAMPLEPUBLICKEYAAAAAAAAAAAAAAAAAAAA',
+  to: 'stpl1sender7exampleprivateaddress0000000000',
+  asset: 'usdc',
+  amount: 50_0000000n,
+  disclosure: {
+    senderAddress: 'public',
+    recipientAddress: 'private',
+    assetAddress: 'public',
+    amount: 'public',
+  },
+});
+
+if (operation.status === 'rejected') {
+  throw new Error(operation.errors[0]?.message);
+}
+
+await operation.execute({});
+```

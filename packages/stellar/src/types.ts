@@ -1,35 +1,86 @@
 import type { OperationKind } from '@arcane/privacy-sdk-core';
+import type { StateBridgeAdapter } from '@arcane/privacy-sdk-core/state';
 import type {
   DepositIntent,
   TransferIntent,
   WithdrawIntent,
 } from '@arcane/privacy-sdk-core';
+import type {
+  StellarPendingClaim,
+  StellarPrivateRecord,
+} from './state/domain/types.js';
+import type { OnboardingPayload } from './transact/onboarding/payload.js';
+import type { KytApplicationIdHints } from './transact/pool/proof-types.js';
+import type { StellarTransferFromAddress } from './transact/transfer-source/types.js';
 
 export type StellarAddress = string;
 export type StellarAssetId = string;
 
-export interface StellarPrivateRecord {
-  id: string;
-  owner: StellarAddress;
-  asset: StellarAssetId;
-  amount: bigint;
-  consumed: boolean;
-}
+export type {
+  StellarPendingClaimSource,
+  StellarTransferFromAddress,
+} from './transact/transfer-source/types.js';
+
+export type StellarTransferIntent = TransferIntent<
+  StellarTransferFromAddress,
+  StellarAssetId,
+  bigint,
+  StellarAddress
+>;
+
+export type {
+  StellarAsset,
+  StellarAssetsCatalog,
+  StellarDeliverySyncState,
+  StellarIncomingDeliveriesFilter,
+  StellarIncomingDelivery,
+  StellarLeafEphemeral,
+  StellarPendingClaim,
+  StellarPendingClaimsFilter,
+  StellarPendingClaimsPagination,
+  StellarPendingClaimsState,
+  StellarPoolMerkleState,
+  StellarPrivateAssetRow,
+  StellarPrivateRecord,
+  StellarPrivateRecordStatus,
+  StellarPublicBalance,
+  StellarRegistryLookup,
+  StellarWalletPrivateAddressScalar,
+  StellarWalletPrivateAddressRecord,
+  StellarTransactionStatus,
+} from './state/domain/types.js';
 
 export interface StellarPreparedOperation {
   kind: OperationKind;
   intent:
     | DepositIntent<StellarAddress, StellarAssetId, bigint>
-    | TransferIntent<StellarAddress, StellarAssetId, bigint>
+    | StellarTransferIntent
     | WithdrawIntent<StellarAddress, StellarAssetId, bigint>;
   consumedRecords: StellarPrivateRecord[];
   outputRecords: StellarPrivateRecord[];
   submissionPayload: StellarSubmissionPayload;
+  transactArtifacts?: StellarTransactArtifacts;
 }
 
 export interface StellarSubmissionPayload {
   operationId: string;
   signed: boolean;
+  txHash?: string;
+}
+
+export interface StellarTransactArtifacts {
+  proofHex?: string;
+  publicHex?: string;
+  applicationIdsPlaintext?: KytApplicationIdHints;
+  tokenAddress?: string;
+  depositScalarHex?: string;
+  precommitementHex?: string;
+  commitmentHex?: string;
+  walletPublicKey?: string;
+  onboarding?: OnboardingPayload;
+  executeFinalizeRequired?: boolean;
+  pendingClaim?: StellarPendingClaim;
+  spendSource?: 'privateAddress' | 'pendingClaim';
 }
 
 export interface StellarOperationReceipt {
@@ -62,7 +113,8 @@ export interface StellarWalletAdapter {
 
 export interface StellarStorageAdapter {
   listPrivateRecords(filter: {
-    owner: StellarAddress;
+    owner?: StellarAddress;
+    privateAddress?: string;
     asset?: StellarAssetId;
     amount?: bigint;
   }): Promise<StellarPrivateRecord[]>;
@@ -70,12 +122,15 @@ export interface StellarStorageAdapter {
   markPrivateRecordsUsed(records: StellarPrivateRecord[]): Promise<void>;
 }
 
+/** @internal Bridge-backed storage adapter; consumers pass {@link StateBridgeAdapter} instead. */
+export type StellarStateAdapter = StateBridgeAdapter;
+
 export interface StellarPolicyAdapter {
   inspectOperation(
     kind: OperationKind,
     intent:
       | DepositIntent<StellarAddress, StellarAssetId, bigint>
-      | TransferIntent<StellarAddress, StellarAssetId, bigint>
+      | StellarTransferIntent
       | WithdrawIntent<StellarAddress, StellarAssetId, bigint>,
   ): Promise<void>;
 }
@@ -91,13 +146,17 @@ export interface StellarTransactEngine {
 export interface StellarPrivacyClientConfigBase {
   network: StellarNetworkConfig;
   wallet: StellarWalletAdapter;
-  storage: StellarStorageAdapter;
+  state: StellarStateAdapter;
+  auditPublicKeyHex?: string;
   policy?: StellarPolicyAdapter;
   transactEngine?: StellarTransactEngine;
 }
 
+import type { StellarTransactEnvironment } from './transact/environment/types.js';
+
 export interface StellarBrowserPrivacyClientConfig extends StellarPrivacyClientConfigBase {
   assets: StellarBrowserAssets;
+  transactEnvironment?: StellarTransactEnvironment;
 }
 
 /** Browser entrypoint config alias. */
@@ -108,4 +167,5 @@ export interface ResolvedStellarPrivacyClientConfig extends Omit<
   'transactEngine'
 > {
   transactEngine: StellarTransactEngine;
+  transactEnvironment?: StellarTransactEnvironment;
 }

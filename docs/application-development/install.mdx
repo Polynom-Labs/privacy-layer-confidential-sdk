@@ -1,0 +1,26 @@
+---
+title: Install
+description: Install the Stellar privacy client and Redux state adapter in your application
+---
+
+Add `@arcane/privacy-sdk-stellar` and `@arcane/privacy-sdk-state-redux` to your React application. The Redux adapter also requires `@reduxjs/toolkit` as a peer dependency.
+
+<CodeGroup>
+
+```bash npm
+npm install @arcane/privacy-sdk-stellar @arcane/privacy-sdk-state-redux @reduxjs/toolkit react-redux
+```
+
+```bash yarn
+yarn add @arcane/privacy-sdk-stellar @arcane/privacy-sdk-state-redux @reduxjs/toolkit react-redux
+```
+
+```bash pnpm
+pnpm add @arcane/privacy-sdk-stellar @arcane/privacy-sdk-state-redux @reduxjs/toolkit react-redux
+```
+
+</CodeGroup>
+
+`@arcane/privacy-sdk-stellar` bundles the ZK circuit artifacts through `@auditable/privacy-pool-zk-sdk`. You do not install the ZK package separately for browser usage.
+
+Next, wire the client in your app shell. See [Setup](/docs/application-development/setup).

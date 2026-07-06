@@ -1,0 +1,31 @@
+{
+  "name": "@arcane/privacy-sdk-state-memory",
+  "version": "0.1.0",
+  "description": "In-memory state bridge adapter for the Arcane privacy SDK",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
+  },
+  "dependencies": {
+    "@arcane/privacy-sdk-core": "0.1.0"
+  },
+  "sideEffects": false,
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "public"
+  }
+}
