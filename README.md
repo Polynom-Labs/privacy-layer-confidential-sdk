@@ -19,8 +19,6 @@ English-language monorepo for the Arcane high-level privacy SDK.
 | [`@arcane/privacy-sdk-core`](./packages/core/README.md) | Network-agnostic intents, prepared operations, errors, progress events, and adapter contracts |
 | [`@arcane/privacy-sdk-stellar`](./packages/stellar/README.md) | Stellar preset with browser and Node entrypoints |
 
-`@arcane/privacy-sdk-testing` is planned but intentionally not shipped in this phase.
-
 ## Requirements
 
 - Node.js `>=20.10`
@@ -87,7 +85,7 @@ await operation.execute();
 
 ## Documentation
 
-Mintlify docs live under [`docs/`](./docs). Run the local preview from that directory:
+Mintlify docs live under [`docs/`](./docs). Start at [Introduction](./docs/overview/introduction.mdx). Run the local preview from the `docs` directory:
 
 ```bash
 cd docs

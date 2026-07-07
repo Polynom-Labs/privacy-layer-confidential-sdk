@@ -11,7 +11,33 @@
   "navigation": {
     "groups": [
       {
-        "group": "Application development",
+        "group": "Overview",
+        "pages": [
+          "overview/introduction",
+          "overview/packages"
+        ]
+      },
+      {
+        "group": "Concepts",
+        "pages": [
+          "concepts/domain-model",
+          "concepts/operations",
+          "concepts/operation-lifecycle",
+          "concepts/disclosure-policy",
+          "concepts/security-and-privacy"
+        ]
+      },
+      {
+        "group": "Integration",
+        "pages": [
+          "integration/integration-paths",
+          "integration/quick-start",
+          "integration/state-integration",
+          "integration/data-sources"
+        ]
+      },
+      {
+        "group": "Stellar application development",
         "pages": [
           "application-development/install",
           "application-development/setup",

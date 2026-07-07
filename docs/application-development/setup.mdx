@@ -174,3 +174,20 @@ export function usePrivacySdkPersistence(walletAddress: string | undefined) {
 ```
 
 Call `usePrivacySdkPersistence(walletAddress)` inside `PrivacySdkProvider` after the client is ready. Amount fields in private records are stored as strings in JSON; the SDK normalizes them on read.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Quick start (Stellar preset)" icon="rocket" href="/integration/quick-start">
+    Minimal in-memory bootstrap before this full React setup.
+  </Card>
+  <Card title="State integration" icon="database" href="/integration/state-integration">
+    Why the SDK needs state and when to use Redux.
+  </Card>
+  <Card title="Data sources" icon="server" href="/integration/data-sources">
+    Production vs documentation fixture state.
+  </Card>
+  <Card title="Operation lifecycle" icon="timeline" href="/concepts/operation-lifecycle">
+    Prepare, execute, errors, and progress events.
+  </Card>
+</CardGroup>

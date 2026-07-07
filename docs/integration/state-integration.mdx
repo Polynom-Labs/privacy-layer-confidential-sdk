@@ -1,0 +1,98 @@
+---
+title: State integration
+description: Why the SDK needs state, and how to choose in-memory or Redux adapter libraries
+---
+
+The SDK maintains a **domain state cache** separate from your general application store. State integration means choosing an **adapter library** that connects that cache to your runtime — browser memory, Redux, or server-side storage.
+
+## Why the SDK needs state
+
+During **prepare**, the SDK reads local domain data to answer: *can this operation run right now?*
+
+Examples:
+
+- Does the sender hold a private record with enough balance?
+- Is the pool Merkle root current enough to spend selected notes?
+- Is the recipient registered (or marked unregistered) in the registry cache?
+- Are wallet private-address records and scalars present for signing?
+
+If the answer is no, prepare returns `status: 'rejected'` — often with `insufficient_state` — **before** the wallet signing prompt.
+
+After a successful **execute**, the SDK updates the same cache (consumed records, new outputs, pool snapshot).
+
+<Warning>
+  SDK state is **not** a replacement for Redux, Zustand, or your server database. It is a specialized cache for privacy operations. Your UI may mirror subsets of it, but the adapter library is the supported integration boundary.
+</Warning>
+
+## Choosing a state adapter library
+
+| Library | Package | When to use |
+| --- | --- | --- |
+| **In-memory** | `@arcane/privacy-sdk-state-memory` | Tutorials, prototypes, unit tests |
+| **Redux** | `@arcane/privacy-sdk-state-redux` | Production React apps already using Redux Toolkit |
+
+Wire the adapter when creating your network preset client:
+
+```ts
+const client = await createStellarPrivacyClient({
+  // ...network, wallet, assets
+  state: memoryAdapter, // or privacySdkState.adapter from Redux bundle
+});
+```
+
+## In-memory adapter (recommended for learning)
+
+```ts
+import { createInMemoryStateAdapter } from '@arcane/privacy-sdk-state-memory';
+
+const state = createInMemoryStateAdapter();
+```
+
+**Pros:** zero extra dependencies, fast setup, ideal for [Quick start](/integration/quick-start).
+
+**Limits:** data is lost when the process ends; not suitable alone for production wallet apps that must survive reload.
+
+## Redux adapter (production React)
+
+Use when your Stellar payment UI already runs on Redux Toolkit. The adapter adds an SDK state branch, middleware, and helpers such as hydration from saved JSON.
+
+Install:
+
+```bash
+npm install @arcane/privacy-sdk-state-redux @reduxjs/toolkit react-redux
+```
+
+The Redux adapter is **optional**. Many teams start with in-memory state in tests, then adopt Redux for production persistence.
+
+Full store wiring, provider, and localStorage persistence live in [Setup](/application-development/setup) — copy that pattern rather than re-deriving it here.
+
+## Persistence strategies
+
+When using Redux (or your own persistence layer):
+
+- **Scope by wallet owner** — hydrate SDK state when the user connects a account; clear or swap when they disconnect.
+- **Serialize bigint amounts as strings** in JSON; the SDK normalizes on read.
+- **Avoid duplicate writers** — let the SDK adapter own domain mutations during operations; mirror read-only slices in UI state if needed.
+
+## Anti-patterns
+
+- Creating **two copies** of `transactEnvironment` — resolvers registered on one copy are invisible to the other.
+- **Bypassing the adapter library** to mutate SDK domain data manually.
+- **Duplicating** private records in app state and SDK state without a clear sync direction — causes loops and stale prepare results.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Quick start (Stellar preset)" icon="rocket" href="/integration/quick-start">
+    In-memory bootstrap walkthrough.
+  </Card>
+  <Card title="Data sources" icon="server" href="/integration/data-sources">
+    Where production state data originates.
+  </Card>
+  <Card title="Operation lifecycle" icon="timeline" href="/concepts/operation-lifecycle">
+    When prepare reads and execute writes state.
+  </Card>
+  <Card title="Setup" icon="wrench" href="/application-development/setup">
+    Redux adapter and persistence snippet.
+  </Card>
+</CardGroup>

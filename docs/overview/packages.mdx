@@ -1,0 +1,118 @@
+---
+title: Packages
+description: Map of @arcane packages, layered architecture, and the Stellar network preset
+---
+
+import { PackageMatrix } from '../snippets/package-matrix.jsx';
+
+All public packages use the `@arcane` scope. You install presets and state adapters explicitly; **no additional cryptography packages** are required for browser or Node usage.
+
+## Package map
+
+<PackageMatrix />
+
+`@arcane/privacy-sdk-stellar` ships bundled runtime assets for browser and Node. Your application passes network configuration, wallet adapter, state adapter, and policy — the preset handles the rest.
+
+## Layered architecture
+
+```mermaid
+flowchart BT
+  App[Your application]
+  Stellar["@arcane/privacy-sdk-stellar"]
+  Core["@arcane/privacy-sdk-core"]
+  Memory["@arcane/privacy-sdk-state-memory"]
+  Redux["@arcane/privacy-sdk-state-redux"]
+
+  App --> Stellar
+  App --> Memory
+  App --> Redux
+  Stellar --> Core
+  Memory --> Core
+  Redux --> Core
+```
+
+- **Core** — network-agnostic orchestration: intents, prepare/execute lifecycle, errors, progress events.
+- **State adapters** — pluggable persistence for SDK domain state; work with any frontend or backend storage stack.
+- **Network presets** — chain-specific clients, contract bindings, and state schema extensions.
+
+Internal transitive dependencies are not part of the public integration surface.
+
+## Entry points and subpaths
+
+**Multi-chain (chain-agnostic):**
+
+| Import | Purpose |
+| --- | --- |
+| `@arcane/privacy-sdk-core` | Intents, lifecycle helpers, error types, progress events |
+| `@arcane/privacy-sdk-state-memory` | In-memory state adapter for prototypes and tests |
+| `@arcane/privacy-sdk-state-redux` | Redux Toolkit adapter for React apps |
+
+**Stellar preset:**
+
+| Import | Purpose |
+| --- | --- |
+| `@arcane/privacy-sdk-stellar` | Browser client factory and Stellar types |
+| `@arcane/privacy-sdk-stellar/node` | Node client with filesystem asset loading |
+| `@arcane/privacy-sdk-stellar/testing` | Fake transact engine for unit tests |
+
+## Stellar preset {#stellar-preset}
+
+`@arcane/privacy-sdk-stellar` is the first shipped network preset. It targets **Stellar** with **Soroban** smart contracts:
+
+- **Pool contract** — private deposits, transfers, and withdrawals.
+- **Private-address registry** — maps public Stellar accounts to private payment addresses.
+- **Soroban RPC** — submission and confirmation.
+- **`createStellarPrivacyClient()`** — main browser entrypoint.
+
+**Address model (Stellar only):**
+
+| Type | Format | Used for |
+| --- | --- | --- |
+| Public wallet | Stellar `G...` account | On-chain identity, public payouts |
+| Private payment | `stpl1...` address | Pool notes and private sends |
+
+**Bootstrap helpers:**
+
+- `loadDefaultStellarBrowserAssets()` — bundled runtime assets for the browser.
+- `transactEnvironment` — network, KYT, and transaction signing hooks passed at client creation.
+
+For full React wiring and operation examples, continue to [Stellar application development](/application-development/install).
+
+<Note>
+  Future chains will ship as separate `@arcane/privacy-sdk-<chain>` preset packages. Core and state adapter APIs stay unchanged.
+</Note>
+
+## Which packages you need
+
+```mermaid
+flowchart TD
+  Start[What are you building?]
+  Learn[Learn concepts]
+  StellarApp[Stellar app]
+  ReactProd[Production React Stellar]
+  Tests[Unit tests]
+
+  Start --> Learn
+  Start --> StellarApp
+  Start --> ReactProd
+  Start --> Tests
+
+  Learn --> CoreOnly["core only (read API)"]
+  StellarApp --> StellarStack["core + stellar + state-memory"]
+  ReactProd --> ReduxStack["+ state-redux (optional)"]
+  Tests --> Testing["+ stellar/testing"]
+```
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="State integration" icon="database" href="/integration/state-integration">
+    Choose in-memory or Redux state adapters.
+  </Card>
+  <Card title="Quick start (Stellar preset)" icon="rocket" href="/integration/quick-start">
+    Minimal Stellar client bootstrap.
+  </Card>
+  <Card title="Install" icon="download" href="/application-development/install">
+    Full Stellar React stack install.
+  </Card>
+</CardGroup>

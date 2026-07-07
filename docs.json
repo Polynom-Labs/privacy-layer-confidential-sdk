@@ -11,7 +11,33 @@
   "navigation": {
     "groups": [
       {
-        "group": "Application development",
+        "group": "Overview",
+        "pages": [
+          "docs/overview/introduction",
+          "docs/overview/packages"
+        ]
+      },
+      {
+        "group": "Concepts",
+        "pages": [
+          "docs/concepts/domain-model",
+          "docs/concepts/operations",
+          "docs/concepts/operation-lifecycle",
+          "docs/concepts/disclosure-policy",
+          "docs/concepts/security-and-privacy"
+        ]
+      },
+      {
+        "group": "Integration",
+        "pages": [
+          "docs/integration/integration-paths",
+          "docs/integration/quick-start",
+          "docs/integration/state-integration",
+          "docs/integration/data-sources"
+        ]
+      },
+      {
+        "group": "Stellar application development",
         "pages": [
           "docs/application-development/install",
           "docs/application-development/setup",

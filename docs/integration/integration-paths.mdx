@@ -1,0 +1,100 @@
+---
+title: Integration paths
+description: Choose browser, Node, or test runtime and map what your app supplies vs the SDK
+---
+
+Pick an integration path based on where your code runs and which network preset you target. Core concepts are multi-chain; the Stellar preset is documented as the first shipped path.
+
+## Choose your runtime
+
+| Runtime | Best for | State adapter |
+| --- | --- | --- |
+| **Browser SPA** | Wallet-connected payment UI | In-memory (learn) or Redux (production React) |
+| **Node service** | Server-side signing or batch jobs | In-memory or custom persistence |
+| **Automated tests** | Unit and integration tests | In-memory + preset testing helpers |
+
+```mermaid
+flowchart TD
+  Q[Where does code run?]
+  Browser[Browser SPA]
+  Node[Node service]
+  Test[Automated tests]
+
+  Q --> Browser
+  Q --> Node
+  Q --> Test
+
+  Browser --> Mem[In-memory or Redux]
+  Node --> NodePreset[Preset /node entry]
+  Test --> Fake[Preset /testing engine]
+
+  Mem --> QS[Quick start or Setup]
+  NodePreset --> Setup[Stellar Setup guide]
+  Fake --> QS
+```
+
+## Stellar preset path
+
+For **Stellar + Soroban** applications:
+
+1. Install `@arcane/privacy-sdk-stellar` and a state adapter — see [Quick start](/integration/quick-start) or [Install](/application-development/install).
+2. Load bundled runtime assets with `loadDefaultStellarBrowserAssets()` (browser) or filesystem paths via `@arcane/privacy-sdk-stellar/node`.
+3. Implement a **Stellar wallet adapter** (`getAddress`, `authorizeMessage`, `signTransactionPayload`).
+4. Pass **`transactEnvironment`** with Soroban RPC URL, pool/registry contract IDs, KYT config, and `signTransaction`.
+5. Create the client once at app startup.
+
+Full React + Redux wiring: [Setup](/application-development/setup).
+
+## Node path (Stellar preset)
+
+Use `@arcane/privacy-sdk-stellar/node` when assets load from disk and a server-side wallet holds signing keys.
+
+```ts
+import { createStellarPrivacyClientFromNodeConfig } from '@arcane/privacy-sdk-stellar/node';
+```
+
+Supply filesystem paths for bundled runtime assets and the same network, wallet, and state adapters as the browser path.
+
+## Test path (Stellar preset)
+
+Use `@arcane/privacy-sdk-stellar/testing` to inject a **fake transact engine** and `@arcane/privacy-sdk-state-memory` for isolated state:
+
+```ts
+import { createFakeTransactEngine } from '@arcane/privacy-sdk-stellar/testing';
+import { createInMemoryStateAdapter } from '@arcane/privacy-sdk-state-memory';
+```
+
+Tests can call `prepare` and `execute` without a live Soroban RPC endpoint.
+
+## What you bring vs what the SDK brings
+
+| You supply | SDK supplies |
+| --- | --- |
+| Network preset configuration (RPC, contracts, application ID) | Operation orchestration (prepare/execute) |
+| Wallet adapter | Transaction preparation and submission |
+| State adapter library | Domain state reads/writes during lifecycle |
+| Audit public key and disclosure choices | Policy validation for supported routes |
+| Backend-provided asset, delivery, and registry data (production) | Progress events and structured errors |
+| Runtime assets loader (browser or Node) | Bundled assets inside Stellar preset package |
+
+## Recommended reading order
+
+1. [Introduction](/overview/introduction) and [Packages](/overview/packages)
+2. [Domain model](/concepts/domain-model) and [Operation lifecycle](/concepts/operation-lifecycle)
+3. [Quick start (Stellar preset)](/integration/quick-start)
+4. [State integration](/integration/state-integration) and [Data sources](/integration/data-sources)
+5. [Stellar application development](/application-development/install) for production React wiring
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Quick start (Stellar preset)" icon="rocket" href="/integration/quick-start">
+    Minimal in-memory bootstrap.
+  </Card>
+  <Card title="State integration" icon="database" href="/integration/state-integration">
+    Memory vs Redux adapters.
+  </Card>
+  <Card title="Setup" icon="wrench" href="/application-development/setup">
+    Production Stellar React shell.
+  </Card>
+</CardGroup>

@@ -1,0 +1,212 @@
+---
+title: Quick start (Stellar preset)
+description: Minimal Stellar client bootstrap with in-memory state — prepare and execute a deposit
+---
+
+This tutorial walks through a **minimal Stellar preset** integration using an **in-memory state adapter** — no Redux, no React provider. It is a learning exercise, not a production app layout.
+
+For full React wiring, see [Setup](/application-development/setup).
+
+## What you will build
+
+A short script that:
+
+1. Creates a Stellar privacy client with in-memory state.
+2. Seeds the minimum fixture data prepare expects.
+3. Calls `deposit`, checks the prepare result, and runs `execute` with progress logging.
+
+## Prerequisites
+
+- Node.js 20.10 or later
+- Packages: `@arcane/privacy-sdk-stellar`, `@arcane/privacy-sdk-state-memory`
+
+```bash
+npm install @arcane/privacy-sdk-stellar @arcane/privacy-sdk-state-memory
+```
+
+Need Redux and React too? See [Install](/application-development/install).
+
+## Step 1 — In-memory state adapter
+
+The SDK keeps domain data — private records, pool snapshot, registry cache, wallet keys — that **prepare reads** to decide whether an operation is valid. If notes, pool root, or wallet secrets are missing or stale, prepare returns `rejected` with `insufficient_state` instead of opening the wallet.
+
+An in-memory adapter stores this data in process memory. It is ideal for tutorials and unit tests; it does not survive reloads.
+
+<Tip>
+  You pass the adapter to `createStellarPrivacyClient` as `state`. The SDK reads and updates domain data through the adapter library — you do not implement low-level storage APIs yourself.
+</Tip>
+
+```ts
+import { createInMemoryStateAdapter } from '@arcane/privacy-sdk-state-memory';
+
+const state = createInMemoryStateAdapter();
+```
+
+## Step 2 — Wallet stub
+
+The Stellar preset signs through a wallet adapter. Replace this stub with your wallet SDK in production.
+
+```ts
+import type { StellarWalletAdapter } from '@arcane/privacy-sdk-stellar';
+
+const wallet: StellarWalletAdapter = {
+  getAddress: async () => 'GDSENDER7EXAMPLEPUBLICKEYAAAAAAAAAAAAAAAAAAAA',
+  authorizeMessage: async (message) =>
+    new TextEncoder().encode(typeof message === 'string' ? message : ''),
+  signTransactionPayload: async (payload) => ({ ...payload, signed: true }),
+};
+```
+
+<Tip>
+  `getAddress` identifies the connected account. `authorizeMessage` proves control of a private payment address. `signTransactionPayload` signs the Soroban transaction XDR before submission.
+</Tip>
+
+## Step 3 — Create the client
+
+Load bundled runtime assets, configure Soroban network contracts, and create the client once.
+
+```ts
+import {
+  createStellarPolicyAdapterFromEnvironment,
+  createStellarPrivacyClient,
+  isStellarPrivacyClient,
+  loadDefaultStellarBrowserAssets,
+} from '@arcane/privacy-sdk-stellar';
+import type { StellarTransactEnvironment } from '@arcane/privacy-sdk-stellar/transact';
+
+const transactEnvironment: StellarTransactEnvironment = {
+  network: {
+    id: 'stellar-testnet',
+    rpcUrl: 'https://soroban-testnet.stellar.org',
+    networkPassphrase: 'Test SDF Network ; September 2015',
+    poolContract: 'CBVQTSTSIJ4UZMN5FQBFHPUIYSW3ATGSP57BZDJNKTOBNQODQTRGE4K5',
+    registryContract: 'CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC',
+    applicationId: '00000000-0000-0000-0000-000000000001',
+  },
+  kyt: {
+    apiBaseUrl: 'https://example.invalid',
+    kytPassageRegistryContract: 'CKYTEXAMPLECONTRACTIDAAAAAAAAAAAAAAAAAAAAAA',
+  },
+  signTransaction: async ({ xdr }) => ({ signedTxXdr: xdr }),
+};
+
+const assets = await loadDefaultStellarBrowserAssets();
+
+const created = await createStellarPrivacyClient({
+  network: transactEnvironment.network,
+  wallet,
+  state,
+  assets,
+  auditPublicKeyHex:
+    'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
+  transactEnvironment,
+  policy: createStellarPolicyAdapterFromEnvironment(transactEnvironment),
+});
+
+if (!isStellarPrivacyClient(created)) {
+  throw new Error('Client creation failed');
+}
+
+const client = created;
+```
+
+<Tip>
+  `loadDefaultStellarBrowserAssets()` returns bundled runtime assets required by the Stellar preset. `transactEnvironment` ties together network contracts, optional KYT, and your app's transaction signing hook.
+</Tip>
+
+## Step 4 — Seed minimal fixture state
+
+The block below is **tutorial fixture data** — in production, assets and wallet secrets come from your backend and wallet flows. See [Data sources](/integration/data-sources).
+
+```ts
+const POOL = transactEnvironment.network.poolContract;
+const OWNER = await wallet.getAddress();
+const PRIVATE_ADDRESS = 'stpl1sender7exampleprivateaddress0000000000';
+
+await client.upsertAssets([
+  {
+    id: 1,
+    assetId: 'usdc',
+    name: 'USDC',
+    logoUrl: null,
+    issuerAddress: null,
+    clientContract: 'CTOKENCONTRACTEXAMPLEAAAAAAAAAAAAAAAAAAAAAA',
+    poolContracts: [POOL],
+    poolContract: POOL,
+    mintable: false,
+    mintAmount: null,
+  },
+]);
+await client.saveWalletPrivateAddressRecord({
+  owner: OWNER,
+  nonce: '1',
+  privateAddress: PRIVATE_ADDRESS,
+  createdAt: Date.now(),
+});
+await client.saveWalletPrivateAddressScalar({
+  owner: OWNER,
+  nonce: '1',
+  scalarHex: '0xabc123scalarhexexample000000000000000000000000000000000000',
+});
+await client.setPoolMerkleState({
+  poolContract: POOL,
+  commitments: ['0xmerklecommitmenthexexample00000000000000000000000000000000'],
+  commitmentCount: 1,
+  merkleRootHex: '0xmerkleroothexexample000000000000000000000000000000000000',
+  updatedAt: Date.now(),
+});
+```
+
+<Tip>
+  Prepare checks this cache before asking the wallet to sign. Missing asset catalog rows or wallet scalars are common reasons for early `rejected` results.
+</Tip>
+
+## Step 5 — Prepare and execute
+
+```ts
+const operation = await client.deposit({
+  from: OWNER,
+  to: PRIVATE_ADDRESS,
+  asset: 'usdc',
+  amount: 50_0000000n,
+  disclosure: {
+    senderAddress: 'public',
+    recipientAddress: 'private',
+    assetAddress: 'public',
+    amount: 'public',
+  },
+});
+
+if (operation.status === 'rejected') {
+  throw new Error(operation.errors[0]?.message ?? 'Prepare failed');
+}
+
+await operation.execute({
+  onEvent(event) {
+    if (event.status === 'begin') {
+      console.log(`[${event.stage}] started`);
+    }
+  },
+});
+```
+
+<Tip>
+  Always branch on `operation.status` before calling `execute()`. Use `onEvent` to drive progress UI — stages are listed in [Operation lifecycle](/concepts/operation-lifecycle).
+</Tip>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="State integration" icon="database" href="/integration/state-integration">
+    Move from in-memory to Redux for production React.
+  </Card>
+  <Card title="Data sources" icon="server" href="/integration/data-sources">
+    Replace fixtures with live backend and chain sync.
+  </Card>
+  <Card title="Setup" icon="wrench" href="/application-development/setup">
+    Full Stellar application shell with persistence.
+  </Card>
+  <Card title="Deposit how-to" icon="book" href="/application-development/how-to/deposit">
+    Complete deposit reference with disclosure tiles.
+  </Card>
+</CardGroup>

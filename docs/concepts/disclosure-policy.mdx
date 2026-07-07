@@ -1,0 +1,96 @@
+---
+title: Disclosure policy
+description: Control on-chain visibility of sender, recipient, asset, and amount for each operation route
+---
+
+import { OperationDisclosures } from '../snippets/operation-disclosures.jsx';
+
+**Disclosure** controls which transaction attributes appear in the **public/on-chain** portion of a private operation. Auditors still receive encrypted audit payloads; disclosure decides what is additionally visible as plaintext metadata according to your compliance design.
+
+## What disclosure controls
+
+Each operation intent includes a `disclosure` object with four fields:
+
+| Field | Controls visibility of |
+| --- | --- |
+| `senderAddress` | Who sent the value |
+| `recipientAddress` | Who receives the value |
+| `assetAddress` | Which asset moved |
+| `amount` | How much moved |
+
+Each field is either `'public'` or `'private'`.
+
+## Public vs private
+
+| Value | Effect |
+| --- | --- |
+| `public` | Attribute included in publicly visible transaction metadata for this operation |
+| `private` | Attribute not published in plaintext; auditors rely on encrypted audit data |
+
+Disclosure is a **product and compliance** choice within the constraints of each operation route.
+
+## "Both" in route reference tables
+
+Some reference tables in this documentation show **both** for a field (for example withdraw sender). **Both is not a third API value** — it means the route **accepts either** `public` or `private` for that field.
+
+The network preset **policy adapter** rejects invalid combinations with `unsupported_disclosure` during prepare.
+
+## Route constraints
+
+These rules apply across presets at the domain level:
+
+| Route | Constraint |
+| --- | --- |
+| Transfer to **public wallet** recipient | `recipientAddress`, `assetAddress`, and `amount` must be `public` |
+| **Pending claim** (unregistered recipient) | `senderAddress`, `assetAddress`, and `amount` must be `public` |
+| Deposit | Recipient is typically `private`; sender/asset/amount typically `public` |
+| Registered private transfer | Recipient/asset/amount typically `private` |
+
+Concrete enforcement lives in the network preset policy module. Adjust disclosure before calling prepare — do not rely on execute-time fixes.
+
+## Per-operation reference
+
+### Deposit
+
+<OperationDisclosures operation="deposit" />
+
+Sender, asset, and amount are public. Recipient stays private because the deposit creates a private pool note.
+
+### Withdraw
+
+<OperationDisclosures operation="withdraw" />
+
+Sender may be public or private. Payout to a public wallet requires recipient, asset, and amount to be public.
+
+### Transfer to registered recipient
+
+<OperationDisclosures operation="transfer-registered" />
+
+Sender may be public or private. Recipient, asset, and amount stay private for fully private transfers between registered users.
+
+### Transfer to unregistered recipient
+
+<OperationDisclosures operation="transfer-unregistered" />
+
+Pending-claim onboarding requires sender, asset, and amount to be public so indexers and compliance services can process the claim before registration completes.
+
+## Choosing disclosure in your product
+
+- **More public fields** — simpler reconciliation, clearer compliance signals, less privacy on those attributes.
+- **More private fields** — stronger privacy; ensure your audit and KYT configuration supports the route.
+
+Read [Security and privacy](/concepts/security-and-privacy) for where disclosed fields appear relative to encrypted audit data.
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Operations" icon="arrow-right-arrow-left" href="/concepts/operations">
+    How each operation uses disclosure.
+  </Card>
+  <Card title="Security and privacy" icon="shield" href="/concepts/security-and-privacy">
+    Local storage vs on-chain visibility.
+  </Card>
+  <Card title="Operation lifecycle" icon="timeline" href="/concepts/operation-lifecycle">
+    When policy errors surface.
+  </Card>
+</CardGroup>
