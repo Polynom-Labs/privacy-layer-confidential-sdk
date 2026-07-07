@@ -8,6 +8,7 @@ on:
 permissions:
   contents: write
   id-token: write
+  pull-requests: write
 
 jobs:
   release:
@@ -26,11 +27,13 @@ jobs:
 
       - run: npm pack --workspace @arcane/privacy-sdk-core --dry-run
       - run: npm pack --workspace @arcane/privacy-sdk-stellar --dry-run
+      - run: npm pack --workspace @arcane/privacy-sdk-state-redux --dry-run
+      - run: npm pack --workspace @arcane/privacy-sdk-state-memory --dry-run
 
       - name: Publish workspace packages
         if: ${{ contains(github.event.head_commit.message, 'chore(main): release') }}
         run: |
           npm publish --workspace @arcane/privacy-sdk-core --access public --provenance
           npm publish --workspace @arcane/privacy-sdk-stellar --access public --provenance
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          npm publish --workspace @arcane/privacy-sdk-state-redux --access public --provenance
+          npm publish --workspace @arcane/privacy-sdk-state-memory --access public --provenance

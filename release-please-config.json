@@ -8,6 +8,14 @@
     "packages/stellar": {
       "component": "privacy-sdk-stellar",
       "release-type": "node"
+    },
+    "packages/state/redux": {
+      "component": "privacy-sdk-state-redux",
+      "release-type": "node"
+    },
+    "packages/state/memory": {
+      "component": "privacy-sdk-state-memory",
+      "release-type": "node"
     }
   }
 }
