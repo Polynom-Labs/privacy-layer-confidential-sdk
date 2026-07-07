@@ -14,10 +14,10 @@ English-language monorepo for the Arcane high-level privacy SDK.
 
 ## Packages
 
-| Package | Description |
-| --- | --- |
-| [`@arcane/privacy-sdk-core`](./packages/core/README.md) | Network-agnostic intents, prepared operations, errors, progress events, and adapter contracts |
-| [`@arcane/privacy-sdk-stellar`](./packages/stellar/README.md) | Stellar preset with browser and Node entrypoints |
+| Package                                                           | Description                                                                                   |
+| ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| [`@arcanetech/privacy-sdk-core`](./packages/core/README.md)       | Network-agnostic intents, prepared operations, errors, progress events, and adapter contracts |
+| [`@arcanetech/privacy-sdk-stellar`](./packages/stellar/README.md) | Stellar preset with browser and Node entrypoints                                              |
 
 ## Requirements
 
@@ -37,8 +37,8 @@ Example browser usage:
 import {
   createStellarPrivacyClient,
   isStellarPrivacyClient,
-} from '@arcane/privacy-sdk-stellar';
-import { isPreparedOperation } from '@arcane/privacy-sdk-core';
+} from '@arcanetech/privacy-sdk-stellar';
+import { isPreparedOperation } from '@arcanetech/privacy-sdk-core';
 
 const clientOrRejected = await createStellarPrivacyClient({
   network: {
@@ -52,7 +52,9 @@ const clientOrRejected = await createStellarPrivacyClient({
   wallet,
   storage,
   assets: {
-    sdkWasm: await fetch('/assets/client_sdk_wasm_bg.wasm').then((r) => r.arrayBuffer()),
+    sdkWasm: await fetch('/assets/client_sdk_wasm_bg.wasm').then((r) =>
+      r.arrayBuffer(),
+    ),
     circuitWasm: await fetch('/assets/main.wasm').then((r) => r.arrayBuffer()),
     provingKey: await fetch('/assets/main_final.zkey').then((r) => r.arrayBuffer()),
   },
@@ -73,15 +75,15 @@ await operation.execute();
 
 ## Repository Commands
 
-| Command | Purpose |
-| --- | --- |
-| `npm run build` | Build all workspace packages |
-| `npm run test` | Run unit and type tests |
-| `npm run typecheck` | Run TypeScript project references |
-| `npm run lint` | Run ESLint |
-| `npm run fallow:dead-code` | Compare dead-code baseline |
-| `npm run fallow:dupes` | Compare duplication baseline |
-| `npm run verify` | Lint, typecheck, test, build, and Fallow checks |
+| Command                    | Purpose                                         |
+| -------------------------- | ----------------------------------------------- |
+| `npm run build`            | Build all workspace packages                    |
+| `npm run test`             | Run unit and type tests                         |
+| `npm run typecheck`        | Run TypeScript project references               |
+| `npm run lint`             | Run ESLint                                      |
+| `npm run fallow:dead-code` | Compare dead-code baseline                      |
+| `npm run fallow:dupes`     | Compare duplication baseline                    |
+| `npm run verify`           | Lint, typecheck, test, build, and Fallow checks |
 
 ## Documentation
 

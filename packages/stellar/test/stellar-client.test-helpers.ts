@@ -1,11 +1,11 @@
 import {
   createInMemoryStateAdapter,
   type InMemoryStateAdapter,
-} from '@arcane/privacy-sdk-state-memory';
+} from '@arcanetech/privacy-sdk-state-memory';
 import type {
   StateBridgeAdapter,
   StateBridgeCall,
-} from '@arcane/privacy-sdk-core/state';
+} from '@arcanetech/privacy-sdk-core/state';
 import {
   createStellarPrivacyClientFromResolvedConfig,
   resolveStellarPrivacyClientConfig,

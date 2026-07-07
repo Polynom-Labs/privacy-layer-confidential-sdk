@@ -1,4 +1,7 @@
-import { missingDependencyError, type PrivacySdkError } from '@arcane/privacy-sdk-core';
+import {
+  missingDependencyError,
+  type PrivacySdkError,
+} from '@arcanetech/privacy-sdk-core';
 import type { StellarPrivacyClientConfigBase } from '../types.js';
 
 export function validateStellarConfig(

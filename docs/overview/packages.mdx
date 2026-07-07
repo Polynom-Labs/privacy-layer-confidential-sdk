@@ -1,27 +1,27 @@
 ---
 title: Packages
-description: Map of @arcane packages, layered architecture, and the Stellar network preset
+description: Map of @arcanetech packages, layered architecture, and the Stellar network preset
 ---
 
 import { PackageMatrix } from '../snippets/package-matrix.jsx';
 
-All public packages use the `@arcane` scope. You install presets and state adapters explicitly; **no additional cryptography packages** are required for browser or Node usage.
+All public packages use the `@arcanetech` scope. You install presets and state adapters explicitly; **no additional cryptography packages** are required for browser or Node usage.
 
 ## Package map
 
 <PackageMatrix />
 
-`@arcane/privacy-sdk-stellar` ships bundled runtime assets for browser and Node. Your application passes network configuration, wallet adapter, state adapter, and policy — the preset handles the rest.
+`@arcanetech/privacy-sdk-stellar` ships bundled runtime assets for browser and Node. Your application passes network configuration, wallet adapter, state adapter, and policy — the preset handles the rest.
 
 ## Layered architecture
 
 ```mermaid
 flowchart BT
   App[Your application]
-  Stellar["@arcane/privacy-sdk-stellar"]
-  Core["@arcane/privacy-sdk-core"]
-  Memory["@arcane/privacy-sdk-state-memory"]
-  Redux["@arcane/privacy-sdk-state-redux"]
+  Stellar["@arcanetech/privacy-sdk-stellar"]
+  Core["@arcanetech/privacy-sdk-core"]
+  Memory["@arcanetech/privacy-sdk-state-memory"]
+  Redux["@arcanetech/privacy-sdk-state-redux"]
 
   App --> Stellar
   App --> Memory
@@ -43,21 +43,21 @@ Internal transitive dependencies are not part of the public integration surface.
 
 | Import | Purpose |
 | --- | --- |
-| `@arcane/privacy-sdk-core` | Intents, lifecycle helpers, error types, progress events |
-| `@arcane/privacy-sdk-state-memory` | In-memory state adapter for prototypes and tests |
-| `@arcane/privacy-sdk-state-redux` | Redux Toolkit adapter for React apps |
+| `@arcanetech/privacy-sdk-core` | Intents, lifecycle helpers, error types, progress events |
+| `@arcanetech/privacy-sdk-state-memory` | In-memory state adapter for prototypes and tests |
+| `@arcanetech/privacy-sdk-state-redux` | Redux Toolkit adapter for React apps |
 
 **Stellar preset:**
 
 | Import | Purpose |
 | --- | --- |
-| `@arcane/privacy-sdk-stellar` | Browser client factory and Stellar types |
-| `@arcane/privacy-sdk-stellar/node` | Node client with filesystem asset loading |
-| `@arcane/privacy-sdk-stellar/testing` | Fake transact engine for unit tests |
+| `@arcanetech/privacy-sdk-stellar` | Browser client factory and Stellar types |
+| `@arcanetech/privacy-sdk-stellar/node` | Node client with filesystem asset loading |
+| `@arcanetech/privacy-sdk-stellar/testing` | Fake transact engine for unit tests |
 
 ## Stellar preset {#stellar-preset}
 
-`@arcane/privacy-sdk-stellar` is the first shipped network preset. It targets **Stellar** with **Soroban** smart contracts:
+`@arcanetech/privacy-sdk-stellar` is the first shipped network preset. It targets **Stellar** with **Soroban** smart contracts:
 
 - **Pool contract** — private deposits, transfers, and withdrawals.
 - **Private-address registry** — maps public Stellar accounts to private payment addresses.
@@ -79,7 +79,7 @@ Internal transitive dependencies are not part of the public integration surface.
 For full React wiring and operation examples, continue to [Stellar application development](/application-development/install).
 
 <Note>
-  Future chains will ship as separate `@arcane/privacy-sdk-<chain>` preset packages. Core and state adapter APIs stay unchanged.
+  Future chains will ship as separate `@arcanetech/privacy-sdk-<chain>` preset packages. Core and state adapter APIs stay unchanged.
 </Note>
 
 ## Which packages you need

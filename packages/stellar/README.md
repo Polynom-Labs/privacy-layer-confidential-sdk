@@ -1,4 +1,4 @@
-# @arcane/privacy-sdk-stellar
+# @arcanetech/privacy-sdk-stellar
 
 Stellar preset for the Arcane privacy SDK.
 
@@ -7,8 +7,8 @@ Stellar preset for the Arcane privacy SDK.
 This package provides:
 
 - `createStellarPrivacyClient()` for browser usage (preloaded `ArrayBuffer` assets)
-- `@arcane/privacy-sdk-stellar/node` for Node.js filesystem asset loading
-- `@arcane/privacy-sdk-stellar/testing` for fake transact engines in unit tests
+- `@arcanetech/privacy-sdk-stellar/node` for Node.js filesystem asset loading
+- `@arcanetech/privacy-sdk-stellar/testing` for fake transact engines in unit tests
 - Stellar wallet, storage, and policy adapter contracts
 - disclosure validation for currently supported Stellar routes
 - orchestration over `@auditable/privacy-pool-zk-sdk`
@@ -19,7 +19,7 @@ This package provides:
 import {
   createStellarPrivacyClient,
   isStellarPrivacyClient,
-} from '@arcane/privacy-sdk-stellar';
+} from '@arcanetech/privacy-sdk-stellar';
 
 const clientOrRejected = await createStellarPrivacyClient({
   network,
@@ -45,7 +45,7 @@ if (operation.status === 'prepared') {
 ## Node Example
 
 ```ts
-import { createStellarPrivacyClientFromNodeConfig } from '@arcane/privacy-sdk-stellar/node';
+import { createStellarPrivacyClientFromNodeConfig } from '@arcanetech/privacy-sdk-stellar/node';
 
 const clientOrRejected = await createStellarPrivacyClientFromNodeConfig({
   network,

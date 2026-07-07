@@ -3,7 +3,7 @@ import {
   type DepositIntent,
   type PrivacySdkError,
   type WithdrawIntent,
-} from '@arcane/privacy-sdk-core';
+} from '@arcanetech/privacy-sdk-core';
 import type {
   StellarAddress,
   StellarAssetId,

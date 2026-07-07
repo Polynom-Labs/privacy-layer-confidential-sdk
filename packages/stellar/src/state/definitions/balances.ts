@@ -1,4 +1,4 @@
-import type { StateBridgeDefinition } from '@arcane/privacy-sdk-core/state';
+import type { StateBridgeDefinition } from '@arcanetech/privacy-sdk-core/state';
 import { stellarStateCallTypes } from '../bridge/call-types.js';
 import {
   readPublicBalanceSchema,

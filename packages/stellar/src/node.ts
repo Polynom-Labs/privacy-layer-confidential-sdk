@@ -1,4 +1,4 @@
-import { createRejectedOperation } from '@arcane/privacy-sdk-core';
+import { createRejectedOperation } from '@arcanetech/privacy-sdk-core';
 import { loadNodeAssets } from './assets/load-node.js';
 import {
   createStellarPrivacyClientFromResolvedConfig,

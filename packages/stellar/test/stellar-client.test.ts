@@ -10,7 +10,7 @@ import {
   createRecord,
   createTestClient,
 } from './stellar-client.test-helpers.js';
-import { createInMemoryStateAdapter } from '@arcane/privacy-sdk-state-memory';
+import { createInMemoryStateAdapter } from '@arcanetech/privacy-sdk-state-memory';
 
 const disclosure = {
   senderAddress: 'private' as const,

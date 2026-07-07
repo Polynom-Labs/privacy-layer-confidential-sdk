@@ -1,4 +1,4 @@
-import type { StateBridgeAdapter } from '@arcane/privacy-sdk-core/state';
+import type { StateBridgeAdapter } from '@arcanetech/privacy-sdk-core/state';
 import { createStellarStateService } from '../../state/index.js';
 import type {
   LeafEphemeralStatePort,

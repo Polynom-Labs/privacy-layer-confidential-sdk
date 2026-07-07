@@ -1,10 +1,10 @@
-import type { OperationKind } from '@arcane/privacy-sdk-core';
-import type { StateBridgeAdapter } from '@arcane/privacy-sdk-core/state';
+import type { OperationKind } from '@arcanetech/privacy-sdk-core';
+import type { StateBridgeAdapter } from '@arcanetech/privacy-sdk-core/state';
 import type {
   DepositIntent,
   TransferIntent,
   WithdrawIntent,
-} from '@arcane/privacy-sdk-core';
+} from '@arcanetech/privacy-sdk-core';
 import type {
   StellarPendingClaim,
   StellarPrivateRecord,

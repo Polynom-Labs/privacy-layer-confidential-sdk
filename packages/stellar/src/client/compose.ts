@@ -1,4 +1,7 @@
-import { AdapterPrivacyClient, type TransferIntent } from '@arcane/privacy-sdk-core';
+import {
+  AdapterPrivacyClient,
+  type TransferIntent,
+} from '@arcanetech/privacy-sdk-core';
 import {
   createStellarNetworkAdapter,
   createStellarPolicyAdapter,

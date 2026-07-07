@@ -1,7 +1,7 @@
 import {
   bindReduxStateAdapter,
   createReduxStateAdapter,
-} from '@arcane/privacy-sdk-state-redux';
+} from '@arcanetech/privacy-sdk-state-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { describe, expect, it } from 'vitest';
 import { stellarStateDefinitions } from '../src/state/definitions/index.js';

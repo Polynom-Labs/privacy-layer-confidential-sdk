@@ -11,8 +11,8 @@ The SDK splits into two layers:
 
 | Layer | Packages | Role |
 | --- | --- | --- |
-| **Core + state** | `@arcane/privacy-sdk-core`, `@arcane/privacy-sdk-state-*` | Chain-agnostic intents, operation lifecycle, errors, progress events, pluggable state |
-| **Network preset** | `@arcane/privacy-sdk-stellar` (first shipped preset) | Binding to a specific blockchain: contracts, wallet format, bundled runtime assets |
+| **Core + state** | `@arcanetech/privacy-sdk-core`, `@arcanetech/privacy-sdk-state-*` | Chain-agnostic intents, operation lifecycle, errors, progress events, pluggable state |
+| **Network preset** | `@arcanetech/privacy-sdk-stellar` (first shipped preset) | Binding to a specific blockchain: contracts, wallet format, bundled runtime assets |
 
 The SDK **orchestrates** private transactions on the client and maintains a **local cache** of domain state (private records, pool snapshot, registry lookups, wallet keys). It does **not** replace your backend or indexer — those services still supply asset catalogs, delivery indexing, and audit interpretation.
 
@@ -73,7 +73,7 @@ flowchart TD
 
 <CardGroup cols={2}>
   <Card title="Packages" icon="cube" href="/overview/packages">
-    Map of `@arcane/*` packages and the Stellar preset.
+    Map of `@arcanetech/*` packages and the Stellar preset.
   </Card>
   <Card title="Integration paths" icon="route" href="/integration/integration-paths">
     Choose browser, Node, or test runtime.

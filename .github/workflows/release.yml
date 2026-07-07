@@ -25,15 +25,15 @@ jobs:
 
       - run: npm run verify
 
-      - run: npm pack --workspace @arcane/privacy-sdk-core --dry-run
-      - run: npm pack --workspace @arcane/privacy-sdk-stellar --dry-run
-      - run: npm pack --workspace @arcane/privacy-sdk-state-redux --dry-run
-      - run: npm pack --workspace @arcane/privacy-sdk-state-memory --dry-run
+      - run: npm pack --workspace @arcanetech/privacy-sdk-core --dry-run
+      - run: npm pack --workspace @arcanetech/privacy-sdk-stellar --dry-run
+      - run: npm pack --workspace @arcanetech/privacy-sdk-state-redux --dry-run
+      - run: npm pack --workspace @arcanetech/privacy-sdk-state-memory --dry-run
 
       - name: Publish workspace packages
         if: ${{ contains(github.event.head_commit.message, 'chore(main): release') }}
         run: |
-          npm publish --workspace @arcane/privacy-sdk-core --access public --provenance
-          npm publish --workspace @arcane/privacy-sdk-stellar --access public --provenance
-          npm publish --workspace @arcane/privacy-sdk-state-redux --access public --provenance
-          npm publish --workspace @arcane/privacy-sdk-state-memory --access public --provenance
+          npm publish --workspace @arcanetech/privacy-sdk-core --access public --provenance
+          npm publish --workspace @arcanetech/privacy-sdk-stellar --access public --provenance
+          npm publish --workspace @arcanetech/privacy-sdk-state-redux --access public --provenance
+          npm publish --workspace @arcanetech/privacy-sdk-state-memory --access public --provenance

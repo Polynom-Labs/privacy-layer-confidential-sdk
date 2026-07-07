@@ -3,8 +3,8 @@ import type {
   PolicyAdapter,
   PrivacySdkError,
   WithdrawIntent,
-} from '@arcane/privacy-sdk-core';
-import { executionError } from '@arcane/privacy-sdk-core';
+} from '@arcanetech/privacy-sdk-core';
+import { executionError } from '@arcanetech/privacy-sdk-core';
 import { validateStellarDisclosure } from '../policy/disclosure.js';
 import type {
   StellarAddress,

@@ -1,5 +1,5 @@
-import type { WithdrawIntent } from '@arcane/privacy-sdk-core';
-import { insufficientStateError } from '@arcane/privacy-sdk-core';
+import type { WithdrawIntent } from '@arcanetech/privacy-sdk-core';
+import { insufficientStateError } from '@arcanetech/privacy-sdk-core';
 import { isPrivateAddressTransferFrom } from '../transact/transfer-source/index.js';
 import { requireCoinNoteFromRecord } from '../transact/private-address/record-coin.js';
 import type {

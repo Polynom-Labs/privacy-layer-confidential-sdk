@@ -2,7 +2,7 @@ import {
   unsupportedDisclosureError,
   type DisclosurePolicy,
   type PrivacySdkError,
-} from '@arcane/privacy-sdk-core';
+} from '@arcanetech/privacy-sdk-core';
 import type { StellarTransferIntent } from '../types.js';
 import { isPendingClaimSource } from '../transact/transfer-source/types.js';
 

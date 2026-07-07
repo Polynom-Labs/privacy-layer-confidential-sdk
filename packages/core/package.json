@@ -1,5 +1,5 @@
 {
-  "name": "@arcane/privacy-sdk-core",
+  "name": "@arcanetech/privacy-sdk-core",
   "version": "0.1.0",
   "description": "Network-agnostic privacy SDK core types, client contracts, and operation orchestration",
   "type": "module",

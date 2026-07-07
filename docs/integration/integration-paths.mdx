@@ -37,8 +37,8 @@ flowchart TD
 
 For **Stellar + Soroban** applications:
 
-1. Install `@arcane/privacy-sdk-stellar` and a state adapter — see [Quick start](/integration/quick-start) or [Install](/application-development/install).
-2. Load bundled runtime assets with `loadDefaultStellarBrowserAssets()` (browser) or filesystem paths via `@arcane/privacy-sdk-stellar/node`.
+1. Install `@arcanetech/privacy-sdk-stellar` and a state adapter — see [Quick start](/integration/quick-start) or [Install](/application-development/install).
+2. Load bundled runtime assets with `loadDefaultStellarBrowserAssets()` (browser) or filesystem paths via `@arcanetech/privacy-sdk-stellar/node`.
 3. Implement a **Stellar wallet adapter** (`getAddress`, `authorizeMessage`, `signTransactionPayload`).
 4. Pass **`transactEnvironment`** with Soroban RPC URL, pool/registry contract IDs, KYT config, and `signTransaction`.
 5. Create the client once at app startup.
@@ -47,21 +47,21 @@ Full React + Redux wiring: [Setup](/application-development/setup).
 
 ## Node path (Stellar preset)
 
-Use `@arcane/privacy-sdk-stellar/node` when assets load from disk and a server-side wallet holds signing keys.
+Use `@arcanetech/privacy-sdk-stellar/node` when assets load from disk and a server-side wallet holds signing keys.
 
 ```ts
-import { createStellarPrivacyClientFromNodeConfig } from '@arcane/privacy-sdk-stellar/node';
+import { createStellarPrivacyClientFromNodeConfig } from '@arcanetech/privacy-sdk-stellar/node';
 ```
 
 Supply filesystem paths for bundled runtime assets and the same network, wallet, and state adapters as the browser path.
 
 ## Test path (Stellar preset)
 
-Use `@arcane/privacy-sdk-stellar/testing` to inject a **fake transact engine** and `@arcane/privacy-sdk-state-memory` for isolated state:
+Use `@arcanetech/privacy-sdk-stellar/testing` to inject a **fake transact engine** and `@arcanetech/privacy-sdk-state-memory` for isolated state:
 
 ```ts
-import { createFakeTransactEngine } from '@arcane/privacy-sdk-stellar/testing';
-import { createInMemoryStateAdapter } from '@arcane/privacy-sdk-state-memory';
+import { createFakeTransactEngine } from '@arcanetech/privacy-sdk-stellar/testing';
+import { createInMemoryStateAdapter } from '@arcanetech/privacy-sdk-state-memory';
 ```
 
 Tests can call `prepare` and `execute` without a live Soroban RPC endpoint.

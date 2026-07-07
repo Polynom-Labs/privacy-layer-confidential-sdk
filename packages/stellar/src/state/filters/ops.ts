@@ -1,4 +1,4 @@
-import type { ArrayFilterRejectMatch } from '@arcane/privacy-sdk-core/state';
+import type { ArrayFilterRejectMatch } from '@arcanetech/privacy-sdk-core/state';
 import { STELLAR_STATE_PATHS } from '../foundation/paths.js';
 
 export const stellarArrayFilterSchemaKeys = {

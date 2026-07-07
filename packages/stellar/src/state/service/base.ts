@@ -2,7 +2,7 @@ import {
   createStateBridge,
   type StateBridge,
   type StateBridgeAdapter,
-} from '@arcane/privacy-sdk-core/state';
+} from '@arcanetech/privacy-sdk-core/state';
 import { stellarStateDefinitions } from '../definitions/index.js';
 
 export class StellarStateServiceBase {

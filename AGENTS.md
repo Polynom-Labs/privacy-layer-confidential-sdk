@@ -4,10 +4,14 @@
 - Do not add React or NestJS-specific ESLint rules to this repository.
 - Do not bypass lint or Fallow checks by weakening config files or adding disable comments.
 - Do not regenerate or commit ptau/zkey artifacts inside this repository.
+- Public Mintlify/docs cover only `@arcanetech/*` packages; do not document `@auditable/*`, ZK/circuit/proving internals, or state-bridge implementation details—use adapter-library and "transaction preparation" wording instead.
+- In SDK docs, mention Stellar/Soroban only in stellar-preset sections; document `core` and `state-*` as multi-chain.
+- SDK docs must not name internal backend products or concrete REST endpoint paths; describe integrations generically (e.g. asset catalog sync, registry status).
+- State-integration docs should lead with in-memory adapter examples and keep Redux as an optional adapter path; omit custom-adapter outline sections and do not mention `@arcanetech/privacy-sdk-testing` (not shipped).
 
 ## Learned Workspace Facts
 
-- `@arcane/privacy-sdk-stellar` owns generated pool/registry bindings under `packages/stellar/generated/`; public `.d.ts` must not export generated contract client types (`PoolTransactClient`, `RegistryContractClient`, `createPoolClient`).
+- `@arcanetech/privacy-sdk-stellar` owns generated pool/registry bindings under `packages/stellar/generated/`; public `.d.ts` must not export generated contract client types (`PoolTransactClient`, `RegistryContractClient`, `createPoolClient`).
 - SDK composes Soroban RPC (`packages/stellar/src/rpc/`) and contract clients internally via `attachContractContext()`; consuming apps pass domain config and adapters only.
 - Public `StellarPrivacyClient` methods are domain-level (`checkRegistrationStatus`, `registerPrivateAddress`, `resolveTransferRecipient`, transaction confirmation/details) — not thin wrappers over raw Soroban RPC.
 - Apps supply `transactEnvironment.signTransaction` only; `StellarTransactEnvironment.createPoolClient` is internal and must not appear in public API or app bootstrap.
@@ -18,28 +22,28 @@
 - Private record `amount` must be synced from the actual coin note value (`coinNote.value`), not recomputed via display-amount-to-stroops conversion; a mismatch lets prepare select a note that fails proof validation with `"Transfer amount exceeds note value"`.
 - Canonical Stellar operation disclosure (validated in `packages/stellar/test/stellar-transfer-disclosure.test.ts`, aligned with Mintlify `docs/snippets/operation-disclosures.jsx`): deposit — sender/asset/amount public, recipient private; withdraw — sender may be public or private, recipient/asset/amount public; transfer to registered recipient — sender may be public or private, recipient/asset/amount private; transfer to unregistered/public-G recipient — sender may be public or private, recipient/asset/amount public.
 - SDK adapter method-existence checks on upstream objects (e.g. `@auditable/privacy-pool-zk-sdk`) must read the property from the instance/prototype chain, not `Object.hasOwn(sdk, name)` (which is `false` for prototype methods and causes false "Missing SDK method" errors); never use `Reflect`.
-- `@arcane/privacy-sdk-stellar/transact` exports `assetLegToTokenAddress(assetHi, assetLo)` (symmetric to `tokenAddressToAssetLeg`) so callers can resolve a contract id back from hi/lo asset legs — needed because backend `/pending-claims` only returns `assetHiHex`/`assetLoHex`, not an `assetId` string.
+- `@arcanetech/privacy-sdk-stellar/transact` exports `assetLegToTokenAddress(assetHi, assetLo)` (symmetric to `tokenAddressToAssetLeg`) so callers can resolve a contract id back from hi/lo asset legs — needed because backend `/pending-claims` only returns `assetHiHex`/`assetLoHex`, not an `assetId` string.
 
 ## Repository Tooling
 
-| Area | Tooling |
-| --- | --- |
-| Workspace | npm workspaces under `packages/*` |
-| Language | TypeScript only for source, tests, and executable config |
-| Build | `tsup` per package |
-| Tests | Vitest unit tests and type tests |
-| Lint | ESLint flat config in `eslint.config.mjs` |
+| Area            | Tooling                                                            |
+| --------------- | ------------------------------------------------------------------ |
+| Workspace       | npm workspaces under `packages/*`                                  |
+| Language        | TypeScript only for source, tests, and executable config           |
+| Build           | `tsup` per package                                                 |
+| Tests           | Vitest unit tests and type tests                                   |
+| Lint            | ESLint flat config in `eslint.config.mjs`                          |
 | Static analysis | Fallow dead-code and duplication baselines in `.fallow/baselines/` |
-| Git hooks | Lefthook pre-commit runs lint and Fallow checks |
-| Docs | English README files plus Mintlify docs in `docs/` |
-| Releases | Release Please manifest mode plus GitHub Actions publish workflows |
+| Git hooks       | Lefthook pre-commit runs lint and Fallow checks                    |
+| Docs            | English README files plus Mintlify docs in `docs/`                 |
+| Releases        | Release Please manifest mode plus GitHub Actions publish workflows |
 
 ## Package Boundaries
 
-- `@arcane/privacy-sdk-core` must not depend on Stellar, Soroban, ZK, or `@auditable/privacy-pool-zk-sdk`. It is browser-first and must not import Node built-ins.
-- `@arcane/privacy-sdk-stellar` main entry (`@arcane/privacy-sdk-stellar`) is browser-first: callers supply circuit artifacts as `ArrayBuffer`. Node filesystem loading lives only in `@arcane/privacy-sdk-stellar/node`. Test doubles live in `@arcane/privacy-sdk-stellar/testing`.
+- `@arcanetech/privacy-sdk-core` must not depend on Stellar, Soroban, ZK, or `@auditable/privacy-pool-zk-sdk`. It is browser-first and must not import Node built-ins.
+- `@arcanetech/privacy-sdk-stellar` main entry (`@arcanetech/privacy-sdk-stellar`) is browser-first: callers supply circuit artifacts as `ArrayBuffer`. Node filesystem loading lives only in `@arcanetech/privacy-sdk-stellar/node`. Test doubles live in `@arcanetech/privacy-sdk-stellar/testing`.
 - `@auditable/privacy-pool-zk-sdk` is a browser-capable dependency when callers pass preloaded WASM/zkey buffers; do not rely on its Node filesystem fallbacks in browser integrations.
-- `@arcane/privacy-sdk-testing` is planned but intentionally not shipped in this phase.
+- `@arcanetech/privacy-sdk-testing` is planned but intentionally not shipped in this phase.
 
 ## Common Commands
 
@@ -63,13 +67,13 @@ npm run fallow:save-baselines
 
 Use these patterns when they match the integration boundary you are implementing:
 
-| Pattern | Prefer When |
-| --- | --- |
-| Composition | Building clients from wallet, storage, network, and policy adapters without deep inheritance trees |
-| Observer | Emitting stable progress events through `ExecuteOptions.onEvent` during operation execution |
-| Visitor | Applying operation-specific validation or transformation without switching on `OperationKind` throughout the codebase |
-| Factory | Creating configured clients such as `createStellarPrivacyClient()` from environment-specific inputs |
-| Abstract Factory | Providing browser and Node client factories that share orchestration but use different asset loaders |
+| Pattern          | Prefer When                                                                                                           |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Composition      | Building clients from wallet, storage, network, and policy adapters without deep inheritance trees                    |
+| Observer         | Emitting stable progress events through `ExecuteOptions.onEvent` during operation execution                           |
+| Visitor          | Applying operation-specific validation or transformation without switching on `OperationKind` throughout the codebase |
+| Factory          | Creating configured clients such as `createStellarPrivacyClient()` from environment-specific inputs                   |
+| Abstract Factory | Providing browser and Node client factories that share orchestration but use different asset loaders                  |
 
 See `.cursor/rules/design-patterns.mdc` for concise TypeScript examples and trigger guidance.
 

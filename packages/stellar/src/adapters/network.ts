@@ -2,7 +2,7 @@ import type {
   DepositIntent,
   NetworkAdapter,
   WithdrawIntent,
-} from '@arcane/privacy-sdk-core';
+} from '@arcanetech/privacy-sdk-core';
 import { submitPreparedOperation } from '../transact/engine/execution/submit-prepared.js';
 import type {
   StellarAddress,

@@ -11,7 +11,7 @@
     "eslint-config-prettier",
     "contract",
     "registry",
-    "@arcane/privacy-sdk-state-redux",
+    "@arcanetech/privacy-sdk-state-redux",
     "@reduxjs/toolkit"
   ],
   "usedClassMembers": [

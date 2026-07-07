@@ -18,10 +18,10 @@ A short script that:
 ## Prerequisites
 
 - Node.js 20.10 or later
-- Packages: `@arcane/privacy-sdk-stellar`, `@arcane/privacy-sdk-state-memory`
+- Packages: `@arcanetech/privacy-sdk-stellar`, `@arcanetech/privacy-sdk-state-memory`
 
 ```bash
-npm install @arcane/privacy-sdk-stellar @arcane/privacy-sdk-state-memory
+npm install @arcanetech/privacy-sdk-stellar @arcanetech/privacy-sdk-state-memory
 ```
 
 Need Redux and React too? See [Install](/application-development/install).
@@ -37,7 +37,7 @@ An in-memory adapter stores this data in process memory. It is ideal for tutoria
 </Tip>
 
 ```ts
-import { createInMemoryStateAdapter } from '@arcane/privacy-sdk-state-memory';
+import { createInMemoryStateAdapter } from '@arcanetech/privacy-sdk-state-memory';
 
 const state = createInMemoryStateAdapter();
 ```
@@ -47,7 +47,7 @@ const state = createInMemoryStateAdapter();
 The Stellar preset signs through a wallet adapter. Replace this stub with your wallet SDK in production.
 
 ```ts
-import type { StellarWalletAdapter } from '@arcane/privacy-sdk-stellar';
+import type { StellarWalletAdapter } from '@arcanetech/privacy-sdk-stellar';
 
 const wallet: StellarWalletAdapter = {
   getAddress: async () => 'GDSENDER7EXAMPLEPUBLICKEYAAAAAAAAAAAAAAAAAAAA',
@@ -71,8 +71,8 @@ import {
   createStellarPrivacyClient,
   isStellarPrivacyClient,
   loadDefaultStellarBrowserAssets,
-} from '@arcane/privacy-sdk-stellar';
-import type { StellarTransactEnvironment } from '@arcane/privacy-sdk-stellar/transact';
+} from '@arcanetech/privacy-sdk-stellar';
+import type { StellarTransactEnvironment } from '@arcanetech/privacy-sdk-stellar/transact';
 
 const transactEnvironment: StellarTransactEnvironment = {
   network: {

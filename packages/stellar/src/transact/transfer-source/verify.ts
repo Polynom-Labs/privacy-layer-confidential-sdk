@@ -1,4 +1,4 @@
-import { executionError } from '@arcane/privacy-sdk-core';
+import { executionError } from '@arcanetech/privacy-sdk-core';
 import { readNullifierConsumedOnChain } from '../../contracts/pool/pool-domain-service.js';
 import { requireContractContext } from '../../contracts/contract-context.js';
 import { getPrivacyPoolService } from '../pool/singleton.js';

@@ -1,4 +1,4 @@
-import type { ExecuteOptions } from '@arcane/privacy-sdk-core';
+import type { ExecuteOptions } from '@arcanetech/privacy-sdk-core';
 import {
   assertNotAborted,
   createOperationEventId,
@@ -6,7 +6,7 @@ import {
   executionError,
   isPrivacySdkError,
   userRejectedError,
-} from '@arcane/privacy-sdk-core';
+} from '@arcanetech/privacy-sdk-core';
 import type {
   StellarOperationReceipt,
   StellarPreparedOperation,

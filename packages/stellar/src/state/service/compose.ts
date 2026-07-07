@@ -1,4 +1,4 @@
-import type { StateBridgeAdapter } from '@arcane/privacy-sdk-core/state';
+import type { StateBridgeAdapter } from '@arcanetech/privacy-sdk-core/state';
 import { StellarStateServiceBase } from './base.js';
 import { createAssetsService } from './assets/index.js';
 import { createClaimsService } from './claims/index.js';

@@ -1,4 +1,4 @@
-import type { StateBridgeDefinition } from '@arcane/privacy-sdk-core/state';
+import type { StateBridgeDefinition } from '@arcanetech/privacy-sdk-core/state';
 import { registerStellarArrayFilterSchemas } from '../filters/register-schemas.js';
 import { stellarAssetsStateDefinitions } from './assets.js';
 import { stellarBalancesStateDefinitions } from './balances.js';

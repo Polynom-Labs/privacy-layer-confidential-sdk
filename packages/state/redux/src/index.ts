@@ -7,11 +7,12 @@ import {
   type StateBridgeAdapter,
   type StateBridgeCall,
   type StateBridgeDefinition,
-} from '@arcane/privacy-sdk-core/state';
+} from '@arcanetech/privacy-sdk-core/state';
 import type { Middleware } from '@reduxjs/toolkit';
 
-export const STATE_BRIDGE_APPLY_WRITE = '@arcane/privacy-sdk-state-redux/applyWrite';
-export const STATE_BRIDGE_HYDRATE = '@arcane/privacy-sdk-state-redux/hydrate';
+export const STATE_BRIDGE_APPLY_WRITE =
+  '@arcanetech/privacy-sdk-state-redux/applyWrite';
+export const STATE_BRIDGE_HYDRATE = '@arcanetech/privacy-sdk-state-redux/hydrate';
 
 export interface StateBridgeApplyWriteAction {
   [key: string]: unknown;

@@ -1,6 +1,9 @@
 import { Buffer } from 'buffer';
 import type { CoinData } from '@auditable/privacy-pool-zk-sdk';
-import { insufficientStateError, invalidIntentError } from '@arcane/privacy-sdk-core';
+import {
+  insufficientStateError,
+  invalidIntentError,
+} from '@arcanetech/privacy-sdk-core';
 import type { StellarPendingClaim, StellarPrivateRecord } from '../../types.js';
 import {
   isPendingClaimSource,

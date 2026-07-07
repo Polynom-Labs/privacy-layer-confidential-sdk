@@ -28,8 +28,8 @@ After a successful **execute**, the SDK updates the same cache (consumed records
 
 | Library | Package | When to use |
 | --- | --- | --- |
-| **In-memory** | `@arcane/privacy-sdk-state-memory` | Tutorials, prototypes, unit tests |
-| **Redux** | `@arcane/privacy-sdk-state-redux` | Production React apps already using Redux Toolkit |
+| **In-memory** | `@arcanetech/privacy-sdk-state-memory` | Tutorials, prototypes, unit tests |
+| **Redux** | `@arcanetech/privacy-sdk-state-redux` | Production React apps already using Redux Toolkit |
 
 Wire the adapter when creating your network preset client:
 
@@ -43,7 +43,7 @@ const client = await createStellarPrivacyClient({
 ## In-memory adapter (recommended for learning)
 
 ```ts
-import { createInMemoryStateAdapter } from '@arcane/privacy-sdk-state-memory';
+import { createInMemoryStateAdapter } from '@arcanetech/privacy-sdk-state-memory';
 
 const state = createInMemoryStateAdapter();
 ```
@@ -59,7 +59,7 @@ Use when your Stellar payment UI already runs on Redux Toolkit. The adapter adds
 Install:
 
 ```bash
-npm install @arcane/privacy-sdk-state-redux @reduxjs/toolkit react-redux
+npm install @arcanetech/privacy-sdk-state-redux @reduxjs/toolkit react-redux
 ```
 
 The Redux adapter is **optional**. Many teams start with in-memory state in tests, then adopt Redux for production persistence.

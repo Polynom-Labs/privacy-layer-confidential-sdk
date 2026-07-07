@@ -3,7 +3,7 @@ import { createInMemoryStateAdapter } from '../src/index.js';
 import {
   createStateBridge,
   type StateBridgeDefinition,
-} from '@arcane/privacy-sdk-core/state';
+} from '@arcanetech/privacy-sdk-core/state';
 import { z } from 'zod';
 
 describe('createInMemoryStateAdapter', () => {

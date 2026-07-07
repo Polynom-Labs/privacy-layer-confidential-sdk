@@ -1,14 +1,14 @@
 export const PackageMatrix = () => {
   const rows = [
     {
-      name: '@arcane/privacy-sdk-core',
+      name: '@arcanetech/privacy-sdk-core',
       role: 'Intents, lifecycle, errors, events, adapter contracts',
       browser: true,
       node: true,
       tests: true,
     },
     {
-      name: '@arcane/privacy-sdk-stellar',
+      name: '@arcanetech/privacy-sdk-stellar',
       role: 'Stellar client, transact engine, state integration, bundled runtime assets',
       browser: true,
       node: true,
@@ -16,14 +16,14 @@ export const PackageMatrix = () => {
       note: '/node and /testing subpaths',
     },
     {
-      name: '@arcane/privacy-sdk-state-memory',
+      name: '@arcanetech/privacy-sdk-state-memory',
       role: 'In-memory state adapter',
       browser: true,
       node: true,
       tests: true,
     },
     {
-      name: '@arcane/privacy-sdk-state-redux',
+      name: '@arcanetech/privacy-sdk-state-redux',
       role: 'Redux Toolkit adapter and persistence helpers',
       browser: true,
       node: false,
@@ -49,11 +49,21 @@ export const PackageMatrix = () => {
       <table className="w-full min-w-[640px] text-left text-sm">
         <thead className="bg-zinc-50 dark:bg-white/[0.03]">
           <tr>
-            <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400">Package</th>
-            <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400">Role</th>
-            <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400">Browser</th>
-            <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400">Node</th>
-            <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400">Tests</th>
+            <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400">
+              Package
+            </th>
+            <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400">
+              Role
+            </th>
+            <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400">
+              Browser
+            </th>
+            <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400">
+              Node
+            </th>
+            <th className="px-4 py-3 font-medium text-zinc-600 dark:text-zinc-400">
+              Tests
+            </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">

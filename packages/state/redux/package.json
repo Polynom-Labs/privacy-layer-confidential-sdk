@@ -1,5 +1,5 @@
 {
-  "name": "@arcane/privacy-sdk-state-redux",
+  "name": "@arcanetech/privacy-sdk-state-redux",
   "version": "0.1.0",
   "description": "Redux Toolkit state bridge adapter for the Arcane privacy SDK",
   "type": "module",
@@ -21,7 +21,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
-    "@arcane/privacy-sdk-core": "0.1.0",
+    "@arcanetech/privacy-sdk-core": "0.1.0",
     "@reduxjs/toolkit": "^2.6.1"
   },
   "peerDependencies": {

@@ -1,4 +1,4 @@
-import { insufficientStateError } from '@arcane/privacy-sdk-core';
+import { insufficientStateError } from '@arcanetech/privacy-sdk-core';
 import {
   assertPendingClaimOwner,
   isPendingClaimSource,

@@ -1,4 +1,4 @@
-import { executionError, insufficientStateError } from '@arcane/privacy-sdk-core';
+import { executionError, insufficientStateError } from '@arcanetech/privacy-sdk-core';
 import { readNullifierConsumedOnChain } from '../../contracts/pool/pool-domain-service.js';
 import { requireContractContext } from '../../contracts/contract-context.js';
 import { requireCoinNoteFromRecord } from '../private-address/record-coin.js';

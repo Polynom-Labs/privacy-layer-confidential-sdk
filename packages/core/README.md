@@ -1,4 +1,4 @@
-# @arcane/privacy-sdk-core
+# @arcanetech/privacy-sdk-core
 
 Network-agnostic privacy SDK core for Arcane private payment flows.
 
@@ -22,10 +22,12 @@ import {
   AdapterPrivacyClient,
   isPreparedOperation,
   type DepositIntent,
-} from '@arcane/privacy-sdk-core';
+} from '@arcanetech/privacy-sdk-core';
 
 const client = new AdapterPrivacyClient({ network, policy, storage, wallet });
-const result = await client.deposit(intent satisfies DepositIntent<string, string, bigint>);
+const result = await client.deposit(
+  intent satisfies DepositIntent<string, string, bigint>,
+);
 
 if (!isPreparedOperation(result)) {
   console.error(result.errors);
@@ -38,7 +40,7 @@ if (!isPreparedOperation(result)) {
 
 - Use intents to describe what the user wants to do.
 - Use `PreparedOperation.execute()` only after preparation succeeds.
-- Use adapter contracts to integrate a concrete network preset such as `@arcane/privacy-sdk-stellar`.
+- Use adapter contracts to integrate a concrete network preset such as `@arcanetech/privacy-sdk-stellar`.
 
 ## Error Model
 

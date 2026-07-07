@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { createInMemoryStateAdapter } from '@arcane/privacy-sdk-state-memory';
-import type { StateBridgeCall } from '@arcane/privacy-sdk-core/state';
+import { createInMemoryStateAdapter } from '@arcanetech/privacy-sdk-state-memory';
+import type { StateBridgeCall } from '@arcanetech/privacy-sdk-core/state';
 import { createRecord, createTestClient } from './stellar-client.test-helpers.js';
 import type { StellarAsset, StellarIncomingDelivery } from '../src/types.js';
 

@@ -1,4 +1,4 @@
-import { createRejectedOperation } from '@arcane/privacy-sdk-core';
+import { createRejectedOperation } from '@arcanetech/privacy-sdk-core';
 import {
   createStellarPrivacyClientFromResolvedConfig,
   resolveStellarPrivacyClientConfig,
@@ -33,7 +33,7 @@ export async function createStellarPrivacyClient(
   return createStellarPrivacyClientFromResolvedConfig(resolved.config);
 }
 
-export { isPreparedOperation } from '@arcane/privacy-sdk-core';
+export { isPreparedOperation } from '@arcanetech/privacy-sdk-core';
 
 export type {
   StellarBrowserPrivacyClientConfig,

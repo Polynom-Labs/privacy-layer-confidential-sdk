@@ -14,7 +14,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import {
   bindReduxStateAdapter,
   createReduxStateAdapter,
-} from '@arcane/privacy-sdk-state-redux';
+} from '@arcanetech/privacy-sdk-state-redux';
 
 export const privacySdkState = createReduxStateAdapter({
   reducerPath: 'privacySdkState',
@@ -36,7 +36,7 @@ bindReduxStateAdapter(privacySdkState, store);
 The client signs messages and transactions through a wallet adapter. Implement the three methods against your wallet SDK.
 
 ```ts
-import type { StellarWalletAdapter } from '@arcane/privacy-sdk-stellar';
+import type { StellarWalletAdapter } from '@arcanetech/privacy-sdk-stellar';
 
 export const wallet: StellarWalletAdapter = {
   getAddress: async () => 'GDSENDER7EXAMPLEPUBLICKEYAAAAAAAAAAAAAAAAAAAA',
@@ -56,8 +56,8 @@ import {
   createStellarPrivacyClient,
   isStellarPrivacyClient,
   loadDefaultStellarBrowserAssets,
-} from '@arcane/privacy-sdk-stellar';
-import type { StellarTransactEnvironment } from '@arcane/privacy-sdk-stellar/transact';
+} from '@arcanetech/privacy-sdk-stellar';
+import type { StellarTransactEnvironment } from '@arcanetech/privacy-sdk-stellar/transact';
 import { privacySdkState } from './store';
 import { wallet } from './wallet';
 
@@ -102,7 +102,7 @@ Expose the client through context so feature code can call `usePrivacySdkClient(
 
 ```tsx
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import type { StellarPrivacyClient } from '@arcane/privacy-sdk-stellar';
+import type { StellarPrivacyClient } from '@arcanetech/privacy-sdk-stellar';
 import { bootstrapPrivacyClient } from './bootstrap-privacy-client';
 
 const PrivacySdkContext = createContext<{
@@ -142,7 +142,7 @@ SDK state lives in the Redux branch created above. Save and restore that branch 
 
 ```tsx
 import { useEffect } from 'react';
-import { hydrateReduxPrivacySdkState } from '@arcane/privacy-sdk-state-redux';
+import { hydrateReduxPrivacySdkState } from '@arcanetech/privacy-sdk-state-redux';
 import { store } from './store';
 
 const STORAGE_KEY = 'privacy-sdk-state:v1';

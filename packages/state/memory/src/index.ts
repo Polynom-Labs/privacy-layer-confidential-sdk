@@ -6,7 +6,7 @@ import {
   type StateBridgeAdapter,
   type StateBridgeCall,
   type StateBridgeDefinition,
-} from '@arcane/privacy-sdk-core/state';
+} from '@arcanetech/privacy-sdk-core/state';
 
 export interface InMemoryStateAdapter extends StateBridgeAdapter {
   getState(): Record<string, unknown>;
