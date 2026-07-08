@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.2.2...privacy-sdk-stellar-v0.2.3) (2026-07-08)
+
+
+### Bug Fixes
+
+* verify script sequence change ([61af505](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/61af505ede320fd0225e7916aaf3508ad93c7e48))
+
 ## [0.2.2](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.2.1...privacy-sdk-stellar-v0.2.2) (2026-07-08)
 
 
