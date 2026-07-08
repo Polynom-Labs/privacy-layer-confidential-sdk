@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-core-v0.2.0...privacy-sdk-core-v0.2.1) (2026-07-08)
+
+
+### Bug Fixes
+
+* bump package version for npm publish ([dc70caa](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/dc70caa640cc416c2bfe77c4ca9b7f55955014ae))
+
 ## [0.2.0](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-core-v0.1.0...privacy-sdk-core-v0.2.0) (2026-07-07)
 
 
