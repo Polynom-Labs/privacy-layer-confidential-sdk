@@ -1,5 +1,8 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "plugins": [
+    "node-workspace"
+  ],
   "packages": {
     "packages/core": {
       "component": "privacy-sdk-core",

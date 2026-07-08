@@ -21,7 +21,7 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
-    "@arcanetech/privacy-sdk-core": "0.1.0",
+    "@arcanetech/privacy-sdk-core": "*",
     "@reduxjs/toolkit": "^2.6.1"
   },
   "peerDependencies": {
