@@ -81,8 +81,8 @@ await operation.execute();
 | `npm run test`             | Run unit and type tests                         |
 | `npm run typecheck`        | Run TypeScript project references               |
 | `npm run lint`             | Run ESLint                                      |
-| `npm run fallow:dead-code` | Compare dead-code baseline                      |
-| `npm run fallow:dupes`     | Compare duplication baseline                    |
+| `npm run fallow:dead-code` | Run dead-code scan                              |
+| `npm run fallow:dupes`     | Run duplication scan                            |
 | `npm run verify`           | Lint, typecheck, test, build, and Fallow checks |
 
 ## Documentation

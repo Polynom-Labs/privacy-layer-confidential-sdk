@@ -16,9 +16,8 @@
     "typecheck": "npm run typecheck:deps && npm run typecheck --workspaces --if-present",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "fallow:dead-code": "fallow dead-code --baseline .fallow/baselines/dead-code.json -q",
-    "fallow:dupes": "fallow dupes --baseline .fallow/baselines/dupes.json -q --ignore-imports",
-    "fallow:save-baselines": "mkdir -p .fallow/baselines && fallow dead-code -f json --save-baseline .fallow/baselines/dead-code.json -q && fallow dupes -f json --save-baseline .fallow/baselines/dupes.json -q --ignore-imports",
+    "fallow:dead-code": "fallow dead-code -q",
+    "fallow:dupes": "fallow dupes -q --ignore-imports",
     "verify": "npm run lint && npm run typecheck && npm run build && npm run test && npm run fallow:dead-code && npm run fallow:dupes",
     "prepare": "lefthook install"
   },

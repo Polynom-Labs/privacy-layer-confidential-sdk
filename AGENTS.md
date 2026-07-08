@@ -8,13 +8,15 @@
 - In SDK docs, mention Stellar/Soroban only in stellar-preset sections; document `core` and `state-*` as multi-chain.
 - SDK docs must not name internal backend products or concrete REST endpoint paths; describe integrations generically (e.g. asset catalog sync, registry status).
 - State-integration docs should lead with in-memory adapter examples and keep Redux as an optional adapter path; omit custom-adapter outline sections and do not mention `@arcanetech/privacy-sdk-testing` (not shipped).
+- For internal workspace dependencies in npm workspaces, use `"*"` (not `workspace:*`, which npm does not support) so CI links local packages instead of resolving stale semver pins.
+- With `exactOptionalPropertyTypes: true`, omit optional object properties instead of passing `undefined`; `StellarPreparedOperation` `kind` and `intent` are not a discriminated union—narrow with explicit casts after `kind` checks.
 
 ## Learned Workspace Facts
 
 - `@arcanetech/privacy-sdk-stellar` owns generated pool/registry bindings under `packages/stellar/generated/`; public `.d.ts` must not export generated contract client types (`PoolTransactClient`, `RegistryContractClient`, `createPoolClient`).
-- SDK composes Soroban RPC (`packages/stellar/src/rpc/`) and contract clients internally via `attachContractContext()`; consuming apps pass domain config and adapters only.
 - Public `StellarPrivacyClient` methods are domain-level (`checkRegistrationStatus`, `registerPrivateAddress`, `resolveTransferRecipient`, transaction confirmation/details) — not thin wrappers over raw Soroban RPC.
-- Apps supply `transactEnvironment.signTransaction` only; `StellarTransactEnvironment.createPoolClient` is internal and must not appear in public API or app bootstrap.
+- Consuming apps pass domain config/adapters and `transactEnvironment.signTransaction` only; Soroban RPC, contract clients (`attachContractContext()` / `createPoolClient`), and raw RPC wrappers stay internal and must not appear in public API or app bootstrap.
+- Monorepo scripts: root `typecheck:deps` builds `core` → `state-memory` → `state-redux` → stellar `bindings:build` before workspace typechecks (types from `dist/*.d.ts`); root `verify` is `lint → typecheck → build → test → fallow`; do not add per-package build hacks in stellar typecheck.
 - State bridge operation registration (`stellarStateDefinitions` / `bridge.init`) runs inside SDK client initialization; consuming apps bind a state adapter but must not register bridge operations themselves.
 - `StellarPrivateRecord.id` must always be the commitment hex (never a random UUID) and `owner` must always be the Stellar G-address (never a private `stpl1` address); `privateAddress` holds the stpl1 address separately. Deposit/transfer/withdraw output-record builders take an explicit `walletPublicKey` to set `owner` correctly. Withdraw's execute finalize must enrich `outputRecords` from `proof.changeCoin` (`commitmentHex`/`coinNote`) the same way transfer's `enrichTransferOutputRecords` does — otherwise change notes silently vanish from the UI because `mapPrivateRecordToCoinWithMetadata` drops records missing `coinNote`.
 - SDK state reads/writes must be defensive: pool JSONPath reads (`getPoolMerkleState`) treat a missing `$.pools.*` branch as an empty cache (`undefined`) instead of throwing `JSONPath segment not found`; `upsertPrivateRecords` must be idempotent and skip the state-bridge write when the merged result is unchanged, to avoid infinite bidirectional sync loops with app-level state (e.g. a Redux coin slice that re-dispatches on every SDK write).
@@ -33,7 +35,7 @@
 | Build           | `tsup` per package                                                 |
 | Tests           | Vitest unit tests and type tests                                   |
 | Lint            | ESLint flat config in `eslint.config.mjs`                          |
-| Static analysis | Fallow dead-code and duplication baselines in `.fallow/baselines/` |
+| Static analysis | Fallow dead-code and duplication scans via `fallow:dead-code` / `fallow:dupes` |
 | Git hooks       | Lefthook pre-commit runs lint and Fallow checks                    |
 | Docs            | English README files plus Mintlify docs in `docs/`                 |
 | Releases        | Release Please manifest mode plus GitHub Actions publish workflows |
@@ -57,12 +59,6 @@ npm run fallow:dead-code
 npm run fallow:dupes
 ```
 
-Refresh Fallow baselines only when the team intentionally changes expectations:
-
-```bash
-npm run fallow:save-baselines
-```
-
 ## Design Patterns Available In This Repository
 
 Use these patterns when they match the integration boundary you are implementing:
@@ -79,7 +75,7 @@ See `.cursor/rules/design-patterns.mdc` for concise TypeScript examples and trig
 
 ## Agent Guidelines
 
-- Respect ESLint and Fallow baselines.
+- Respect ESLint and Fallow checks.
 - Keep core public API free of network-specific terminology.
 - Keep private audit decoding keys out of public types, docs, and tests.
 - Add English README and Mintlify docs updates when public API changes.
