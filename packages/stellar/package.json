@@ -1,6 +1,6 @@
 {
   "name": "@arcanetech/privacy-sdk-stellar",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Stellar preset for the Arcane privacy SDK",
   "type": "module",
   "browser": "./dist/index.js",
@@ -57,8 +57,8 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
-    "@arcanetech/privacy-sdk-state-memory": "*",
-    "@arcanetech/privacy-sdk-state-redux": "*",
+    "@arcanetech/privacy-sdk-state-memory": "0.2.1",
+    "@arcanetech/privacy-sdk-state-redux": "0.2.1",
     "@reduxjs/toolkit": "^2.6.1"
   },
   "sideEffects": false,
