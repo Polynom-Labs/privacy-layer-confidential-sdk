@@ -20,7 +20,7 @@ jobs:
         with:
           node-version: 24
           registry-url: https://registry.npmjs.org
-          cache: false
+          package-manager-cache: false
 
       - run: npm install
 
@@ -32,7 +32,7 @@ jobs:
       - run: npm pack --workspace @arcanetech/privacy-sdk-state-memory --dry-run
 
       - name: Publish workspace packages
-        if: contains(github.event.head_commit.message, 'chore: release main')
+        if: "contains(github.event.head_commit.message, 'chore: release main')"
         run: |
           set -euo pipefail
           publish_workspace() {
