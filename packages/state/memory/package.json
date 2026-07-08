@@ -1,6 +1,6 @@
 {
   "name": "@arcanetech/privacy-sdk-state-memory",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "In-memory state bridge adapter for the Arcane privacy SDK",
   "type": "module",
   "main": "./dist/index.js",

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.1](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-state-redux-v0.2.0...privacy-sdk-state-redux-v0.2.1) (2026-07-08)
+
+
+### Bug Fixes
+
+* internal deps versions resolve ([d2a8a08](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/d2a8a080d5d826a7caaa537e5de1a68baa6ae6be))
+
 ## [0.2.0](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-state-redux-v0.1.0...privacy-sdk-state-redux-v0.2.0) (2026-07-07)
 
 
