@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.2.4](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.2.3...privacy-sdk-stellar-v0.2.4) (2026-07-08)
+
+
+### Bug Fixes
+
+* **release:** add repository metadata for npm provenance ([d07fdeb](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/d07fdebd28d5bd6868d10651147023c85e1da02b))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @arcanetech/privacy-sdk-core bumped from * to 0.3.0
+  * devDependencies
+    * @arcanetech/privacy-sdk-state-memory bumped from 0.2.1 to 0.2.2
+    * @arcanetech/privacy-sdk-state-redux bumped from 0.2.1 to 0.2.2
+
 ## [0.2.3](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.2.2...privacy-sdk-stellar-v0.2.3) (2026-07-08)
 
 

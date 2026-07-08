@@ -1,6 +1,6 @@
 {
-  "packages/core": "0.2.1",
-  "packages/stellar": "0.2.3",
-  "packages/state/redux": "0.2.1",
-  "packages/state/memory": "0.2.1"
+  "packages/core": "0.3.0",
+  "packages/stellar": "0.2.4",
+  "packages/state/redux": "0.2.2",
+  "packages/state/memory": "0.2.2"
 }
