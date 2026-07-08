@@ -28,6 +28,11 @@
     "@reduxjs/toolkit": "^2.0.0"
   },
   "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Polynom-Labs/privacy-layer-confidential-sdk.git",
+    "directory": "packages/state/redux"
+  },
   "license": "UNLICENSED",
   "publishConfig": {
     "access": "public"

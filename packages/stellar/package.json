@@ -62,6 +62,11 @@
     "@reduxjs/toolkit": "^2.6.1"
   },
   "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Polynom-Labs/privacy-layer-confidential-sdk.git",
+    "directory": "packages/stellar"
+  },
   "license": "UNLICENSED",
   "publishConfig": {
     "access": "public"

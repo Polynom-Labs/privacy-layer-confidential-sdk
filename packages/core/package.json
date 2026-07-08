@@ -25,6 +25,11 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Polynom-Labs/privacy-layer-confidential-sdk.git",
+    "directory": "packages/core"
+  },
   "license": "UNLICENSED",
   "publishConfig": {
     "access": "public"
