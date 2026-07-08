@@ -51,6 +51,7 @@ export function pendingClaimToConsumedRecord(input: {
   poolContract: string;
 }): StellarPrivateRecord {
   const coin = pendingClaimToCoin(input.claim);
+  const nullifierHex = input.claim.nullifierHex ?? input.claim.futureNullifierHashHex;
   return {
     id: `pending-claim-${input.claim.id}`,
     owner: input.walletPublicKey.trim(),
@@ -59,9 +60,9 @@ export function pendingClaimToConsumedRecord(input: {
     consumed: false,
     status: 'finalized',
     poolContract: input.poolContract,
-    commitmentHex: input.claim.commitmentHex,
-    nullifierHex: input.claim.nullifierHex ?? input.claim.futureNullifierHashHex,
     coinNote: coin,
+    ...(input.claim.commitmentHex ? { commitmentHex: input.claim.commitmentHex } : {}),
+    ...(nullifierHex ? { nullifierHex } : {}),
   };
 }
 

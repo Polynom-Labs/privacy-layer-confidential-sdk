@@ -111,7 +111,9 @@ async function resolvePrepareConsumedRecords(input: {
     storage: input.storage,
     intent: input.intent as WithdrawIntent<StellarAddress, StellarAssetId, bigint>,
     walletPublicKey: await loadSpendSelectionWalletPublicKey(input.wallet),
-    checkNullifierSpent: input.checkNullifierSpent,
+    ...(input.checkNullifierSpent
+      ? { checkNullifierSpent: input.checkNullifierSpent }
+      : {}),
   });
 }
 

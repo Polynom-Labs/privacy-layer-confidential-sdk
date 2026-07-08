@@ -62,7 +62,7 @@ async function resolvePendingClaimSpend(
   walletPublicKey: string,
 ): Promise<{
   consumedRecords: StellarPrivateRecord[];
-  transactArtifacts: StellarPreparedOperation['transactArtifacts'];
+  transactArtifacts: NonNullable<StellarPreparedOperation['transactArtifacts']>;
 }> {
   if (!deps.getPendingClaims) {
     throw insufficientStateError(
@@ -79,7 +79,9 @@ async function resolvePendingClaimSpend(
   await assertPendingClaimNullifierAvailable({
     claim,
     walletPublicKey,
-    checkNullifierSpent: deps.checkNullifierSpent,
+    ...(deps.checkNullifierSpent
+      ? { checkNullifierSpent: deps.checkNullifierSpent }
+      : {}),
   });
   validatePendingClaimIntentMatches(claim, intent);
   return {
@@ -103,7 +105,7 @@ async function resolvePrivateAddressSpend(
   deps: TransferPrepareDeps,
 ): Promise<{
   consumedRecords: StellarPrivateRecord[];
-  transactArtifacts: StellarPreparedOperation['transactArtifacts'];
+  transactArtifacts: NonNullable<StellarPreparedOperation['transactArtifacts']>;
 }> {
   const walletAddress = await deps.wallet.getAddress();
   const walletPublicKey = walletAddress.trim();
@@ -112,12 +114,16 @@ async function resolvePrivateAddressSpend(
     kind: 'transfer',
     intent,
     walletPublicKey,
-    checkNullifierSpent: deps.checkNullifierSpent,
+    ...(deps.checkNullifierSpent
+      ? { checkNullifierSpent: deps.checkNullifierSpent }
+      : {}),
   });
   await assertPrivateRecordsNullifiersAvailable({
     records: consumedRecords,
     walletPublicKey: walletAddress.trim(),
-    checkNullifierSpent: deps.checkNullifierSpent,
+    ...(deps.checkNullifierSpent
+      ? { checkNullifierSpent: deps.checkNullifierSpent }
+      : {}),
   });
   return {
     consumedRecords,

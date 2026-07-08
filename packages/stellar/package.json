@@ -45,7 +45,7 @@
     "bindings:build": "npm run build --prefix generated/contract && npm run build --prefix generated/registry",
     "prebuild": "npm run bindings:build",
     "build": "tsup",
-    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
+    "typecheck": "npm run build --prefix ../state/memory && npm run build --prefix ../state/redux && tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
   },
   "dependencies": {
     "@arcanetech/privacy-sdk-core": "*",

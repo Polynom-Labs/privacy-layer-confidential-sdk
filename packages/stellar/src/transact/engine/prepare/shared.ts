@@ -1,4 +1,9 @@
-import type { StellarPreparedOperation } from '../../../types.js';
+import type { DepositIntent } from '@arcanetech/privacy-sdk-core';
+import type {
+  StellarAddress,
+  StellarAssetId,
+  StellarPreparedOperation,
+} from '../../../types.js';
 import type { StellarTransactEnvironment } from '../../environment/types.js';
 import { fetchAndMergeMerkleState } from '../../merkle/fetch-contract.js';
 
@@ -20,7 +25,12 @@ export async function resolveWalletPublicKey(
     return environment.resolveWalletPublicKey();
   }
   if (prepared.kind === 'deposit') {
-    return prepared.intent.from;
+    const depositIntent = prepared.intent as DepositIntent<
+      StellarAddress,
+      StellarAssetId,
+      bigint
+    >;
+    return depositIntent.from;
   }
   throw new Error('Wallet public key resolver is not configured.');
 }

@@ -1,4 +1,9 @@
-import type { StellarPreparedOperation } from '../../types.js';
+import type { WithdrawIntent } from '@arcanetech/privacy-sdk-core';
+import type {
+  StellarAddress,
+  StellarAssetId,
+  StellarPreparedOperation,
+} from '../../types.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
 import type { ProofWithChange } from '../pool/proof-types.js';
 import type { PrivacyPoolService } from '../pool/service.js';
@@ -29,10 +34,19 @@ async function finalizeWithdrawAtExecute(
   environment: StellarTransactEnvironment,
   poolService: PrivacyPoolService,
 ) {
+  if (prepared.kind !== 'withdraw') {
+    throw new Error('Withdraw finalize requires a withdraw operation.');
+  }
+  const withdrawIntent = prepared.intent as WithdrawIntent<
+    StellarAddress,
+    StellarAssetId,
+    bigint
+  >;
+  const withdrawFrom = withdrawIntent.from;
   const context = await buildSpendProofContextAtExecute({
     prepared,
     environment,
-    recipientPrivateAddressStpl1: prepared.intent.from,
+    recipientPrivateAddressStpl1: withdrawFrom,
   });
   const changeStroops = BigInt(context.coin.value) - prepared.intent.amount;
   const proof = await poolService.prepareWithdrawTransactProof({
@@ -45,7 +59,7 @@ async function finalizeWithdrawAtExecute(
       yHex: context.ephemeral.yHex,
     }),
     withdrawAmountStroops: prepared.intent.amount,
-    changePrivateAddressStpl1: changeStroops > 0n ? prepared.intent.from : undefined,
+    changePrivateAddressStpl1: changeStroops > 0n ? withdrawFrom : undefined,
     tokenAddress: context.tokenAddress,
   });
   enrichWithdrawOutputRecords(prepared, proof);

@@ -119,11 +119,14 @@ async function commitStorageChanges(
   });
   if (input.prepared.outputRecords.length > 0) {
     await input.storage.savePrivateRecords(
-      input.prepared.outputRecords.map((record) => ({
-        ...record,
-        txHash: receipt.operationId,
-        status: receipt.confirmed ? 'finalized' : record.status,
-      })),
+      input.prepared.outputRecords.map((record) => {
+        const nextStatus = receipt.confirmed ? 'finalized' : record.status;
+        return {
+          ...record,
+          txHash: receipt.operationId,
+          ...(nextStatus === undefined ? {} : { status: nextStatus }),
+        };
+      }),
     );
   }
   if (input.prepared.consumedRecords.length > 0) {
