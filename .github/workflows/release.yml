@@ -18,9 +18,9 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           registry-url: https://registry.npmjs.org
-          scope: '@arcanetech'
+          package-manager-cache: false
 
       - run: npm install
 
@@ -32,9 +32,21 @@ jobs:
       - run: npm pack --workspace @arcanetech/privacy-sdk-state-memory --dry-run
 
       - name: Publish workspace packages
-        if: "${{ contains(github.event.head_commit.message, 'chore: release main') }}"
+        if: contains(github.event.head_commit.message, 'chore: release main')
         run: |
-          npm publish --workspace @arcanetech/privacy-sdk-core --access public --provenance
-          npm publish --workspace @arcanetech/privacy-sdk-stellar --access public --provenance
-          npm publish --workspace @arcanetech/privacy-sdk-state-redux --access public --provenance
-          npm publish --workspace @arcanetech/privacy-sdk-state-memory --access public --provenance
+          set -euo pipefail
+          publish_workspace() {
+            local workspace="$1"
+            local name version
+            name="$(npm pkg get name --workspace "$workspace" | tr -d '"')"
+            version="$(npm pkg get version --workspace "$workspace" | tr -d '"')"
+            if npm view "${name}@${version}" version >/dev/null 2>&1; then
+              echo "Skip ${name}@${version} (already on npm)"
+              return 0
+            fi
+            npm publish --workspace "$workspace" --access public --provenance
+          }
+          publish_workspace @arcanetech/privacy-sdk-core
+          publish_workspace @arcanetech/privacy-sdk-stellar
+          publish_workspace @arcanetech/privacy-sdk-state-redux
+          publish_workspace @arcanetech/privacy-sdk-state-memory
