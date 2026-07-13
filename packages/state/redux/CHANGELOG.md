@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.2.2](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-state-redux-v0.2.1...privacy-sdk-state-redux-v0.2.2) (2026-07-13)
+
+
+### Bug Fixes
+
+* **release:** add repository metadata for npm provenance ([d07fdeb](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/d07fdebd28d5bd6868d10651147023c85e1da02b))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @arcanetech/privacy-sdk-core bumped from * to 0.3.0
+
 ## [0.2.1](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-state-redux-v0.2.0...privacy-sdk-state-redux-v0.2.1) (2026-07-08)
 
 

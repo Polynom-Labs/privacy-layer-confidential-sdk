@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.3.0](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.2.3...privacy-sdk-stellar-v0.3.0) (2026-07-13)
+
+
+### Features
+
+* updated pool contract signature ([752cb04](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/752cb0427f440a2603caa92fdb7ca2e0ffc34942))
+
+
+### Bug Fixes
+
+* ci linter issues ([4e6f635](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/4e6f6359c48138684444466ea407cc41f6fc5194))
+* **release:** add repository metadata for npm provenance ([d07fdeb](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/d07fdebd28d5bd6868d10651147023c85e1da02b))
+* wire dual-note withdraw like transfer ([d731bf8](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/d731bf837f2dc021ff82a6e57d2ddc395aa04ead))
+* wire dual-note withdraw like transfer ([5db1ba9](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/5db1ba9309763804be867950ef3f4bdca03a8964))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @arcanetech/privacy-sdk-core bumped from * to 0.3.0
+  * devDependencies
+    * @arcanetech/privacy-sdk-state-memory bumped from 0.2.1 to 0.2.2
+    * @arcanetech/privacy-sdk-state-redux bumped from 0.2.1 to 0.2.2
+
 ## [0.2.3](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.2.2...privacy-sdk-stellar-v0.2.3) (2026-07-08)
 
 
