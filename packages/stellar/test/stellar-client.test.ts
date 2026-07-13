@@ -185,6 +185,65 @@ describe('StellarPrivacyClient preparation', () => {
       'a',
     ]);
   });
+
+  it('consumes up to two private records for withdraw when one note is insufficient', async () => {
+    const recordA = createRecord('private-sender', 'USDC', 10n, 'a');
+    const recordB = createRecord('private-sender', 'USDC', 20n, 'b');
+    const { client } = await createTestClient({ records: [recordA, recordB] });
+    const result = await client.withdraw({
+      from: 'private-sender',
+      to: 'G-RECIPIENT',
+      asset: 'USDC',
+      amount: 25n,
+      disclosure: {
+        senderAddress: 'private',
+        recipientAddress: 'public',
+        assetAddress: 'public',
+        amount: 'public',
+      },
+    });
+
+    expect(result.status).toBe('prepared');
+    if (result.status !== 'prepared') {
+      return;
+    }
+
+    expect(result.prepared.consumedRecords).toHaveLength(2);
+    expect(result.prepared.consumedRecords.map((record) => record.id)).toEqual([
+      'b',
+      'a',
+    ]);
+  });
+
+  it('rejects withdraw when amount exceeds the two largest notes', async () => {
+    const { client } = await createTestClient({
+      records: [
+        createRecord('private-sender', 'USDC', 10n, 'a'),
+        createRecord('private-sender', 'USDC', 20n, 'b'),
+        createRecord('private-sender', 'USDC', 30n, 'c'),
+      ],
+    });
+    const result = await client.withdraw({
+      from: 'private-sender',
+      to: 'G-RECIPIENT',
+      asset: 'USDC',
+      amount: 55n,
+      disclosure: {
+        senderAddress: 'private',
+        recipientAddress: 'public',
+        assetAddress: 'public',
+        amount: 'public',
+      },
+    });
+
+    expect(result.status).toBe('rejected');
+    if (result.status === 'rejected') {
+      expect(result.errors[0]?.code).toBe('insufficient_state');
+      if (result.errors[0]?.code === 'insufficient_state') {
+        expect(result.errors[0].reason).toBe('missing_private_records');
+      }
+    }
+  });
 });
 
 describe('StellarPrivacyClient output records', () => {

@@ -80,7 +80,10 @@ function pickRecordsForSpendAmount(input: {
     if (selectedTotal >= input.amount) {
       return selected;
     }
-    if (input.kind === 'transfer' && selected.length >= 2) {
+    if (
+      (input.kind === 'transfer' || input.kind === 'withdraw') &&
+      selected.length >= 2
+    ) {
       throw insufficientStateError(
         'missing_private_records',
         'Storage does not contain enough private records for this operation.',
