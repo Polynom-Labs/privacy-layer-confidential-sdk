@@ -3,6 +3,7 @@ import { readPoolClientFactory } from '../../contracts/contract-context.js';
 import { requestKytPassageForPoolInteraction } from '../kyt/passage-inspect.js';
 import type { KytApplicationIdHints } from '../pool/proof-types.js';
 import { submitPoolTransact } from './pool-transact.js';
+import { resolveZkConfigNonce } from '../environment/zk-config-nonce.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
 
 export interface SubmitSorobanConfidentialTransferInput {
@@ -41,10 +42,15 @@ export async function submitSorobanConfidentialTransfer(
   });
   return submitPoolTransact({
     contractClient: poolClient,
+    contractId: input.contractId,
     from: input.walletPublicKey,
+    nonce: resolveZkConfigNonce(input.transactEnvironment),
     proofHex: input.proofHex,
     publicHex: input.publicHex,
     ...(input.onboarding ? { onboarding: input.onboarding } : {}),
     approval,
+    networkPassphrase: input.networkPassphrase,
+    sorobanRpcUrl: input.sorobanRpcUrl,
+    transactEnvironment: input.transactEnvironment,
   });
 }

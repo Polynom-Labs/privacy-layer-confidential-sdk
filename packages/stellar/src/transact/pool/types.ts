@@ -17,6 +17,7 @@ export type PoolTransactClient = {
   is_nulifier_hash_consumed: (input: { hash: Buffer }) => Promise<{ result: boolean }>;
   transact: (parameters: {
     from: string;
+    nonce: bigint;
     proof_bytes: Buffer;
     pub_signals_bytes: Buffer;
     onboarding: OnboardingPayload | undefined;

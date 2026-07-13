@@ -3,6 +3,7 @@ import { readPoolClientFactory } from '../../contracts/contract-context.js';
 import type { PrivacyPoolService } from '../pool/service.js';
 import { requestKytPassageForPoolInteraction } from '../kyt/passage-inspect.js';
 import { submitPoolTransact } from './pool-transact.js';
+import { resolveZkConfigNonce } from '../environment/zk-config-nonce.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
 
 export interface SubmitSorobanDepositInput {
@@ -51,9 +52,14 @@ export async function submitSorobanDeposit(
   });
   return submitPoolTransact({
     contractClient: poolClient,
+    contractId: input.contractId,
     from: input.walletPublicKey,
+    nonce: resolveZkConfigNonce(input.transactEnvironment),
     proofHex: proof_hex,
     publicHex: public_hex,
     approval,
+    networkPassphrase: input.networkPassphrase,
+    sorobanRpcUrl: input.sorobanRpcUrl,
+    transactEnvironment: input.transactEnvironment,
   });
 }

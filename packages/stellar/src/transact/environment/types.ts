@@ -39,6 +39,12 @@ export interface StellarKytEnvironment {
 
 export interface StellarTransactEnvironment {
   network: StellarNetworkConfig;
+  /**
+   * Nonce (persistent storage key) of the pool's `ZkConfig` entry this
+   * environment's proofs/circuit shape target. Defaults to `0n` (the
+   * standard circuit) when omitted.
+   */
+  zkConfigNonce?: bigint;
   auditPublicKey?: AuditPublicKey;
   kyt: StellarKytEnvironment;
   signTransaction?: StellarSignTransaction;

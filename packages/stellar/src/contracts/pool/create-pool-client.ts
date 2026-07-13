@@ -16,12 +16,13 @@ export function createInternalPoolContractClient(input: {
     networkPassphrase: input.networkPassphrase,
     walletPublicKey: input.walletPublicKey,
   });
-  return new PrivacyPoolContractClient({
+  const client = new PrivacyPoolContractClient({
     contractId: input.contractId,
     networkPassphrase: input.networkPassphrase,
     rpcUrl: input.sorobanRpcUrl,
     allowHttp: true,
     publicKey: input.walletPublicKey,
     signTransaction: signBinding,
-  }) as unknown as PoolTransactClient;
+  });
+  return client as unknown as PoolTransactClient;
 }

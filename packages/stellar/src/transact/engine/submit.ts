@@ -6,6 +6,7 @@ import { finalizeSpendOperationAtExecute } from './execute.js';
 import { submitSorobanConfidentialTransfer } from '../submit/soroban-confidential-transfer.js';
 import { requestKytPassageForPoolInteraction } from '../kyt/passage-inspect.js';
 import { submitPoolTransact } from '../submit/pool-transact.js';
+import { resolveZkConfigNonce } from '../environment/zk-config-nonce.js';
 
 async function submitPreparedDeposit(
   prepared: StellarPreparedOperation,
@@ -42,10 +43,15 @@ async function submitPreparedDeposit(
   });
   return submitPoolTransact({
     contractClient: poolClient,
+    contractId: environment.network.poolContract,
     from: artifacts.walletPublicKey,
+    nonce: resolveZkConfigNonce(environment),
     proofHex: artifacts.proofHex,
     publicHex: artifacts.publicHex,
     approval,
+    networkPassphrase: environment.network.networkPassphrase,
+    sorobanRpcUrl: environment.network.rpcUrl,
+    transactEnvironment: environment,
   });
 }
 

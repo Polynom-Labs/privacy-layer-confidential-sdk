@@ -41,7 +41,7 @@
     "README.md"
   ],
   "scripts": {
-    "bindings:generate": "soroban contract bindings typescript --rpc-url https://soroban-testnet.stellar.org --network-passphrase \"Test SDF Network ; September 2015\" --contract-id CBVQTSTSIJ4UZMN5FQBFHPUIYSW3ATGSP57BZDJNKTOBNQODQTRGE4K5 --output-dir ./generated/contract --overwrite && soroban contract bindings typescript --rpc-url https://soroban-testnet.stellar.org --network-passphrase \"Test SDF Network ; September 2015\" --contract-id CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC --output-dir ./generated/registry --overwrite",
+    "bindings:generate": "soroban contract bindings typescript --rpc-url https://soroban-testnet.stellar.org --network-passphrase \"Test SDF Network ; September 2015\" --contract-id CD56SAQXVPM3MWTTNVDBDVUEQC6DPRIIYHP67C3ICH6JGMLJSWWUFUON --output-dir ./generated/contract --overwrite && soroban contract bindings typescript --rpc-url https://soroban-testnet.stellar.org --network-passphrase \"Test SDF Network ; September 2015\" --contract-id CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC --output-dir ./generated/registry --overwrite",
     "bindings:build": "npm run build --prefix generated/contract && npm run build --prefix generated/registry",
     "prebuild": "npm run bindings:build",
     "build": "tsup",
@@ -49,8 +49,8 @@
   },
   "dependencies": {
     "@arcanetech/privacy-sdk-core": "*",
-    "@auditable/privacy-pool-zk-sdk": "^0.6.1-rc.5",
-    "@stellar/stellar-sdk": "^14.6.1",
+    "@auditable/privacy-pool-zk-sdk": "^0.7.0",
+    "@stellar/stellar-sdk": "^16.0.1",
     "buffer": "^6.0.3",
     "contract": "file:./generated/contract",
     "registry": "file:./generated/registry",

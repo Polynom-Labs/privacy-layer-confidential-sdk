@@ -6,6 +6,7 @@ import { KytInspectError, parseKytReasonCode } from '../inspect-error.js';
 import type { StellarTransactEnvironment } from '../../environment/types.js';
 import { fetchCurrentLedger } from './poll.js';
 import { registerKytPassage } from './submit.js';
+import { resolveZkConfigNonce } from '../../environment/zk-config-nonce.js';
 
 type KytInspectResponse =
   | InspectKytPassageApproved
@@ -101,6 +102,7 @@ export async function requestKytPassageForPoolInteraction(
           decryptedAuditSlots: input.decryptedAuditSlots,
           onboarding: input.onboarding,
           nonce: buildNonce(),
+          zkConfigNonce: resolveZkConfigNonce(input.transactEnvironment),
           currentLedger,
         },
         kytJsonReplacer,
