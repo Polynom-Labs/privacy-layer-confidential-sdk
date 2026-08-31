@@ -68,3 +68,18 @@ export type {
   ProofResult,
   ProofWithChange,
 } from './pool/proof-types.js';
+export { prepareRelayTransactPackage } from './relay/prepare.js';
+export { prepareRelayTransactPackageFromPrepared } from './relay/from-prepared.js';
+export { readRelayTransactSupportedProfile } from './relay/profile.js';
+export { RELAY_TRANSACT_PACKAGE_VERSION_V1 } from './relay/constants.js';
+export type {
+  PrepareRelayTransactPackageInput,
+  RelayKeyVersionHints,
+  RelayTransactPackageV1,
+  RelayTransactPackageVersion,
+} from './relay/types.js';
+export type { PrepareRelayTransactPackageFromPreparedInput } from './relay/from-prepared.js';
+export type {
+  RelayTransactPublicLegContext,
+  RelayTransactSupportedProfile,
+} from './relay/profile.js';
