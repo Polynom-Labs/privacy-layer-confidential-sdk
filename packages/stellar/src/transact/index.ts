@@ -68,6 +68,7 @@ export type {
   ProofResult,
   ProofWithChange,
 } from './pool/proof-types.js';
+export { finalizeSpendOperationAtExecute } from './engine/execute.js';
 export { prepareRelayTransactPackage } from './relay/prepare.js';
 export { prepareRelayTransactPackageFromPrepared } from './relay/from-prepared.js';
 export { readRelayTransactSupportedProfile } from './relay/profile.js';
