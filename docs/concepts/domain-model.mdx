@@ -16,7 +16,7 @@ Before writing integration code, understand the domain objects the SDK reads and
 
 - **Deposit** — `from` public wallet, `to` private payment address.
 - **Withdraw** — `from` private payment address, `to` public wallet.
-- **Transfer** — both sides are usually private payment addresses; unregistered recipients use a public wallet `to` with onboarding at execute time.
+- **Transfer** — both sides are usually private payment addresses; unregistered recipients use a public wallet `to` with an escrow recipient at execute time.
 
 ## Private address registry
 
@@ -24,7 +24,7 @@ The registry links public wallet owners to their private payment addresses.
 
 | Status | Meaning |
 | --- | --- |
-| `registered` | Owner completed onboarding; private address is known. |
+| `registered` | Owner registered a private address; it is known. |
 | `unregistered` | Owner has no private address yet; transfers may create a pending claim. |
 | `checking` | Registration status is being resolved. |
 
@@ -77,7 +77,7 @@ These values never leave the client in plaintext and must not appear in server-s
 
 ## Pending claims
 
-When you transfer to an **unregistered** recipient (public wallet `to`), the preset can attach an **onboarding payload** at execute time. The recipient later registers and claims the pending note through your application flow.
+When you transfer to an **unregistered** recipient (public wallet `to`), the preset binds a public **escrow recipient** at execute time. The output note uses a temporary private address until the recipient registers.
 
 Preset-specific hooks for this path are documented in [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient).
 

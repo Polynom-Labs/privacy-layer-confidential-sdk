@@ -4,7 +4,12 @@ import { requireContractContext } from '../../contracts/contract-context.js';
 import { getPrivacyPoolService } from '../pool/singleton.js';
 import type { StellarPendingClaim } from '../../types.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
-import { assertPendingClaimOwner, pendingClaimToCoin } from './resolve.js';
+import {
+  assertPendingClaimOwner,
+  pendingClaimToCoin,
+  recoveryScalarHexFromClaim,
+} from './resolve.js';
+import { privKeyScalarDecimalFromRecipientScalarHex } from '../encoding/priv-key-scalar-from-recipient-hex.js';
 
 export async function verifyPendingClaimBeforeExecute(input: {
   claim: StellarPendingClaim;
@@ -18,15 +23,18 @@ export async function verifyPendingClaimBeforeExecute(input: {
       walletPublicKey: input.walletPublicKey,
     });
     const coin = pendingClaimToCoin(input.claim);
+    const privKeyScalar = privKeyScalarDecimalFromRecipientScalarHex(
+      recoveryScalarHexFromClaim(input.claim),
+    );
     const nullifierHashHex = await getPrivacyPoolService().calculateNullifierHash(
       coin.nullifier,
+      privKeyScalar,
     );
     const contractContext = requireContractContext(input.environment);
-    const poolContractId =
-      input.poolContractId?.trim() || contractContext.network.poolContract;
     const spent = await readNullifierConsumedOnChain({
       contractContext,
-      poolContractId,
+      poolContractId:
+        input.poolContractId?.trim() || contractContext.network.poolContract,
       walletPublicKey: input.walletPublicKey.trim(),
       nullifierHashHex,
     });

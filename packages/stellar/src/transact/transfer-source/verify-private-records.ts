@@ -3,6 +3,8 @@ import { readNullifierConsumedOnChain } from '../../contracts/pool/pool-domain-s
 import { requireContractContext } from '../../contracts/contract-context.js';
 import { requireCoinNoteFromRecord } from '../private-address/record-coin.js';
 import { getPrivacyPoolService } from '../pool/singleton.js';
+import { ensureSenderPrivKeyScalarHex } from '../engine/prepare/shared.js';
+import { privKeyScalarDecimalFromRecipientScalarHex } from '../encoding/priv-key-scalar-from-recipient-hex.js';
 import type { StellarPrivateRecord } from '../../types.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
 
@@ -13,8 +15,25 @@ async function readPrivateRecordNullifierSpendStatus(input: {
   poolContractId?: string;
 }): Promise<{ spent: boolean; nullifierHashHex: string }> {
   const coin = requireCoinNoteFromRecord(input.record);
+  const privateAddress = input.record.privateAddress?.trim();
+  if (!privateAddress) {
+    throw executionError(
+      'Private record is missing a private address; cannot derive the owner-bound spend scalar.',
+      'validation',
+      {
+        reason: 'private_record_missing_private_address',
+        recordId: input.record.id,
+      },
+    );
+  }
+  const scalarHex = await ensureSenderPrivKeyScalarHex(
+    input.environment,
+    privateAddress,
+    input.walletPublicKey,
+  );
   const nullifierHashHex = await getPrivacyPoolService().calculateNullifierHash(
     coin.nullifier,
+    privKeyScalarDecimalFromRecipientScalarHex(scalarHex),
   );
   const contractContext = requireContractContext(input.environment);
   const poolContractId =

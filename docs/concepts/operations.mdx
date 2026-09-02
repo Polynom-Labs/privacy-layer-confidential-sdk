@@ -75,7 +75,7 @@ Spend a sender note and create output note(s) for a recipient who is **already i
 Send to a **public wallet** when the recipient has not registered a private address yet.
 
 1. **Prepare** — validate sender state and disclosure (recipient/asset/amount usually public).
-2. **Execute** — preset attaches onboarding payload so the recipient can claim later.
+2. **Execute** — preset binds `escrow_recipient` to the public wallet so the pool can credit the recipient.
 3. **After success** — sender note consumed; pending claim indexed by your backend.
 
 Requires preset-specific `transactEnvironment` hooks. See [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient).

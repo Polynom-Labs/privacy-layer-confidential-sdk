@@ -1,5 +1,3 @@
-import type { OnboardingPayload } from '../onboarding/payload.js';
-
 export type PoolTransactResult = {
   signAndSend: () => Promise<{
     sendTransactionResponse?: {
@@ -20,11 +18,11 @@ export type PoolTransactClient = {
     nonce: bigint;
     proof_bytes: Buffer;
     pub_signals_bytes: Buffer;
-    onboarding: OnboardingPayload | undefined;
     kyt_authorization: {
       expiration_ledger: number;
       signature: Buffer;
     };
+    escrow_recipient?: string;
   }) => Promise<PoolTransactResult>;
 };
 

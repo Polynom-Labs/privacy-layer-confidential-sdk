@@ -17,6 +17,7 @@ import {
   type StellarTransactionDetails,
 } from '../rpc/index.js';
 import { getPrivacyPoolService } from '../transact/pool/singleton.js';
+import { privKeyScalarDecimalFromRecipientScalarHex } from '../transact/encoding/priv-key-scalar-from-recipient-hex.js';
 import type {
   StellarTransactEnvironment,
   TransferRecipientExecutionContext,
@@ -111,11 +112,13 @@ export async function checkPrivateRecordSpendStatusWithEnvironment(input: {
   poolContractId?: string;
   nullifier: string;
   walletPublicKey: string;
+  privKeyScalarHex: string;
 }): Promise<{ spent: boolean; nullifierHashHex: string }> {
   const environment = requireNetworkEnvironment(input.transactEnvironment);
   const contractContext = requireContractContext(environment);
   const nullifierHashHex = await getPrivacyPoolService().calculateNullifierHash(
     input.nullifier,
+    privKeyScalarDecimalFromRecipientScalarHex(input.privKeyScalarHex),
   );
   const poolContractId =
     input.poolContractId?.trim() || contractContext.network.poolContract;

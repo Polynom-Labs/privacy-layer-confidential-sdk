@@ -17,7 +17,7 @@ function requirePreparedArtifacts(
   prepared: StellarPreparedOperation,
 ): Pick<
   PrepareRelayTransactPackageInput,
-  'proofBytes' | 'publicSignals' | 'applicationIdHints' | 'onboarding'
+  'proofBytes' | 'publicSignals' | 'applicationIdHints' | 'escrowRecipient'
 > {
   const artifacts = prepared.transactArtifacts;
   if (
@@ -31,7 +31,9 @@ function requirePreparedArtifacts(
     proofBytes: artifacts.proofHex,
     publicSignals: artifacts.publicHex,
     applicationIdHints: artifacts.applicationIdsPlaintext,
-    ...(artifacts.onboarding ? { onboarding: artifacts.onboarding } : {}),
+    ...(artifacts.escrowRecipient
+      ? { escrowRecipient: artifacts.escrowRecipient }
+      : {}),
   };
 }
 

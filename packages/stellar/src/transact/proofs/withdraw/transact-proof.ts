@@ -5,10 +5,7 @@ import type {
   StateFile,
 } from '@auditable/privacy-pool-zk-sdk';
 import { buildPublicWithdrawLegs } from '../../proofs/transaction-input.js';
-import {
-  leafEphemeralCoords,
-  MIN_CONFIDENTIAL_TRANSFER_STROOPS,
-} from '../../proofs/confidential/helpers.js';
+import { MIN_CONFIDENTIAL_TRANSFER_STROOPS } from '../../proofs/confidential/helpers.js';
 import { buildPoolTransactionAuditParameters } from '../../audit/parameters.js';
 import {
   buildWithdrawPublicInput,
@@ -19,7 +16,7 @@ import {
   type WithdrawChangeCoin,
 } from '../../proofs/withdraw/helpers.js';
 import type { KytApplicationIdHints } from '../../pool/proof-types.js';
-import { parseEphemeralKeyString } from '../../encoding/ephemeral-key.js';
+import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-key-scalar-from-recipient-hex.js';
 
 function validateSingleWithdrawAmounts(
   withdrawAmountStroops: bigint,
@@ -62,17 +59,23 @@ function buildPrimaryWithdrawForCoin(parameters: {
   applicationId: string;
   coin: CoinData;
   state: StateFile;
-  depositorEphemeralKey: string;
+  privKeyScalarHex: string;
 }) {
-  const ephemeralPoint = parseEphemeralKeyString(parameters.depositorEphemeralKey);
   const witness = parameters.sdk.buildWithdrawMerkleWitness(
     parameters.coin,
     parameters.state,
   );
+  const privKeyScalar = privKeyScalarDecimalFromRecipientScalarHex(
+    parameters.privKeyScalarHex,
+  );
+  const ownerPubHex = parameters.sdk.ecdhEphemeralPublicKeyFromScalarHex(
+    parameters.privKeyScalarHex,
+  );
   const primaryWithdraw = withdrawObjectFromMerkleWitness(
     witness,
-    leafEphemeralCoords(ephemeralPoint.xHex, ephemeralPoint.yHex),
+    ownerPubHex,
     parameters.applicationId,
+    privKeyScalar,
   );
   return { witness, primaryWithdraw };
 }
@@ -96,7 +99,13 @@ async function prepareSingleWithdrawProofInputs(parameters: {
     parameters.withdrawAmountStroops,
     noteStroops,
   );
-  const { witness, primaryWithdraw } = buildPrimaryWithdrawForCoin(parameters);
+  const { witness, primaryWithdraw } = buildPrimaryWithdrawForCoin({
+    sdk: parameters.sdk,
+    applicationId: parameters.applicationId,
+    coin: parameters.coin,
+    state: parameters.state,
+    privKeyScalarHex: parameters.privKeyScalarHex,
+  });
   const { deposits, changeCoin } = await resolveWithdrawChangeDeposits({
     changeStroops,
     changePrivateAddressStpl1: parameters.changePrivateAddressStpl1,

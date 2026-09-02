@@ -10,6 +10,8 @@ import {
   RELAY_SIGNAL_INDEX_STATE_ROOT,
   RELAY_SIGNAL_INDEX_WITHDRAW_ADDRESS_HI,
   RELAY_SIGNAL_INDEX_WITHDRAW_ADDRESS_LO,
+  RELAY_SIGNAL_INDEX_ESCROW_RECIPIENT_HI,
+  RELAY_SIGNAL_INDEX_ESCROW_RECIPIENT_LO,
 } from './constants.js';
 import { sliceSupportedPublicSignalFields } from './signals.js';
 import type { RelayTransactPackageV1 } from './types.js';
@@ -18,6 +20,8 @@ export type RelayTransactPublicLegContext = {
   stateRoot: string;
   withdrawAddressHi: string;
   withdrawAddressLo: string;
+  escrowRecipientHi: string;
+  escrowRecipientLo: string;
   publicWithdrawalAssetHi: string;
   publicWithdrawalAssetLo: string;
   publicDepositAssetHi: string;
@@ -60,6 +64,8 @@ export function readRelayTransactSupportedProfile(
       stateRoot: fieldHex(fields, RELAY_SIGNAL_INDEX_STATE_ROOT),
       withdrawAddressHi: fieldHex(fields, RELAY_SIGNAL_INDEX_WITHDRAW_ADDRESS_HI),
       withdrawAddressLo: fieldHex(fields, RELAY_SIGNAL_INDEX_WITHDRAW_ADDRESS_LO),
+      escrowRecipientHi: fieldHex(fields, RELAY_SIGNAL_INDEX_ESCROW_RECIPIENT_HI),
+      escrowRecipientLo: fieldHex(fields, RELAY_SIGNAL_INDEX_ESCROW_RECIPIENT_LO),
       publicWithdrawalAssetHi: fieldHex(
         fields,
         RELAY_SIGNAL_INDEX_PUBLIC_WITHDRAWAL_ASSET_HI,

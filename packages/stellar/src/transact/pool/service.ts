@@ -9,6 +9,7 @@ import { merkleRootBufferToFrDecimal } from '../merkle/field-decimal.js';
 import {
   privateAddressSdk,
   recipientPublicKeysDecimalFromPrivateAddress,
+  type SpendScalarDomain,
 } from '../private-address/codec.js';
 import {
   proveWithdrawTransact,
@@ -81,13 +82,17 @@ export class PrivacyPoolService {
     return resolvePoolApplicationId(this.applicationId);
   }
 
-  async generatePrivateAddressFromStellarSignature(signature: string): Promise<string> {
+  async generatePrivateAddressFromStellarSignature(
+    signature: string,
+    domain: SpendScalarDomain,
+  ): Promise<string> {
     await this.ensureInit();
     if (!this.sdk) {
       throw new Error('SDK not initialized');
     }
     return privateAddressSdk(this.sdk).generatePrivateAddressFromStellarSignature(
       signature,
+      domain,
     );
   }
 
@@ -176,9 +181,12 @@ export class PrivacyPoolService {
     return { ...proof, applicationIdsPlaintext };
   }
 
-  async calculateNullifierHash(nullifier: string): Promise<string> {
+  async calculateNullifierHash(
+    nullifier: string,
+    privKeyScalar: string,
+  ): Promise<string> {
     const sdk = await this.getInitializedSdk();
-    return sdk.calculateNullifierHash(nullifier);
+    return sdk.calculateNullifierHash(nullifier, privKeyScalar);
   }
   async prepareWithdrawTransactProof(parameters: {
     coin: CoinData;

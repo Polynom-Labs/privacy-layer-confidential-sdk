@@ -1,6 +1,6 @@
 ---
 title: Transfer to unregistered recipient
-description: Transfer to a recipient who is not yet registered, with onboarding at execute time
+description: Transfer to a recipient who is not yet registered, using a temporary private address and public escrow recipient
 ---
 
 import { OperationDisclosures } from '../../snippets/operation-disclosures.jsx';
@@ -11,13 +11,10 @@ import { OperationDisclosures } from '../../snippets/operation-disclosures.jsx';
 
 ## Transact environment hooks
 
-Unregistered recipients need `resolveTransferRecipientAtExecute` and `buildTransferOnboardingAtExecute` on `transactEnvironment`. Add them during client bootstrap (see [Setup](/application-development/setup)).
+Unregistered recipients need `resolveTransferRecipientAtExecute` on `transactEnvironment`. The resolver supplies a temporary private address for the output note. At execute time the SDK sets the pool `escrow_recipient` argument to the recipient's Stellar G-address. Add the hook during client bootstrap (see [Setup](/application-development/setup)).
 
 ```ts
-import {
-  buildTransferOnboardingAtExecute,
-  generateTemporaryRecipientPrivateAddress,
-} from '@arcanetech/privacy-sdk-stellar/transact';
+import { generateTemporaryRecipientPrivateAddress } from '@arcanetech/privacy-sdk-stellar/transact';
 
 const transactEnvironment = {
   // ...network, kyt, signTransaction from setup
@@ -29,13 +26,12 @@ const transactEnvironment = {
       temporaryRecipientKey,
     };
   },
-  buildTransferOnboardingAtExecute,
 };
 ```
 
 ## Example
 
-Call `transfer` with a public Stellar `to` address so onboarding runs at execute time.
+Call `transfer` with a public Stellar `to` address so escrow recipient is bound at execute time.
 
 ### Seed state
 
@@ -116,21 +112,21 @@ if (operation.status === 'rejected') {
 await operation.execute({});
 ```
 
-The SDK attaches the onboarding payload during `execute` when the recipient resolver returns a temporary private address.
+The SDK binds `escrow_recipient` during `execute` when the recipient resolver returns a Stellar G-address.
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Operations — Pending claim" icon="arrow-right-arrow-left" href="/concepts/operations#transfer-to-unregistered-recipient-pending-claim">
+  <Card title="Operations — Unregistered recipient" icon="arrow-right-arrow-left" href="/concepts/operations#transfer-to-unregistered-recipient-pending-claim">
     Unregistered recipient flow semantics.
   </Card>
   <Card title="Data sources" icon="server" href="/integration/data-sources">
     Seed state is a doc fixture; production data flows.
   </Card>
   <Card title="Disclosure policy" icon="eye" href="/concepts/disclosure-policy">
-    Pending claim disclosure constraints.
+    Public-recipient disclosure constraints.
   </Card>
-  <Card title="Domain model" icon="sitemap" href="/concepts/domain-model#pending-claims">
-    Pending claims and onboarding.
+  <Card title="Domain model" icon="sitemap" href="/concepts/domain-model">
+    Private records and registry lookups.
   </Card>
 </CardGroup>

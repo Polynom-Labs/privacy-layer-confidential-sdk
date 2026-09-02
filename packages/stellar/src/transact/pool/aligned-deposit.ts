@@ -34,17 +34,12 @@ export async function buildAlignedDepositSlotForSdk(
 ): Promise<AlignedDepositSlot> {
   const privateAddressPoint = decodePrivateAddress(parameters.privateAddressStpl1);
   const scalarHex = sampleValidDepositScalarHex();
-  const shared = sdk.ecdhSharedKey(
+  const [assetHi, assetLo] = tokenAddressToAssetLeg(parameters.tokenAddress);
+  const resolvedApplicationId = resolvePoolApplicationId(applicationId);
+  const generated = sdk.generateCoinForDepositWithOwnerPubHex(
     scalarHex,
     privateAddressPoint.x,
     privateAddressPoint.y,
-  );
-  const [assetHi, assetLo] = tokenAddressToAssetLeg(parameters.tokenAddress);
-  const resolvedApplicationId = resolvePoolApplicationId(applicationId);
-  const generated = sdk.generateCoinForDepositWithSharedHex(
-    scalarHex,
-    shared.x,
-    shared.y,
     parameters.amountStroops,
     assetHi,
     assetLo,
@@ -66,6 +61,6 @@ export async function buildAlignedDepositSlotForSdk(
     commitment_hex: generated.commitment_hex,
     coin: generated.coin,
     depositScalarHex: scalarHex,
-    precommitementHex: generated.precommitement_hex,
+    precommitementHex: generated.precommitementHex,
   };
 }

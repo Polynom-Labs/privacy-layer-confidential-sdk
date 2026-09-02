@@ -17,7 +17,10 @@ export {
   recipientPublicKeysDecimalFromPrivateAddress,
   privateAddressSdk,
   DEFAULT_PRIVATE_ADDRESS_SIGN_NONCE,
+  OWNER_BOUND_NOTE_SCHEMA_VERSION,
+  spendScalarHexFromStellarSignature,
 } from './private-address/codec.js';
+export type { SpendScalarDomain } from './private-address/codec.js';
 export {
   loadStellarBrowserAssets,
   loadDefaultStellarBrowserAssets,
@@ -27,19 +30,12 @@ export type {
   StellarTransactEnvironment,
   StellarKytEnvironment,
   TransferRecipientExecutionContext,
-  TransferOnboardingRecipientNoteInput,
   TransferTemporaryRecipientKey,
-  BuildTransferOnboardingAtExecuteInput,
 } from './environment/types.js';
-export type { OnboardingPayload } from './onboarding/payload.js';
-export type { PrivateAddressRegistration } from 'contract';
 export {
-  buildOnboardingPayload,
-  buildTransferOnboardingAtExecute,
   generateRandomDepositScalarHex,
   generateTemporaryRecipientPrivateAddress,
-  type TemporaryRecipientKeyMaterial,
-} from './onboarding/build-payload.js';
+} from './private-address/temporary-recipient.js';
 export { KytInspectError, parseKytReasonCode } from './kyt/inspect-error.js';
 export { submitSorobanDeposit } from './submit/soroban-deposit.js';
 export { submitSorobanConfidentialTransfer } from './submit/soroban-confidential-transfer.js';

@@ -1,5 +1,5 @@
 import type { CoinData, DepositSlot } from '@auditable/privacy-pool-zk-sdk';
-import { buildRecipientAndOptionalChangeDeposits } from '../../onboarding/recipient-change-deposits.js';
+import { buildRecipientAndOptionalChangeDeposits } from './recipient-change-deposits.js';
 import { withTokenAddressPublicInputs } from '../../proofs/transaction-input.js';
 import { senderWithdrawFrAndScalar } from '../../proofs/confidential/helpers.js';
 

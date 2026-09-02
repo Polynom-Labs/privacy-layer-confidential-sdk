@@ -47,6 +47,8 @@ async function filterUnspentPrivateRecords(input: {
   checkNullifierSpent: (parameters: {
     nullifier: string;
     walletPublicKey: string;
+    privKeyScalarHex?: string;
+    privateAddressStpl1?: string;
   }) => Promise<boolean>;
 }): Promise<StellarPrivateRecord[]> {
   const unspent: StellarPrivateRecord[] = [];
@@ -59,6 +61,7 @@ async function filterUnspentPrivateRecords(input: {
     const spent = await input.checkNullifierSpent({
       nullifier: coin.nullifier,
       walletPublicKey: input.walletPublicKey,
+      ...(record.privateAddress ? { privateAddressStpl1: record.privateAddress } : {}),
     });
     if (!spent) {
       unspent.push(record);
@@ -106,6 +109,8 @@ export async function selectPrivateRecords(input: {
   checkNullifierSpent?: (parameters: {
     nullifier: string;
     walletPublicKey: string;
+    privKeyScalarHex?: string;
+    privateAddressStpl1?: string;
   }) => Promise<boolean>;
 }): Promise<StellarPrivateRecord[]> {
   const from = input.intent.from;

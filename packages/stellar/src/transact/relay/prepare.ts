@@ -21,8 +21,8 @@ export function prepareRelayTransactPackage(
     publicSignals: normalizeHex(input.publicSignals),
     applicationIdHints: input.applicationIdHints,
   };
-  if (input.onboarding) {
-    prepared.onboarding = input.onboarding;
+  if (input.escrowRecipient) {
+    prepared.escrowRecipient = input.escrowRecipient;
   }
   if (input.keyVersionHints) {
     prepared.keyVersionHints = input.keyVersionHints;

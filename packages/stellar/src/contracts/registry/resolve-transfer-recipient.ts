@@ -1,5 +1,5 @@
 import type { StellarAddress } from '../../types.js';
-import { generateTemporaryRecipientPrivateAddress } from '../../transact/onboarding/recipient.js';
+import { generateTemporaryRecipientPrivateAddress } from '../../transact/private-address/temporary-recipient.js';
 import type { TransferRecipientExecutionContext } from '../../transact/environment/types.js';
 import type { StellarContractContext } from '../contract-context.js';
 import { readRegistryLookupFromChain } from './registry-domain-service.js';

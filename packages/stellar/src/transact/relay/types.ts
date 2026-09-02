@@ -1,4 +1,3 @@
-import type { OnboardingPayload } from '../onboarding/payload.js';
 import type { KytApplicationIdHints } from '../pool/proof-types.js';
 import { RELAY_TRANSACT_PACKAGE_VERSION_V1 } from './constants.js';
 
@@ -18,7 +17,7 @@ export type RelayTransactPackageV1 = {
   proofBytes: string;
   publicSignals: string;
   applicationIdHints: KytApplicationIdHints;
-  onboarding?: OnboardingPayload;
+  escrowRecipient?: string;
   keyVersionHints?: RelayKeyVersionHints;
 };
 
@@ -28,6 +27,6 @@ export type PrepareRelayTransactPackageInput = {
   publicSignals: string;
   applicationIdHints: KytApplicationIdHints;
   zkConfigNonce?: bigint;
-  onboarding?: OnboardingPayload;
+  escrowRecipient?: string;
   keyVersionHints?: RelayKeyVersionHints;
 };

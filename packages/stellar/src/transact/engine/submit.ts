@@ -68,9 +68,11 @@ async function submitPreparedPoolTransact(
     walletPublicKey: artifacts.walletPublicKey,
     proofHex: artifacts.proofHex,
     publicHex: artifacts.publicHex,
-    ...(artifacts.onboarding ? { onboarding: artifacts.onboarding } : {}),
     ...(artifacts.applicationIdsPlaintext
       ? { applicationIdsPlaintext: artifacts.applicationIdsPlaintext }
+      : {}),
+    ...(artifacts.escrowRecipient
+      ? { escrowRecipient: artifacts.escrowRecipient }
       : {}),
     networkPassphrase: environment.network.networkPassphrase,
     sorobanRpcUrl: environment.network.rpcUrl,

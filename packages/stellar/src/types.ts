@@ -9,7 +9,6 @@ import type {
   StellarPendingClaim,
   StellarPrivateRecord,
 } from './state/domain/types.js';
-import type { OnboardingPayload } from './transact/onboarding/payload.js';
 import type { KytApplicationIdHints } from './transact/pool/proof-types.js';
 import type { StellarTransferFromAddress } from './transact/transfer-source/types.js';
 
@@ -77,7 +76,7 @@ export interface StellarTransactArtifacts {
   precommitementHex?: string;
   commitmentHex?: string;
   walletPublicKey?: string;
-  onboarding?: OnboardingPayload;
+  escrowRecipient?: string;
   executeFinalizeRequired?: boolean;
   pendingClaim?: StellarPendingClaim;
   spendSource?: 'privateAddress' | 'pendingClaim';

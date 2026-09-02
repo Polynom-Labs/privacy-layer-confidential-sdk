@@ -14,38 +14,22 @@ import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-
 export const MIN_CONFIDENTIAL_TRANSFER_STROOPS = 1n;
 export const ZERO_STROOPS = 0n;
 
-type LeafEphemeralCoords = { x: string; y: string };
-
-export function leafEphemeralCoords(xHex: string, yHex: string): LeafEphemeralCoords {
-  const coords = {} as LeafEphemeralCoords;
-  Object.defineProperty(coords, 'x', {
-    value: xHex,
-    enumerable: true,
-    writable: true,
-  });
-  Object.defineProperty(coords, 'y', {
-    value: yHex,
-    enumerable: true,
-    writable: true,
-  });
-  return coords;
-}
-
 export function withdrawWitnessForCoin(parameters: {
   sdk: PrivacyPoolSDK;
   coin: CoinData;
   state: StateFile;
-  xHex: string;
-  yHex: string;
+  ownerPubHex: { x: string; y: string };
+  privKeyScalar: string;
   applicationId: string;
 }) {
-  const { sdk, coin, state, xHex, yHex } = parameters;
+  const { sdk, coin, state } = parameters;
   const witness = sdk.buildWithdrawMerkleWitness(coin, state);
   const withdrawApplicationId = coin.application_id ?? parameters.applicationId;
   const withdrawObject = withdrawObjectFromMerkleWitness(
     witness,
-    leafEphemeralCoords(xHex, yHex),
+    parameters.ownerPubHex,
     withdrawApplicationId,
+    parameters.privKeyScalar,
   );
   return { witness, withdrawObject };
 }
@@ -55,24 +39,24 @@ export function dualWithdrawLegsWithSharedRoot(parameters: {
   coinA: CoinData;
   coinB: CoinData;
   state: StateFile;
-  ephemeralA: { xHex: string; yHex: string };
-  ephemeralB: { xHex: string; yHex: string };
+  ownerPubHex: { x: string; y: string };
+  privKeyScalar: string;
   applicationId: string;
 }) {
   const legA = withdrawWitnessForCoin({
     sdk: parameters.sdk,
     coin: parameters.coinA,
     state: parameters.state,
-    xHex: parameters.ephemeralA.xHex,
-    yHex: parameters.ephemeralA.yHex,
+    ownerPubHex: parameters.ownerPubHex,
+    privKeyScalar: parameters.privKeyScalar,
     applicationId: parameters.applicationId,
   });
   const legB = withdrawWitnessForCoin({
     sdk: parameters.sdk,
     coin: parameters.coinB,
     state: parameters.state,
-    xHex: parameters.ephemeralB.xHex,
-    yHex: parameters.ephemeralB.yHex,
+    ownerPubHex: parameters.ownerPubHex,
+    privKeyScalar: parameters.privKeyScalar,
     applicationId: parameters.applicationId,
   });
   if (legA.witness.stateRoot !== legB.witness.stateRoot) {

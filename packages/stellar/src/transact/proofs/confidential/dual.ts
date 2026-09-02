@@ -13,7 +13,7 @@ import {
   generatedOutputCoinFromSlot,
   type GeneratedOutputCoin,
 } from './shared.js';
-import { parseEphemeralKeyString } from '../../encoding/ephemeral-key.js';
+import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-key-scalar-from-recipient-hex.js';
 
 type PrepareConfidentialTransferProofDualParameters = {
   coinA: CoinData;
@@ -95,13 +95,19 @@ async function buildDualTransferProofContext(
     changeStroops,
     parameters.selfPrivateAddressStpl1ForChange,
   );
+  const privKeyScalar = privKeyScalarDecimalFromRecipientScalarHex(
+    parameters.senderPrivKeyScalarHex,
+  );
+  const ownerPubHex = sdk.ecdhEphemeralPublicKeyFromScalarHex(
+    parameters.senderPrivKeyScalarHex,
+  );
   const { legA, legB } = dualWithdrawLegsWithSharedRoot({
     sdk,
     coinA: parameters.coinA,
     coinB: parameters.coinB,
     state: parameters.state,
-    ephemeralA: parseEphemeralKeyString(parameters.ephemeralAKey),
-    ephemeralB: parseEphemeralKeyString(parameters.ephemeralBKey),
+    ownerPubHex,
+    privKeyScalar,
     applicationId,
   });
   const transferInputs = await buildSenderTransferDepositsAndPublicInput({

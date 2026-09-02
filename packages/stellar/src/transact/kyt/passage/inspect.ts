@@ -1,4 +1,3 @@
-import type { OnboardingPayload } from '../../onboarding/payload.js';
 import type { InspectKytPassageApproved } from '@auditable/privacy-pool-zk-sdk';
 import { resolvePoolApplicationId } from '../../audit/parameters.js';
 import type { KytApplicationIdHints } from '../../pool/proof-types.js';
@@ -30,7 +29,6 @@ export interface RequestKytPassageForPoolInteractionInput {
   poolContract: string;
   proofHex: string;
   publicHex: string;
-  onboarding?: OnboardingPayload;
   decryptedAuditSlots?: DecryptedKytAuditSlot[];
   applicationIdsPlaintext?: KytApplicationIdHints;
   networkPassphrase: string;
@@ -100,7 +98,6 @@ export async function requestKytPassageForPoolInteraction(
           publicSignalsBytes: input.publicHex,
           applicationIdsPlaintext,
           decryptedAuditSlots: input.decryptedAuditSlots,
-          onboarding: input.onboarding,
           nonce: buildNonce(),
           zkConfigNonce: resolveZkConfigNonce(input.transactEnvironment),
           currentLedger,

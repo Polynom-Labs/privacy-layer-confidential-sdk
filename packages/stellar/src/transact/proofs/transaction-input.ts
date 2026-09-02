@@ -14,6 +14,8 @@ type BasePublicInput = {
   withdrawAddressHi: string;
   withdrawAddressLo: string;
   privKeyScalar: string;
+  escrowRecipientHi?: string;
+  escrowRecipientLo?: string;
 };
 
 const CONTRACT_ADDRESS_HALF_BYTES = 16;
@@ -52,6 +54,8 @@ export function withTokenAddressPublicInputs(
     ...base,
     tokenAddressHi: hi,
     tokenAddressLo: lo,
+    escrowRecipientHi: base.escrowRecipientHi ?? '0',
+    escrowRecipientLo: base.escrowRecipientLo ?? '0',
   };
 }
 

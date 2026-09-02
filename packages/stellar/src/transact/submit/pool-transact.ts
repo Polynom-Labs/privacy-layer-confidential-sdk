@@ -1,6 +1,5 @@
-import type { OnboardingPayload } from '../onboarding/payload.js';
 import { approvalSignatureToBytes } from '../kyt/passage-inspect.js';
-import { runTtlPreflight } from '../submit/ttl-preflight.js';
+import { runTtlPreflight } from './ttl-preflight.js';
 import { extendZkConfigTtlIfNeeded } from './zk-config-ttl.js';
 import type { PoolTransactClient } from '../pool/types.js';
 import type { InspectKytPassageApproved } from '@auditable/privacy-pool-zk-sdk';
@@ -14,11 +13,11 @@ export async function submitPoolTransact(parameters: {
   nonce: bigint;
   proofHex: string;
   publicHex: string;
-  onboarding?: OnboardingPayload;
   approval: InspectKytPassageApproved;
   networkPassphrase: string;
   sorobanRpcUrl: string;
   transactEnvironment: StellarTransactEnvironment;
+  escrowRecipient?: string;
 }): Promise<string> {
   await extendZkConfigTtlIfNeeded({
     sorobanRpcUrl: parameters.sorobanRpcUrl,
@@ -33,11 +32,13 @@ export async function submitPoolTransact(parameters: {
     nonce: parameters.nonce,
     proof_bytes: Buffer.from(parameters.proofHex.replace(/^0x/iu, ''), 'hex'),
     pub_signals_bytes: Buffer.from(parameters.publicHex.replace(/^0x/iu, ''), 'hex'),
-    onboarding: parameters.onboarding,
     kyt_authorization: {
       expiration_ledger: parameters.approval.expiresAtLedger,
       signature: approvalSignatureToBytes(parameters.approval.signature),
     },
+    ...(parameters.escrowRecipient
+      ? { escrow_recipient: parameters.escrowRecipient }
+      : {}),
   });
   await runTtlPreflight(assembledTransaction);
   const sentTransaction = await assembledTransaction.signAndSend();

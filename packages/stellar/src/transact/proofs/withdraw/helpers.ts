@@ -18,7 +18,6 @@ import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-
 import { withTokenAddressPublicInputs } from '../../proofs/transaction-input.js';
 import { buildPoolTransactionAuditParameters } from '../../audit/parameters.js';
 import type { TransactionAuditParams } from '@auditable/privacy-pool-zk-sdk';
-import { parseEphemeralKeyString } from '../../encoding/ephemeral-key.js';
 
 export type AlignedDepositSlotBuilder = (parameters: {
   privateAddressStpl1: string;
@@ -158,19 +157,20 @@ function buildDualWithdrawPublicInput(parameters: {
   });
 }
 
-export async function prepareDualWithdrawProofInputs(
-  parameters: DualWithdrawProofParameters & { applicationId: string },
-): Promise<{
+type DualWithdrawProofInputs = {
   publicInput: ReturnType<typeof withTokenAddressPublicInputs>;
   audit: TransactionAuditParams;
   withdrawLegs: [WithdrawObject, WithdrawObject];
   deposits: [DepositSlot, DepositSlot];
   changeCoin?: WithdrawChangeCoin;
-}> {
-  const totalNotes = BigInt(parameters.coinA.value) + BigInt(parameters.coinB.value);
+};
+
+export async function prepareDualWithdrawProofInputs(
+  parameters: DualWithdrawProofParameters & { applicationId: string },
+): Promise<DualWithdrawProofInputs> {
   const changeStroops = validateDualWithdrawAmounts(
     parameters.withdrawAmountStroops,
-    totalNotes,
+    BigInt(parameters.coinA.value) + BigInt(parameters.coinB.value),
     parameters.changePrivateAddressStpl1,
   );
   const { legA, legB } = dualWithdrawLegsWithSharedRoot({
@@ -178,8 +178,12 @@ export async function prepareDualWithdrawProofInputs(
     coinA: parameters.coinA,
     coinB: parameters.coinB,
     state: parameters.state,
-    ephemeralA: parseEphemeralKeyString(parameters.ephemeralAKey),
-    ephemeralB: parseEphemeralKeyString(parameters.ephemeralBKey),
+    ownerPubHex: parameters.sdk.ecdhEphemeralPublicKeyFromScalarHex(
+      parameters.privKeyScalarHex,
+    ),
+    privKeyScalar: privKeyScalarDecimalFromRecipientScalarHex(
+      parameters.privKeyScalarHex,
+    ),
     applicationId: parameters.applicationId,
   });
   const { deposits, changeCoin } = await resolveWithdrawChangeDeposits({
@@ -201,8 +205,8 @@ export async function prepareDualWithdrawProofInputs(
   return {
     publicInput,
     audit,
-    withdrawLegs: [legA.withdrawObject, legB.withdrawObject],
     deposits,
+    withdrawLegs: [legA.withdrawObject, legB.withdrawObject],
     ...(changeCoin ? { changeCoin } : {}),
   };
 }

@@ -4,15 +4,27 @@ import {
   encodeStealthAddress,
   recipientPublicKeysDecimalFromStealthAddress,
 } from '@auditable/privacy-pool-zk-sdk';
-import type { PrivacyPoolSDK } from '@auditable/privacy-pool-zk-sdk';
+import type { PrivacyPoolSDK, SpendScalarDomain } from '@auditable/privacy-pool-zk-sdk';
 export { DEFAULT_STEALTH_SIGN_NONCE as DEFAULT_PRIVATE_ADDRESS_SIGN_NONCE } from '@auditable/privacy-pool-zk-sdk';
+export {
+  OWNER_BOUND_NOTE_SCHEMA_VERSION,
+  spendScalarHexFromStellarSignature,
+} from '@auditable/privacy-pool-zk-sdk';
+export type { SpendScalarDomain } from '@auditable/privacy-pool-zk-sdk';
 
 type DecodedPrivateAddress = { x: string; y: string };
 type PrivateAddressDecoder = (value: string) => DecodedPrivateAddress;
 type PrivateAddressEncoder = (decoded: DecodedPrivateAddress) => string;
 type PrivateAddressPublicKeyReader = (value: string) => unknown;
-type PrivateAddressMessageBuilder = (publicKey: string, nonce: string) => string;
-type PrivateAddressGenerator = (signature: string) => string | Promise<string>;
+type PrivateAddressMessageBuilder = (
+  publicKey: string,
+  domain: SpendScalarDomain,
+  nonce?: string,
+) => string;
+type PrivateAddressGenerator = (
+  signature: string,
+  domain: SpendScalarDomain,
+) => string | Promise<string>;
 
 type PrivateAddressSdk = {
   generatePrivateAddressFromStellarSignature: PrivateAddressGenerator;
@@ -24,10 +36,14 @@ type PrivacyPoolSdkPrivateAddressMethods = {
 
 export function buildPrivateAddressSignMessage(
   publicKey: string,
-  nonce: string,
+  domain: SpendScalarDomain,
+  nonce?: string,
 ): string {
   const buildMessage: PrivateAddressMessageBuilder = buildStealthAddressSignMessage;
-  return buildMessage(publicKey, nonce);
+  if (nonce === undefined) {
+    return buildMessage(publicKey, domain);
+  }
+  return buildMessage(publicKey, domain, nonce);
 }
 
 export function decodePrivateAddress(value: string): DecodedPrivateAddress {
@@ -67,7 +83,7 @@ export function privateAddressSdk(sdk: PrivacyPoolSDK): PrivateAddressSdk {
     );
   }
   return {
-    generatePrivateAddressFromStellarSignature: (signature) =>
-      generator.call(sdk, signature),
+    generatePrivateAddressFromStellarSignature: (signature, domain) =>
+      generator.call(sdk, signature, domain),
   };
 }

@@ -10,19 +10,6 @@ function normalizeCoordinate(value: string): string {
   return hex;
 }
 
-export function parseEphemeralKeyString(input: string): EphemeralPointHex {
-  const [xRaw, yRaw, extra] = input.split(':');
-  if (!xRaw || !yRaw || extra !== undefined) {
-    throw new Error(
-      'Ephemeral key must be a string in "xHex:yHex" format (32-byte hex each).',
-    );
-  }
-  return {
-    xHex: normalizeCoordinate(xRaw),
-    yHex: normalizeCoordinate(yRaw),
-  };
-}
-
 export function serializeEphemeralKeyString(point: EphemeralPointHex): string {
   return `${normalizeCoordinate(point.xHex)}:${normalizeCoordinate(point.yHex)}`;
 }

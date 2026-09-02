@@ -1,7 +1,7 @@
 import type { CoinData, DepositSlot } from '@auditable/privacy-pool-zk-sdk';
-import { getPrivacyPoolService } from '../pool/singleton.js';
-import { ZERO_STROOPS } from '../proofs/confidential/helpers.js';
-import type { AlignedDepositSlot } from '../pool/proof-types.js';
+import { getPrivacyPoolService } from '../../pool/singleton.js';
+import { ZERO_STROOPS } from './helpers.js';
+import type { AlignedDepositSlot } from '../../pool/proof-types.js';
 
 type ChangeCoin = {
   commitment_hex: string;

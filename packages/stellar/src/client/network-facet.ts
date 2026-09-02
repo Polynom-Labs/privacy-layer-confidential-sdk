@@ -94,6 +94,7 @@ function createRpcNetworkFacet(input: {
       poolContractId?: string;
       nullifier: string;
       walletPublicKey: string;
+      privKeyScalarHex: string;
     }) =>
       checkPrivateRecordSpendStatusWithEnvironment({
         transactEnvironment,

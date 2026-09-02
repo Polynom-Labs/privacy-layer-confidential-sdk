@@ -7,21 +7,24 @@ import {
 } from '../src/transact/index.js';
 
 const FIELD_BYTES = 32;
-const SUPPORTED_SIGNAL_COUNT = 79;
+const SUPPORTED_SIGNAL_COUNT = 93;
 const NULLIFIER_0_INDEX = 0;
 const NULLIFIER_1_INDEX = 1;
-const STATE_ROOT_INDEX = 70;
-const WITHDRAW_ADDRESS_HI_INDEX = 71;
-const WITHDRAW_ADDRESS_LO_INDEX = 72;
-const PUBLIC_WITHDRAWAL_ASSET_HI_INDEX = 73;
-const PUBLIC_WITHDRAWAL_ASSET_LO_INDEX = 74;
-const PUBLIC_DEPOSIT_ASSET_HI_INDEX = 75;
-const PUBLIC_DEPOSIT_ASSET_LO_INDEX = 76;
-const PUBLIC_DEPOSIT_INDEX = 77;
-const PUBLIC_WITHDRAWAL_INDEX = 78;
+const STATE_ROOT_INDEX = 82;
+const WITHDRAW_ADDRESS_HI_INDEX = 83;
+const WITHDRAW_ADDRESS_LO_INDEX = 84;
+const ESCROW_RECIPIENT_HI_INDEX = 85;
+const ESCROW_RECIPIENT_LO_INDEX = 86;
+const PUBLIC_WITHDRAWAL_ASSET_HI_INDEX = 87;
+const PUBLIC_WITHDRAWAL_ASSET_LO_INDEX = 88;
+const PUBLIC_DEPOSIT_ASSET_HI_INDEX = 89;
+const PUBLIC_DEPOSIT_ASSET_LO_INDEX = 90;
+const PUBLIC_DEPOSIT_INDEX = 91;
+const PUBLIC_WITHDRAWAL_INDEX = 92;
 const POOL_SELECTOR = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
 const PROOF_BYTES = 'aabbccddeeff';
 const APPLICATION_ID_HINTS: [string, string, string, string] = ['101', '101', '0', '0'];
+const ESCROW_RECIPIENT = 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF';
 
 function fieldFromUnsigned(value: bigint): Buffer {
   return Buffer.from(value.toString(16).padStart(FIELD_BYTES * 2, '0'), 'hex');
@@ -38,15 +41,6 @@ function packSignals(
   return Buffer.concat(fields).toString('hex');
 }
 
-const ONBOARDING = {
-  owner: 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
-  notes: { notes: [] },
-  encrypted_private_key: Buffer.alloc(32),
-  temp_public_key_x: Buffer.alloc(32, 1),
-  temp_public_key_y: Buffer.alloc(32, 2),
-  private_address_registration: { tag: 'None' as const, values: undefined },
-};
-
 describe('Relay Transact Package V1 preparation', () => {
   it('prepares a signer-independent v1 package from proof artifacts', () => {
     const publicSignals = packSignals([
@@ -62,7 +56,7 @@ describe('Relay Transact Package V1 preparation', () => {
       proofBytes: PROOF_BYTES,
       publicSignals,
       applicationIdHints: APPLICATION_ID_HINTS,
-      onboarding: ONBOARDING,
+      escrowRecipient: ESCROW_RECIPIENT,
     });
 
     expect(prepared.version).toBe(1);
@@ -71,17 +65,18 @@ describe('Relay Transact Package V1 preparation', () => {
     expect(prepared.proofBytes).toBe(PROOF_BYTES);
     expect(prepared.publicSignals).toBe(publicSignals);
     expect(prepared.applicationIdHints).toEqual(APPLICATION_ID_HINTS);
-    expect(prepared.onboarding).toBe(ONBOARDING);
+    expect(prepared.escrowRecipient).toBe(ESCROW_RECIPIENT);
     expect(prepared).not.toHaveProperty('signer');
     expect(prepared).not.toHaveProperty('from');
     expect(prepared).not.toHaveProperty('verificationKey');
     expect(prepared).not.toHaveProperty('kytRegistry');
     expect(prepared).not.toHaveProperty('kytAuthorization');
     expect(prepared).not.toHaveProperty('network');
+    expect(prepared).not.toHaveProperty('onboarding');
   });
 
-  it('rejects the unsupported 65-signal layout', () => {
-    const publicSignals = packSignals([[NULLIFIER_0_INDEX, 11n]], 65);
+  it('rejects the unsupported 79-signal layout', () => {
+    const publicSignals = packSignals([[NULLIFIER_0_INDEX, 11n]], 79);
 
     expect(() =>
       prepareRelayTransactPackage({
@@ -90,7 +85,7 @@ describe('Relay Transact Package V1 preparation', () => {
         publicSignals,
         applicationIdHints: APPLICATION_ID_HINTS,
       }),
-    ).toThrow(/exactly 79 packed public signals/i);
+    ).toThrow(/exactly 93 packed public signals/i);
   });
 
   it('preserves ordered nullifiers and public-leg context from packed signals', () => {
@@ -100,6 +95,8 @@ describe('Relay Transact Package V1 preparation', () => {
       [STATE_ROOT_INDEX, 99n],
       [WITHDRAW_ADDRESS_HI_INDEX, 7n],
       [WITHDRAW_ADDRESS_LO_INDEX, 8n],
+      [ESCROW_RECIPIENT_HI_INDEX, 9n],
+      [ESCROW_RECIPIENT_LO_INDEX, 10n],
       [PUBLIC_WITHDRAWAL_ASSET_HI_INDEX, 3n],
       [PUBLIC_WITHDRAWAL_ASSET_LO_INDEX, 4n],
       [PUBLIC_DEPOSIT_ASSET_HI_INDEX, 5n],
@@ -120,6 +117,8 @@ describe('Relay Transact Package V1 preparation', () => {
         stateRoot: `${'0'.repeat(62)}63`,
         withdrawAddressHi: `${'0'.repeat(62)}07`,
         withdrawAddressLo: `${'0'.repeat(62)}08`,
+        escrowRecipientHi: `${'0'.repeat(62)}09`,
+        escrowRecipientLo: `${'0'.repeat(62)}0a`,
         publicWithdrawalAssetHi: `${'0'.repeat(62)}03`,
         publicWithdrawalAssetLo: `${'0'.repeat(62)}04`,
         publicDepositAssetHi: `${'0'.repeat(62)}05`,
@@ -148,6 +147,7 @@ describe('Relay Transact Package V1 preparation', () => {
 
     expect(withHints.keyVersionHints).toEqual([1, undefined, 2, undefined]);
     expect(withoutHints).not.toHaveProperty('keyVersionHints');
+    expect(withoutHints).not.toHaveProperty('escrowRecipient');
     expect(withoutHints).not.toHaveProperty('onboarding');
   });
 
@@ -163,9 +163,7 @@ describe('Relay Transact Package V1 preparation', () => {
         publicHex: publicSignals,
         applicationIdsPlaintext: APPLICATION_ID_HINTS,
         walletPublicKey: 'G-SIGNER',
-        ...(kind === 'transfer'
-          ? { onboarding: ONBOARDING, spendSource: 'pendingClaim' as const }
-          : {}),
+        ...(kind === 'transfer' ? { escrowRecipient: ESCROW_RECIPIENT } : {}),
       };
       const preparedOperation = {
         kind,
@@ -200,10 +198,11 @@ describe('Relay Transact Package V1 preparation', () => {
       expect(prepared).not.toHaveProperty('walletPublicKey');
       expect(prepared).not.toHaveProperty('signer');
       expect(prepared).not.toHaveProperty('kytAuthorization');
+      expect(prepared).not.toHaveProperty('onboarding');
       if (kind === 'transfer') {
-        expect(prepared.onboarding).toBe(ONBOARDING);
+        expect(prepared.escrowRecipient).toBe(ESCROW_RECIPIENT);
       } else {
-        expect(prepared).not.toHaveProperty('onboarding');
+        expect(prepared).not.toHaveProperty('escrowRecipient');
       }
       expect(
         readRelayTransactSupportedProfile(prepared).publicLegContext

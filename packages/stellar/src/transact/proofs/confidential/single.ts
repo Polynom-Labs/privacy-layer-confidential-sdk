@@ -6,6 +6,7 @@ import {
   requireChangeRecipientWhenPartial,
   withdrawWitnessForCoin,
 } from '../../proofs/confidential/helpers.js';
+import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-key-scalar-from-recipient-hex.js';
 import { buildPoolTransactionAuditParameters } from '../../audit/parameters.js';
 import type { KytApplicationIdHints } from '../../pool/proof-types.js';
 import {
@@ -13,8 +14,6 @@ import {
   generatedOutputCoinFromSlot,
   type GeneratedOutputCoin,
 } from './shared.js';
-import { parseEphemeralKeyString } from '../../encoding/ephemeral-key.js';
-
 type PrepareConfidentialTransferProofParameters = {
   coin: CoinData;
   state: StateFile;
@@ -93,29 +92,37 @@ async function proveTransaction(parameters: {
   );
 }
 
-async function buildTransferProofInputs(parameters: {
-  sdk: InitializedPrivacySdk;
-  applicationId: string;
-  input: PrepareConfidentialTransferProofParameters;
-  noteStroops: bigint;
-}): Promise<{
+type TransferProofInputs = {
   witness: ReturnType<typeof withdrawWitnessForCoin>['witness'];
   withdrawObject: ReturnType<typeof withdrawWitnessForCoin>['withdrawObject'];
   recipientSlot: SenderTransferBuild['recipientSlot'];
   deposits: SenderTransferBuild['deposits'];
   changeCoin: SenderTransferBuild['changeCoin'];
   publicInput: SenderTransferBuild['publicInput'];
-}> {
+};
+
+async function buildTransferProofInputs(parameters: {
+  sdk: InitializedPrivacySdk;
+  applicationId: string;
+  input: PrepareConfidentialTransferProofParameters;
+  noteStroops: bigint;
+}): Promise<TransferProofInputs> {
   const changeStroops = validateSingleCoinTransferAmounts(
     parameters.input.transferStroops,
     parameters.noteStroops,
     parameters.input.selfPrivateAddressStpl1ForChange,
   );
+  const privKeyScalar = privKeyScalarDecimalFromRecipientScalarHex(
+    parameters.input.senderPrivKeyScalarHex,
+  );
   const { witness, withdrawObject } = withdrawWitnessForCoin({
     sdk: parameters.sdk,
     coin: parameters.input.coin,
     state: parameters.input.state,
-    ...parseEphemeralKeyString(parameters.input.depositorEphemeralKey),
+    ownerPubHex: parameters.sdk.ecdhEphemeralPublicKeyFromScalarHex(
+      parameters.input.senderPrivKeyScalarHex,
+    ),
+    privKeyScalar,
     applicationId: parameters.applicationId,
   });
   const { recipientSlot, deposits, changeCoin, publicInput } =
