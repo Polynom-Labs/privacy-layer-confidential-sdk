@@ -21,6 +21,8 @@ export {
   spendScalarHexFromStellarSignature,
 } from './private-address/codec.js';
 export type { SpendScalarDomain } from './private-address/codec.js';
+export { buildBlindedRecipientTagChallengeMessage } from './escrow/tag-challenge-message.js';
+export type { BlindedRecipientTagChallengeFields } from './escrow/tag-challenge-message.js';
 export {
   loadStellarBrowserAssets,
   loadDefaultStellarBrowserAssets,
