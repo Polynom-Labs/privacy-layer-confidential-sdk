@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { createRecord, createTestClient } from './stellar-client.test-helpers.js';
 
 describe('StellarPrivacyClient state API', () => {
-  it('appends pending claims and reads registration cache', async () => {
+  it('reads and invalidates registration cache', async () => {
     const { client } = await createTestClient({
       state: createInMemoryStateAdapter({
         registry: {
@@ -14,39 +14,11 @@ describe('StellarPrivacyClient state API', () => {
       }),
     });
 
-    await client.appendPendingClaims(
-      [
-        {
-          id: 'claim-1',
-          owner: 'G-OWNER',
-          asset: 'USDC',
-          amount: 10n,
-          createdAt: '2026-01-01T00:00:00.000Z',
-        },
-      ],
-      {
-        total: 1,
-        page: 1,
-        pageSize: 20,
-        hasMore: false,
-      },
-    );
-
-    await expect(client.getPendingClaims()).resolves.toMatchObject({
-      items: [expect.objectContaining({ id: 'claim-1' })],
-      pagination: expect.objectContaining({ total: 1 }),
-    });
-
     expect(await client.isStellarAddressRegistered('G-RECIPIENT')).toBe(true);
     expect(await client.isStellarAddressRegistered('G-UNKNOWN')).toBeUndefined();
 
     await client.invalidateRegisteredAddress('G-RECIPIENT');
     expect(await client.isStellarAddressRegistered('G-RECIPIENT')).toBeUndefined();
-
-    await client.clearPendingClaims({ owner: 'G-OWNER' });
-    await expect(client.getPendingClaims()).resolves.toMatchObject({
-      items: [],
-    });
   });
 
   it('cleans consumed private records', async () => {

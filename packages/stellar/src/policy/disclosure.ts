@@ -10,9 +10,7 @@ import type {
   StellarTransferIntent,
 } from '../types.js';
 import {
-  isPendingClaimTransfer,
   isPublicStellarRecipientTransfer,
-  validatePendingClaimTransferDisclosure,
   validatePublicRecipientTransferDisclosure,
 } from './disclosure-routes.js';
 
@@ -55,10 +53,6 @@ export function validateStellarDisclosure(
 
   if (kind === 'transfer' && isPublicStellarRecipientTransfer(intent)) {
     errors.push(...validatePublicRecipientTransferDisclosure(intent.disclosure));
-  }
-
-  if (kind === 'transfer' && isPendingClaimTransfer(intent)) {
-    errors.push(...validatePendingClaimTransferDisclosure(intent.disclosure));
   }
 
   if (kind === 'withdraw' && isPublicWithdrawRoute(intent)) {

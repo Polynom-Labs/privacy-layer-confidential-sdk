@@ -1,25 +1,5 @@
 import { z } from 'zod';
 
-export const pendingClaimSchema = z.object({
-  id: z.string().min(1),
-  owner: z.string().min(1),
-  asset: z.string().min(1),
-  amount: z.coerce.bigint(),
-  createdAt: z.string().min(1),
-  poolTxId: z.string().optional(),
-  commitmentHex: z.string().optional(),
-  nullifierHex: z.string().optional(),
-  futureNullifierHashHex: z.string().optional(),
-  assetHiHex: z.string().optional(),
-  assetLoHex: z.string().optional(),
-  nullifierFieldHex: z.string().optional(),
-  secretHex: z.string().optional(),
-  tempPublicKeyXHex: z.string().optional(),
-  tempPublicKeyYHex: z.string().optional(),
-  encryptedRecoveryBase64: z.string().optional(),
-  createdAtLedger: z.number().int().optional(),
-});
-
 export const paginationSchema = z.object({
   total: z.number().int().nonnegative(),
   page: z.number().int().positive(),

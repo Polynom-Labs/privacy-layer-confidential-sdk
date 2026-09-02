@@ -1,6 +1,5 @@
 import type { StellarStateService } from '../../state/index.js';
 import { createAssetsStateDelegates } from './assets.js';
-import { createClaimsStateDelegates } from './claims.js';
 import { createDeliveriesStateDelegates } from './deliveries.js';
 import { createPoolStateDelegates } from './pool.js';
 import { createRecordsStateDelegates } from './records.js';
@@ -11,7 +10,6 @@ export function createStateDelegates(state: StellarStateService) {
     ...createAssetsStateDelegates(state),
     ...createRegistryStateDelegates(state),
     ...createPoolStateDelegates(state),
-    ...createClaimsStateDelegates(state),
     ...createDeliveriesStateDelegates(state),
     ...createRecordsStateDelegates(state),
   };

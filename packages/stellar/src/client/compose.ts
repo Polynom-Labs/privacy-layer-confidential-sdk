@@ -49,7 +49,6 @@ function createOperationsFacet(
       wallet: config.wallet,
       engine: config.transactEngine,
       poolContract: config.network.poolContract,
-      getPendingClaims: () => state.getPendingClaims(),
       ...(checkNullifierSpent ? { checkNullifierSpent } : {}),
     }),
     policy: createStellarPolicyAdapter(config.policy),

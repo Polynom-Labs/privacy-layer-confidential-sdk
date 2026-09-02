@@ -1,7 +1,6 @@
 import type { StateBridgeAdapter } from '@arcanetech/privacy-sdk-core/state';
 import { StellarStateServiceBase } from './base.js';
 import { createAssetsService } from './assets/index.js';
-import { createClaimsService } from './claims/index.js';
 import { createDeliveriesService } from './deliveries/index.js';
 import { createPoolEphemeralService } from './pool/ephemeral.js';
 import { createPoolMerkleService } from './pool/merkle.js';
@@ -19,7 +18,6 @@ export function composeStellarStateService(adapter: StateBridgeAdapter) {
     ...createWalletAddressService(base),
     ...createPoolMerkleService(base),
     ...createPoolEphemeralService(base),
-    ...createClaimsService(base),
     ...createDeliveriesService(base),
     ...createRecordsService(base),
   };

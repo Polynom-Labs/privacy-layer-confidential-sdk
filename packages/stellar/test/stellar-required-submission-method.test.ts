@@ -96,20 +96,6 @@ describe('requiredSubmissionMethod', () => {
       expected: SUBMISSION_METHOD.relay,
     },
     {
-      name: 'pending claim',
-      kind: 'transfer' as const,
-      spendSource: 'pendingClaim' as const,
-      publicDepositAmount: 0n,
-      expected: SUBMISSION_METHOD.direct,
-    },
-    {
-      name: 'pending claim with positive public deposit',
-      kind: 'transfer' as const,
-      spendSource: 'pendingClaim' as const,
-      publicDepositAmount: 10_000_000n,
-      expected: SUBMISSION_METHOD.direct,
-    },
-    {
       name: 'transfer with positive public deposit',
       kind: 'transfer' as const,
       spendSource: 'privateAddress' as const,

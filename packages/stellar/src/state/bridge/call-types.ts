@@ -2,14 +2,6 @@ import { type StateBridgeDefinition } from '@arcanetech/privacy-sdk-core/state';
 import type { StellarAddress, StellarAssetId } from '../../types.js';
 
 export const stellarStateCallTypes = {
-  pendingClaims: 'pendingClaims',
-  clearPendingClaims: 'clearPendingClaims',
-  readPendingClaims: 'readPendingClaims',
-  replacePendingClaimsPage: 'replacePendingClaimsPage',
-  upsertPendingClaims: 'upsertPendingClaims',
-  removePendingClaims: 'removePendingClaims',
-  setPendingClaimsCount: 'setPendingClaimsCount',
-  readPendingClaimsCount: 'readPendingClaimsCount',
   readStellarAddressRegistered: 'readStellarAddressRegistered',
   readCachedPrivateAddress: 'readCachedPrivateAddress',
   readRegistryLookup: 'readRegistryLookup',

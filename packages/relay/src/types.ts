@@ -44,7 +44,7 @@ export type RelayPackageJson = {
 };
 
 export type SafeDisplayMetadata = {
-  kind: 'deposit' | 'transfer' | 'withdraw' | 'pending_claim' | 'onboarding';
+  kind: 'deposit' | 'transfer' | 'withdraw';
   assetId: string;
   amountDisplay: number;
   counterparty: string;

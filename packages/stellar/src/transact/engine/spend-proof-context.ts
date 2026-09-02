@@ -10,10 +10,7 @@ import {
   loadMerkleState,
   resolveTokenContractId,
 } from './prepare/shared.js';
-import {
-  readTransferFromPrivateAddress,
-  recoveryScalarHexFromClaim,
-} from '../transfer-source/index.js';
+import { readTransferFromPrivateAddress } from '../transfer-source/index.js';
 
 async function resolveSenderPrivKeyScalarHex(input: {
   prepared: StellarPreparedOperation;
@@ -24,10 +21,6 @@ async function resolveSenderPrivKeyScalarHex(input: {
     input.prepared.transactArtifacts?.escrowSpendScalarHex?.trim();
   if (escrowSpendScalarHex) {
     return escrowSpendScalarHex;
-  }
-  const pendingClaim = input.prepared.transactArtifacts?.pendingClaim;
-  if (pendingClaim) {
-    return recoveryScalarHexFromClaim(pendingClaim);
   }
   if (input.prepared.kind !== 'transfer' && input.prepared.kind !== 'withdraw') {
     throw new Error('Spend execution requires a transfer or withdraw intent.');
@@ -84,7 +77,6 @@ export async function buildSpendProofContextAtExecute(input: {
     ephemeral,
     senderPrivKeyScalarHex,
     recipientPrivateAddressStpl1: input.recipientPrivateAddressStpl1,
-    pendingClaim: input.prepared.transactArtifacts?.pendingClaim,
   };
 }
 

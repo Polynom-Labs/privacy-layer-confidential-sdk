@@ -71,9 +71,6 @@ export function evaluateRequiredSubmissionMethod(
     }
     return { method: SUBMISSION_METHOD.relay };
   }
-  if (prepared.transactArtifacts?.spendSource === 'pendingClaim') {
-    return { method: SUBMISSION_METHOD.direct };
-  }
   if (publicDepositAmount === undefined) {
     throw new Error('Prepared operation is missing transact artifacts.');
   }

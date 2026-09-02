@@ -1,8 +1,5 @@
 export const STELLAR_STATE_PATHS = {
   privateRecords: '$.privateRecords',
-  pendingClaimsItems: '$.pendingClaims.items',
-  pendingClaimsPagination: '$.pendingClaims.pagination',
-  pendingClaimsCountByOwner: '$.pendingClaims.countByOwner',
   registryPrivateAddresses: '$.registry.privateAddresses',
   registryRegisteredAddresses: '$.registry.registeredAddresses',
   registryLookups: '$.registry.lookups',

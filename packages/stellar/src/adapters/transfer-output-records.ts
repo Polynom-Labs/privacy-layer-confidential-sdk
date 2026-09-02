@@ -1,5 +1,4 @@
 import {
-  isPendingClaimSource,
   isPrivateAddressTransferFrom,
   readTransferFromPrivateAddress,
 } from '../transact/transfer-source/index.js';
@@ -17,15 +16,6 @@ export function buildTransferOutputRecords(
   walletPublicKey: StellarAddress,
 ): StellarPrivateRecord[] {
   const recipientOwner = recipientOutputOwner(intent, walletPublicKey);
-  if (isPendingClaimSource(intent.from)) {
-    return [
-      createOutputRecord({
-        ...recipientOwner,
-        asset: intent.asset,
-        amount: intent.amount,
-      }),
-    ];
-  }
   const changeAmount = consumedTotal - intent.amount;
   const outputs = [
     createOutputRecord({
@@ -99,13 +89,6 @@ export function buildDepositOutputRecords(
   return [createOutputRecord({ owner, privateAddress, asset, amount })];
 }
 
-/**
- * The recipient of a private-disclosure transfer is only known by their private
- * (`stpl`) address, which must never populate `owner`. Such records are booked
- * under the sending wallet's own Stellar address until/unless the recipient's
- * Stellar address is resolved (public-disclosure transfers already carry it in
- * `intent.to`).
- */
 function recipientOutputOwner(
   intent: StellarTransferIntent,
   walletPublicKey: StellarAddress,
@@ -132,11 +115,6 @@ function createOutputRecord(input: {
   };
 }
 
-/**
- * Placeholder id used before the real commitment hash is known; execution
- * enrichment always overwrites this with `coinNote`'s commitment hash before
- * the record is persisted. Must never be a random uuid.
- */
 function pendingOutputRecordId(
   owner: StellarAddress,
   asset: StellarAssetId,

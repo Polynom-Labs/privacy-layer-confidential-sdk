@@ -1,16 +1,6 @@
-import type { StellarAddress, StellarPendingClaim } from '../../types.js';
+import type { StellarAddress } from '../../types.js';
 
-export type StellarPendingClaimSource =
-  | { kind: 'pendingClaim'; claimId: string }
-  | { kind: 'pendingClaim'; claim: StellarPendingClaim };
-
-export type StellarTransferFromAddress = StellarAddress | StellarPendingClaimSource;
-
-export function isPendingClaimSource(
-  from: StellarTransferFromAddress,
-): from is StellarPendingClaimSource {
-  return typeof from === 'object' && 'kind' in from && from.kind === 'pendingClaim';
-}
+export type StellarTransferFromAddress = StellarAddress;
 
 export function isPrivateAddressTransferFrom(
   from: StellarTransferFromAddress,

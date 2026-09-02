@@ -1,10 +1,7 @@
 import type { StellarPreparedOperation } from '../../types.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
 import { resolveTransferRecipientForExecute } from './prepare/transfer-helpers.js';
-import {
-  verifyPendingClaimBeforeExecute,
-  verifyPrivateRecordsNullifiersBeforeExecute,
-} from '../transfer-source/index.js';
+import { verifyPrivateRecordsNullifiersBeforeExecute } from '../transfer-source/index.js';
 import { buildTransferProofAtExecute } from './transfer-proof-at-execute.js';
 import type { buildSpendProofContextAtExecute } from './spend-proof-context.js';
 import type { prepareConfidentialTransferProof } from '../proofs/confidential/single.js';
@@ -82,22 +79,6 @@ function enrichTransferOutputRecords(
       depositScalarHex: generatedCoin.depositScalarHex,
       precommitementHex: generatedCoin.precommitementHex,
     };
-  });
-}
-
-async function ensurePendingClaimReadyForExecute(input: {
-  prepared: StellarPreparedOperation;
-  environment: StellarTransactEnvironment;
-  walletPublicKey: string;
-}): Promise<void> {
-  const pendingClaim = input.prepared.transactArtifacts?.pendingClaim;
-  if (!pendingClaim) {
-    return;
-  }
-  await verifyPendingClaimBeforeExecute({
-    claim: pendingClaim,
-    environment: input.environment,
-    walletPublicKey: input.walletPublicKey,
   });
 }
 
@@ -188,10 +169,5 @@ export async function finalizeTransferAtExecute(
     throw new Error('Transfer execution record owner is missing.');
   }
   const walletPublicKey = primaryRecord.owner.trim();
-  await ensurePendingClaimReadyForExecute({
-    prepared,
-    environment,
-    walletPublicKey,
-  });
   return runTransferFinalizeSteps({ prepared, environment, walletPublicKey });
 }

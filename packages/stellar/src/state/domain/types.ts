@@ -85,38 +85,6 @@ export interface StellarLeafEphemeral {
   cachedAt?: string;
 }
 
-export interface StellarPendingClaim {
-  id: string;
-  owner: StellarAddress;
-  asset: StellarAssetId;
-  amount: bigint;
-  createdAt: string;
-  poolTxId?: string;
-  commitmentHex?: string;
-  nullifierHex?: string;
-  futureNullifierHashHex?: string;
-  assetHiHex?: string;
-  assetLoHex?: string;
-  nullifierFieldHex?: string;
-  secretHex?: string;
-  tempPublicKeyXHex?: string;
-  tempPublicKeyYHex?: string;
-  encryptedRecoveryBase64?: string;
-  createdAtLedger?: number;
-}
-
-export interface StellarPendingClaimsPagination {
-  total: number;
-  page: number;
-  pageSize: number;
-  hasMore: boolean;
-}
-
-export interface StellarPendingClaimsState {
-  items: StellarPendingClaim[];
-  pagination?: StellarPendingClaimsPagination;
-}
-
 export interface StellarIncomingDelivery {
   id: number;
   privateAddress: string;
@@ -174,11 +142,6 @@ export interface StellarTransactionStatus {
 export interface StellarAvailablePrivateRecordsFilter {
   owner?: StellarAddress;
   privateAddress?: string;
-  asset?: StellarAssetId;
-}
-
-export interface StellarPendingClaimsFilter {
-  owner?: StellarAddress;
   asset?: StellarAssetId;
 }
 

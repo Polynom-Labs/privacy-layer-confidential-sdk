@@ -9,7 +9,7 @@ import type {
 
 type Address = string;
 type Asset = string;
-type PendingClaimFrom = { kind: 'pendingClaim'; claimId: string };
+type TaggedFrom = { kind: 'wallet'; address: string };
 type Prepared = { id: string };
 type Receipt = { ok: boolean };
 
@@ -27,8 +27,8 @@ const intent: DepositIntent<Address, Asset, bigint> = {
 };
 
 test('transfer intent supports different from and to address types', () => {
-  const transfer: TransferIntent<PendingClaimFrom, Asset, bigint, Address> = {
-    from: { kind: 'pendingClaim', claimId: 'claim-1' },
+  const transfer: TransferIntent<TaggedFrom, Asset, bigint, Address> = {
+    from: { kind: 'wallet', address: 'G-SENDER' },
     to: 'stpl1-recipient',
     asset: 'USDC',
     amount: 25n,
@@ -40,7 +40,7 @@ test('transfer intent supports different from and to address types', () => {
     },
   };
 
-  expectTypeOf(transfer.from).toEqualTypeOf<PendingClaimFrom>();
+  expectTypeOf(transfer.from).toEqualTypeOf<TaggedFrom>();
   expectTypeOf(transfer.to).toEqualTypeOf<Address>();
 });
 

@@ -8,7 +8,6 @@ import type {
   StellarAddress,
   StellarAssetId,
   StellarOperationReceipt,
-  StellarPendingClaim,
   StellarPreparedOperation,
   StellarPrivateRecord,
   StellarStorageAdapter,
@@ -34,7 +33,6 @@ export function createStellarNetworkAdapter(deps: {
   wallet: StellarWalletAdapter;
   engine: StellarTransactEngine;
   poolContract: string;
-  getPendingClaims?: () => Promise<{ items: StellarPendingClaim[] }>;
   checkNullifierSpent?: (input: {
     nullifier: string;
     walletPublicKey: string;

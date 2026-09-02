@@ -5,20 +5,14 @@ import type {
   TransferIntent,
   WithdrawIntent,
 } from '@arcanetech/privacy-sdk-core';
-import type {
-  StellarPendingClaim,
-  StellarPrivateRecord,
-} from './state/domain/types.js';
+import type { StellarPrivateRecord } from './state/domain/types.js';
 import type { KytApplicationIdHints } from './transact/pool/proof-types.js';
 import type { StellarTransferFromAddress } from './transact/transfer-source/types.js';
 
 export type StellarAddress = string;
 export type StellarAssetId = string;
 
-export type {
-  StellarPendingClaimSource,
-  StellarTransferFromAddress,
-} from './transact/transfer-source/types.js';
+export type { StellarTransferFromAddress } from './transact/transfer-source/types.js';
 
 export type StellarTransferIntent = TransferIntent<
   StellarTransferFromAddress,
@@ -34,10 +28,6 @@ export type {
   StellarIncomingDeliveriesFilter,
   StellarIncomingDelivery,
   StellarLeafEphemeral,
-  StellarPendingClaim,
-  StellarPendingClaimsFilter,
-  StellarPendingClaimsPagination,
-  StellarPendingClaimsState,
   StellarPoolMerkleState,
   StellarPrivateAssetRow,
   StellarPrivateRecord,
@@ -85,8 +75,7 @@ export interface StellarTransactArtifacts {
     recipientLo: string;
   };
   executeFinalizeRequired?: boolean;
-  pendingClaim?: StellarPendingClaim;
-  spendSource?: 'privateAddress' | 'pendingClaim' | 'escrow';
+  spendSource?: 'privateAddress' | 'escrow';
 }
 
 export interface StellarOperationReceipt {

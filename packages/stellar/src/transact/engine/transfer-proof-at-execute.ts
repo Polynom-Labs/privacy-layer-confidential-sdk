@@ -13,10 +13,7 @@ import {
   readCoinEphemeralForRecord,
 } from './spend-proof-context.js';
 import { serializeEphemeralKeyString } from '../encoding/ephemeral-key.js';
-import {
-  isPendingClaimSource,
-  readTransferFromPrivateAddress,
-} from '../transfer-source/index.js';
+import { readTransferFromPrivateAddress } from '../transfer-source/index.js';
 
 function readChangeRecipient(
   input: { prepared: StellarPreparedOperation },
@@ -26,9 +23,6 @@ function readChangeRecipient(
     return undefined;
   }
   const from = input.prepared.intent.from;
-  if (isPendingClaimSource(from)) {
-    return undefined;
-  }
   return readTransferFromPrivateAddress(from);
 }
 
@@ -52,9 +46,7 @@ async function buildSingleTransferProofAtExecute(input: {
   escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
 }) {
   const context = await buildSpendProofContextAtExecute(input);
-  const changeStroops = context.pendingClaim
-    ? 0n
-    : BigInt(context.coin.value) - input.prepared.intent.amount;
+  const changeStroops = BigInt(context.coin.value) - input.prepared.intent.amount;
   const proof = await prepareConfidentialTransferProof({
     coin: context.coin,
     state: { commitments: context.commitments },

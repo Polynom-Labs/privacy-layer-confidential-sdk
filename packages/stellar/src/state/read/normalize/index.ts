@@ -4,7 +4,6 @@ export {
   normalizePublicBalance,
   normalizePublicBalancesFromEntries,
 } from './assets.js';
-export { normalizePendingClaimsState, normalizePendingClaimsCount } from './claims.js';
 export {
   normalizeIncomingDeliveries,
   normalizeDeliverySyncState,

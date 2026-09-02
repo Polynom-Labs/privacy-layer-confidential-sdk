@@ -13,7 +13,6 @@ export {
   incomingDeliverySchema,
   leafEphemeralSchema,
   paginationSchema,
-  pendingClaimSchema,
   poolMerkleStateSchema,
   privateRecordSchema,
   publicBalanceSchema,
@@ -26,13 +25,7 @@ export type {
   StellarPublicBalanceInput,
   StellarStateDefinition,
 } from './bridge/call-types.js';
-export type {
-  StellarAvailablePrivateRecordsFilter,
-  StellarPendingClaim,
-  StellarPendingClaimsFilter,
-  StellarPendingClaimsPagination,
-  StellarPendingClaimsState,
-} from './domain/types.js';
+export type { StellarAvailablePrivateRecordsFilter } from './domain/types.js';
 export type {
   StellarAsset,
   StellarAssetsCatalog,
