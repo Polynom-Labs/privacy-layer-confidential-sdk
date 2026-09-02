@@ -1,8 +1,7 @@
-import { BN254_BABYJUB_SCALAR_MAX_EXCLUSIVE } from '@auditable/privacy-pool-zk-sdk';
+import { canonicalBabyJubScalarFromInteger } from '@auditable/privacy-pool-zk-sdk';
 
 const SCALAR_HEX_CHAR_LENGTH = 64;
 const DECIMAL_RADIX = 10;
-const BIGINT_ONE = 1n;
 
 function normalizeRecipientScalarHex(hexInput: string): string {
   const trimmed = hexInput.trim().replace(/^0x/iu, '');
@@ -25,6 +24,5 @@ function normalizeRecipientScalarHex(hexInput: string): string {
 export function privKeyScalarDecimalFromRecipientScalarHex(hexInput: string): string {
   const hex = normalizeRecipientScalarHex(hexInput);
   const value = BigInt(`0x${hex}`);
-  const mask = BN254_BABYJUB_SCALAR_MAX_EXCLUSIVE - BIGINT_ONE;
-  return (value & mask).toString(DECIMAL_RADIX);
+  return canonicalBabyJubScalarFromInteger(value).toString(DECIMAL_RADIX);
 }

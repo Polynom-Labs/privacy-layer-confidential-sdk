@@ -1,3 +1,4 @@
+import { BABYJUB_SUBGROUP_ORDER } from '@auditable/privacy-pool-zk-sdk';
 import { describe, expect, it } from 'vitest';
 import {
   buildPrivateAddressSignMessage,
@@ -48,5 +49,7 @@ describe('spend-scalar sign message', () => {
     expect(base).not.toBe(otherPool);
     expect(base).not.toBe(otherRegistry);
     expect(base).not.toBe(otherSchema);
+    expect(BigInt(`0x${base}`) > 0n).toBe(true);
+    expect(BigInt(`0x${base}`) < BABYJUB_SUBGROUP_ORDER).toBe(true);
   });
 });
