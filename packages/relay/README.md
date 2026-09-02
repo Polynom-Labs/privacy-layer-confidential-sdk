@@ -4,16 +4,16 @@ Chain-agnostic protocol relay runtime for Arcane private payment flows.
 
 ## Overview
 
-This package owns admission, lifecycle polling, retry, and consented direct-submit fallback for prepared private operations. Callers supply a **six-port** surface; the runtime never inspects opaque package payloads and has no Stellar, Soroban, or zero-knowledge dependencies.
+This package owns admission, lifecycle polling, retry, and consented direct-submit fallback for prepared private operations. Callers supply five required ports; `relayApi` and `relayConfig` are optional and enable Protocol Relay. The runtime never inspects opaque package payloads and has no Stellar, Soroban, or zero-knowledge dependencies.
 
-The six ports are:
+The ports are:
 
-- `relayApi` — transport used to admit a request, read lifecycle status, and retry an attempt
 - `store` — pending-operation persistence (survives reload)
 - `submitDirect` — caller-supplied wallet-signed submission (not serializable; after reload only polling and retry remain)
 - `finalizeLocalState` — apply local record updates after success
 - `drainDeliveries` — deliver output notes after success
 - `persistUserTransaction` — record the user-visible transaction after success
+- `relayConfig` / `relayApi` — optional origin and transport used to admit a request, read lifecycle status, and retry an attempt
 
 ## Quick example
 
