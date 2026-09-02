@@ -11,6 +11,8 @@ import { OperationDisclosures } from '../../snippets/operation-disclosures.jsx';
 
 ## Transact environment hooks
 
+Unregistered-recipient transfers are **not supported** on the owner-bound note format until the escrow-bootstrap path lands. `resolveTransferRecipientFromChain` refuses an unregistered lookup instead of minting a temporary private address. Keep this page as the intended execute-time shape; do not wire it as a live send path yet.
+
 Unregistered recipients need `resolveTransferRecipientAtExecute` on `transactEnvironment`. The resolver supplies a temporary private address for the output note. At execute time the SDK sets the pool `escrow_recipient` argument to the recipient's Stellar G-address. Add the hook during client bootstrap (see [Setup](/application-development/setup)).
 
 ```ts

@@ -1,8 +1,10 @@
 import type { StellarAddress } from '../../types.js';
-import { generateTemporaryRecipientPrivateAddress } from '../../transact/private-address/temporary-recipient.js';
 import type { TransferRecipientExecutionContext } from '../../transact/environment/types.js';
 import type { StellarContractContext } from '../contract-context.js';
 import { readRegistryLookupFromChain } from './registry-domain-service.js';
+
+const UNREGISTERED_TRANSFER_RECIPIENT_ERROR =
+  'Transfers to unregistered recipients are not supported.';
 
 export async function resolveTransferRecipientFromChain(input: {
   contractContext: StellarContractContext;
@@ -25,10 +27,5 @@ export async function resolveTransferRecipientFromChain(input: {
       recipientStellarAddress,
     };
   }
-  const temporaryKey = await generateTemporaryRecipientPrivateAddress();
-  return {
-    recipientPrivateAddressStpl1: temporaryKey.temporaryPrivateAddressStpl1,
-    recipientStellarAddress,
-    temporaryRecipientKey: temporaryKey,
-  };
+  throw new Error(UNREGISTERED_TRANSFER_RECIPIENT_ERROR);
 }
