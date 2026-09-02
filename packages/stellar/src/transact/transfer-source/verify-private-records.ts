@@ -80,6 +80,8 @@ export async function assertPrivateRecordsNullifiersAvailable(input: {
   checkNullifierSpent?: (parameters: {
     nullifier: string;
     walletPublicKey: string;
+    privKeyScalarHex?: string;
+    privateAddressStpl1?: string;
   }) => Promise<boolean>;
 }): Promise<void> {
   if (!input.checkNullifierSpent) {
@@ -90,6 +92,7 @@ export async function assertPrivateRecordsNullifiersAvailable(input: {
     const spent = await input.checkNullifierSpent({
       nullifier: coin.nullifier,
       walletPublicKey: input.walletPublicKey,
+      ...(record.privateAddress ? { privateAddressStpl1: record.privateAddress } : {}),
     });
     if (spent) {
       throw insufficientStateError(

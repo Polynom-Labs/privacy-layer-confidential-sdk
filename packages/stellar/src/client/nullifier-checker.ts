@@ -18,12 +18,22 @@ export function createNullifierSpentChecker(
     privKeyScalarHex?: string;
     privateAddressStpl1?: string;
   }) => {
+    const addressHint = privateAddressStpl1?.trim() ?? '';
+    const resolvedFromEnsure = transactEnvironment.ensureSenderPrivKeyScalarHex
+      ? await transactEnvironment.ensureSenderPrivKeyScalarHex(addressHint)
+      : undefined;
+    const resolvedFromState =
+      addressHint && transactEnvironment.resolveSenderPrivKeyScalarFromState
+        ? await transactEnvironment.resolveSenderPrivKeyScalarFromState({
+            owner: walletPublicKey,
+            privateAddressStpl1: addressHint,
+          })
+        : undefined;
     const resolvedScalarHex =
       privKeyScalarHex?.trim() ||
-      (privateAddressStpl1?.trim() && transactEnvironment.ensureSenderPrivKeyScalarHex
-        ? await transactEnvironment.ensureSenderPrivKeyScalarHex(privateAddressStpl1)
-        : undefined);
-    if (!resolvedScalarHex?.trim()) {
+      resolvedFromEnsure?.trim() ||
+      resolvedFromState?.trim();
+    if (!resolvedScalarHex) {
       throw new Error('Spend scalar is required to check owner-bound nullifiers.');
     }
     const status = await checkPrivateRecordSpendStatusWithEnvironment({
