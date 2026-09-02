@@ -80,6 +80,9 @@ describe('prepareEscrowSweepOperation', () => {
     });
     expect(prepared.submissionPayload.signed).toBe(false);
     expect(requiredSubmissionMethod(prepared)).toBe(SUBMISSION_METHOD.relay);
+    expect(prepared.consumedRecords[0]?.id).toBe(reconstructedNote().commitmentHex);
+    expect(prepared.consumedRecords[0]?.owner).toBe(CLAIMANT);
+    expect(JSON.stringify(prepared.outputRecords)).not.toMatch(/pending-output/);
   });
 
   it('refuses to build a sweep package for a different G-address', () => {

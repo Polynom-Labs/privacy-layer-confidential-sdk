@@ -64,22 +64,6 @@ export function attachEscrowAuthorization(
   };
 }
 
-function sweepOutputRecord(input: {
-  walletPublicKey: string;
-  registeredPrivateAddress: string;
-  asset: string;
-  amount: bigint;
-}): StellarPrivateRecord {
-  return {
-    id: `pending-output:${input.walletPublicKey}:${input.asset}:${input.amount}`,
-    owner: input.walletPublicKey,
-    privateAddress: input.registeredPrivateAddress,
-    asset: input.asset,
-    amount: input.amount,
-    consumed: false,
-  };
-}
-
 function sweepTransactArtifacts(input: {
   claimantAddress: string;
   reconstructed: ReconstructedEscrowNote;
@@ -127,14 +111,7 @@ export function prepareEscrowSweepOperation(
         asset: input.asset,
       }),
     ],
-    outputRecords: [
-      sweepOutputRecord({
-        walletPublicKey,
-        registeredPrivateAddress,
-        asset: input.asset,
-        amount,
-      }),
-    ],
+    outputRecords: [],
     submissionPayload: { operationId: crypto.randomUUID(), signed: false },
     transactArtifacts: sweepTransactArtifacts({
       claimantAddress: input.claimantAddress,

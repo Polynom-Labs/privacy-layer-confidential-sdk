@@ -1,5 +1,4 @@
 import { StrKey, xdr } from '@stellar/stellar-sdk';
-import { collectContractEventsFromMeta } from '../../rpc/soroban-transaction-meta.js';
 import type { EscrowOutputNoteCiphertextEvent } from './reconstruct-escrow-note.js';
 
 const FIELD_BYTE_LENGTH = 32;
@@ -169,21 +168,4 @@ export function parseEscrowOutputNoteEvent(
     return undefined;
   }
   return outputNoteFromPayload(topics, payloadMap(v0.data()));
-}
-
-export function parseEscrowOutputNoteEventsFromMeta(
-  meta: xdr.TransactionMeta | undefined,
-  poolAddress: string,
-): EscrowOutputNoteCiphertextEvent[] {
-  if (!meta) {
-    return [];
-  }
-  const events: EscrowOutputNoteCiphertextEvent[] = [];
-  for (const event of collectContractEventsFromMeta(meta)) {
-    const parsed = parseEscrowOutputNoteEvent(event, poolAddress);
-    if (parsed) {
-      events.push(parsed);
-    }
-  }
-  return events;
 }

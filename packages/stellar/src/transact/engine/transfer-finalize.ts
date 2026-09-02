@@ -9,6 +9,55 @@ import { buildTransferProofAtExecute } from './transfer-proof-at-execute.js';
 import type { buildSpendProofContextAtExecute } from './spend-proof-context.js';
 import type { prepareConfidentialTransferProof } from '../proofs/confidential/single.js';
 
+function stampEscrowOutputRecords(input: {
+  prepared: StellarPreparedOperation;
+  proof: Awaited<ReturnType<typeof prepareConfidentialTransferProof>>;
+  walletPublicKey: string;
+  escrowSendPrivateAddress?: string;
+}): void {
+  if (input.escrowSendPrivateAddress) {
+    const [recipientRecord, ...rest] = input.prepared.outputRecords;
+    if (recipientRecord) {
+      input.prepared.outputRecords = [
+        {
+          ...recipientRecord,
+          privateAddress: input.escrowSendPrivateAddress,
+        },
+        ...rest,
+      ];
+    }
+  }
+  seedEscrowSweepOutputsFromProof({
+    prepared: input.prepared,
+    proof: input.proof,
+    walletPublicKey: input.walletPublicKey,
+  });
+  enrichTransferOutputRecords(input.prepared, input.proof);
+}
+
+function seedEscrowSweepOutputsFromProof(input: {
+  prepared: StellarPreparedOperation;
+  proof: Awaited<ReturnType<typeof prepareConfidentialTransferProof>>;
+  walletPublicKey: string;
+}): void {
+  if (
+    input.prepared.transactArtifacts?.spendSource !== 'escrow' ||
+    input.prepared.outputRecords.length > 0
+  ) {
+    return;
+  }
+  input.prepared.outputRecords = [
+    {
+      id: input.proof.recipientCoin.commitment_hex,
+      owner: input.walletPublicKey,
+      privateAddress: input.prepared.intent.to,
+      asset: input.prepared.intent.asset,
+      amount: input.prepared.intent.amount,
+      consumed: false,
+    },
+  ];
+}
+
 function enrichTransferOutputRecords(
   prepared: StellarPreparedOperation,
   proof: Awaited<ReturnType<typeof prepareConfidentialTransferProof>>,
@@ -112,19 +161,14 @@ async function runTransferFinalizeSteps(input: {
         }
       : {}),
   });
-  if (recipient.escrowSend) {
-    const [recipientRecord, ...rest] = input.prepared.outputRecords;
-    if (recipientRecord) {
-      input.prepared.outputRecords = [
-        {
-          ...recipientRecord,
-          privateAddress: recipient.recipientPrivateAddressStpl1,
-        },
-        ...rest,
-      ];
-    }
-  }
-  enrichTransferOutputRecords(input.prepared, proof);
+  stampEscrowOutputRecords({
+    prepared: input.prepared,
+    proof,
+    walletPublicKey: input.walletPublicKey,
+    ...(recipient.escrowSend
+      ? { escrowSendPrivateAddress: recipient.recipientPrivateAddressStpl1 }
+      : {}),
+  });
   return buildTransferFinalizeArtifacts({
     proof,
     context,

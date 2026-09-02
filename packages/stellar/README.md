@@ -14,6 +14,8 @@ This package provides:
 - orchestration over `@auditable/privacy-pool-zk-sdk`
 - `requiredSubmissionMethod()` (`@arcanetech/privacy-sdk-stellar/transact`) — chooses Direct Submission vs Protocol Relay from a prepared operation; escrow sends require relay and refuse a positive public deposit
 - `buildBlindedRecipientTagChallengeMessage()` (`@arcanetech/privacy-sdk-stellar/transact`) — builds the wallet-signed challenge used to issue blinded recipient tags so a recipient can discover escrow notes after they register
+- `fetchEscrowOutputNoteEvents({ transactEnvironment, txId, poolAddress })` — loads escrow output-note ciphertexts for a claim using the environment's network configuration
+- `unsignedEscrowAuthorizationForSweep({ prepared, transactEnvironment, relayerPublicKey })` — simulates the relayer invocation and returns the unsigned claimant authorization entry to sign offline
 
 ## Browser Example
 
