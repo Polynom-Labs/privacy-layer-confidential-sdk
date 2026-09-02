@@ -92,4 +92,32 @@ describe('awaitRelaySettlement bounds', () => {
     expect(result.outcome).toBe(PENDING_OPERATION_PHASE.rejected);
     expect(result.operation.publicReason).toBe('kyt_rejected');
   });
+
+  it('returns failure when the relayer fails before the bound', async () => {
+    const ports = createTestPorts();
+    await submitPreparedPrivateOperation({
+      ports,
+      operation: newOperation(SUBMISSION_PATH.relay),
+    });
+    ports.probe.statusById.set(
+      TEST_RELAY_REQUEST_ID,
+      testRelayStatus('failed', {
+        retryAllowed: true,
+        publicReason: 'send_failed',
+      }),
+    );
+    const result = await awaitRelaySettlement({
+      ports,
+      walletPublicKey: TEST_WALLET,
+      operationId: TEST_OPERATION_ID,
+      pollIntervalMs: POLL_INTERVAL_MS,
+      maxAttempts: SETTLEMENT_MAX_ATTEMPTS,
+      delay: async () => {
+        throw new Error('delay must not run after settlement');
+      },
+    });
+    expect(result.outcome).toBe(PENDING_OPERATION_PHASE.failed);
+    expect(result.operation.publicReason).toBe('send_failed');
+    expect(result.retryAllowed).toBe(true);
+  });
 });
