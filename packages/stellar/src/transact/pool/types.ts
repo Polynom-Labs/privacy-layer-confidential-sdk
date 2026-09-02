@@ -22,7 +22,7 @@ export type PoolTransactClient = {
       expiration_ledger: number;
       signature: Buffer;
     };
-    escrow_recipient?: string;
+    escrow_recipient: string | undefined;
   }) => Promise<PoolTransactResult>;
 };
 

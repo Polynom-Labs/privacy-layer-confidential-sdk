@@ -36,9 +36,7 @@ export async function submitPoolTransact(parameters: {
       expiration_ledger: parameters.approval.expiresAtLedger,
       signature: approvalSignatureToBytes(parameters.approval.signature),
     },
-    ...(parameters.escrowRecipient
-      ? { escrow_recipient: parameters.escrowRecipient }
-      : {}),
+    escrow_recipient: parameters.escrowRecipient,
   });
   await runTtlPreflight(assembledTransaction);
   const sentTransaction = await assembledTransaction.signAndSend();
