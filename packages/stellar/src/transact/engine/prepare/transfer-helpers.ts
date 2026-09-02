@@ -9,6 +9,32 @@ function isStellarAccountRecipient(prepared: StellarPreparedOperation): boolean 
   );
 }
 
+export async function stampEscrowSendArtifacts(
+  prepared: StellarPreparedOperation,
+  environment: StellarTransactEnvironment,
+  walletPublicKey: string,
+): Promise<
+  Pick<
+    NonNullable<StellarPreparedOperation['transactArtifacts']>,
+    'escrowSend' | 'spendSource'
+  >
+> {
+  if (!isStellarAccountRecipient(prepared)) {
+    return {};
+  }
+  if (!environment.resolveTransferRecipientAtExecute) {
+    return {};
+  }
+  const recipient = await environment.resolveTransferRecipientAtExecute({
+    recipientStellarAddress: prepared.intent.to.trim(),
+    walletPublicKey,
+  });
+  if (!recipient.escrowSend) {
+    return {};
+  }
+  return { escrowSend: true, spendSource: 'escrow' };
+}
+
 export async function resolveTransferRecipientForExecute(
   prepared: StellarPreparedOperation,
   environment: StellarTransactEnvironment,
