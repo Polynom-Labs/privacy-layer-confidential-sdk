@@ -13,6 +13,7 @@ This package provides:
 - disclosure validation for currently supported Stellar routes
 - orchestration over `@auditable/privacy-pool-zk-sdk`
 - `requiredSubmissionMethod()` (`@arcanetech/privacy-sdk-stellar/transact`) — chooses Direct Submission vs Protocol Relay from a prepared operation; escrow sends require relay and refuse a positive public deposit
+- `buildBlindedRecipientTagChallengeMessage()` (`@arcanetech/privacy-sdk-stellar/transact`) — builds the wallet-signed challenge used to issue blinded recipient tags so a recipient can discover escrow notes after they register
 
 ## Browser Example
 

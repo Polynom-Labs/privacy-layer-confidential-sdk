@@ -114,6 +114,27 @@ await operation.execute({});
 
 The SDK derives the escrow note owner at execute. It does not put the recipient G-address in pool calldata or the relay package on send.
 
+## Discover notes sent before registration
+
+A recipient who registers later can still find notes that were sent to their public wallet. They prove control of that wallet by signing a challenge in the same labeled-line shape used to derive a private-note spend key. `buildBlindedRecipientTagChallengeMessage` builds that exact UTF-8 string so it matches issuance.
+
+Sign the message with a current account signer, then present the signature to your tag-issuance integration. Issued **blinded recipient tags** (one per tag epoch) are how the recipient looks up notes without revealing their address to the index. Claiming those notes is a separate flow.
+
+```ts
+import { buildBlindedRecipientTagChallengeMessage } from '@arcanetech/privacy-sdk-stellar/transact';
+
+const message = buildBlindedRecipientTagChallengeMessage({
+  stellarAddress: walletPublicKey,
+  networkPassphrase: transactEnvironment.network.networkPassphrase,
+  issuedAt,
+  expiresAt,
+  nonce,
+});
+const signature = await wallet.authorizeMessage(message);
+```
+
+Do not reconstruct the message by hand. Issuance verifies the signed string byte-for-byte.
+
 ## Related
 
 <CardGroup cols={2}>

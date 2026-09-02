@@ -56,7 +56,7 @@ Internal transitive dependencies are not part of the public integration surface.
 | Import | Purpose |
 | --- | --- |
 | `@arcanetech/privacy-sdk-stellar` | Browser client factory and Stellar types |
-| `@arcanetech/privacy-sdk-stellar/transact` | Stellar transaction helpers, including `requiredSubmissionMethod` |
+| `@arcanetech/privacy-sdk-stellar/transact` | Stellar transaction helpers, including `requiredSubmissionMethod` and `buildBlindedRecipientTagChallengeMessage` |
 | `@arcanetech/privacy-sdk-stellar/node` | Node client with filesystem asset loading |
 | `@arcanetech/privacy-sdk-stellar/testing` | Fake transact engine for unit tests |
 
@@ -69,6 +69,7 @@ Internal transitive dependencies are not part of the public integration surface.
 - **Soroban RPC** — submission and confirmation.
 - **`createStellarPrivacyClient()`** — main browser entrypoint.
 - **`requiredSubmissionMethod(prepared)`** — Direct Submission vs Protocol Relay for a prepared operation (pending claims and positive public deposits stay direct; a zero public deposit uses relay). Escrow sends require relay and a zero public deposit; a positive public deposit is refused rather than downgraded.
+- **`buildBlindedRecipientTagChallengeMessage(fields)`** — wallet-signed challenge string used to issue blinded recipient tags so a recipient can discover escrow notes after they register. See [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient#discover-notes-sent-before-registration).
 
 **Address model (Stellar only):**
 
