@@ -8,6 +8,13 @@ export const PackageMatrix = () => {
       tests: true,
     },
     {
+      name: '@arcanetech/privacy-sdk-relay',
+      role: 'Protocol relay runtime over caller-supplied ports',
+      browser: true,
+      node: true,
+      tests: true,
+    },
+    {
       name: '@arcanetech/privacy-sdk-stellar',
       role: 'Stellar client, transact engine, state integration, bundled runtime assets',
       browser: true,

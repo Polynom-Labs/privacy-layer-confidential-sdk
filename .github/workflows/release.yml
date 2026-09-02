@@ -27,6 +27,7 @@ jobs:
       - run: npm run verify
 
       - run: npm pack --workspace @arcanetech/privacy-sdk-core --dry-run
+      - run: npm pack --workspace @arcanetech/privacy-sdk-relay --dry-run
       - run: npm pack --workspace @arcanetech/privacy-sdk-stellar --dry-run
       - run: npm pack --workspace @arcanetech/privacy-sdk-state-redux --dry-run
       - run: npm pack --workspace @arcanetech/privacy-sdk-state-memory --dry-run
@@ -47,6 +48,7 @@ jobs:
             npm publish --workspace "$workspace" --access public --provenance
           }
           publish_workspace @arcanetech/privacy-sdk-core
+          publish_workspace @arcanetech/privacy-sdk-relay
           publish_workspace @arcanetech/privacy-sdk-stellar
           publish_workspace @arcanetech/privacy-sdk-state-redux
           publish_workspace @arcanetech/privacy-sdk-state-memory

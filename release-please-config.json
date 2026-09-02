@@ -8,6 +8,10 @@
       "component": "privacy-sdk-core",
       "release-type": "node"
     },
+    "packages/relay": {
+      "component": "privacy-sdk-relay",
+      "release-type": "node"
+    },
     "packages/stellar": {
       "component": "privacy-sdk-stellar",
       "release-type": "node"

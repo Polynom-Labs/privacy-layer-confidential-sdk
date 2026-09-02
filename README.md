@@ -17,6 +17,7 @@ English-language monorepo for the Arcane high-level privacy SDK.
 | Package                                                           | Description                                                                                   |
 | ----------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
 | [`@arcanetech/privacy-sdk-core`](./packages/core/README.md)       | Network-agnostic intents, prepared operations, errors, progress events, and adapter contracts |
+| [`@arcanetech/privacy-sdk-relay`](./packages/relay/README.md)     | Chain-agnostic protocol relay runtime (admission, polling, retry, fallback) over caller-supplied ports |
 | [`@arcanetech/privacy-sdk-stellar`](./packages/stellar/README.md) | Stellar preset with browser and Node entrypoints                                              |
 
 ## Requirements
@@ -105,4 +106,5 @@ Site configuration is in [`docs/docs.json`](./docs/docs.json). The repository ro
 ## Package READMEs
 
 - [Core package README](./packages/core/README.md)
+- [Relay package README](./packages/relay/README.md)
 - [Stellar package README](./packages/stellar/README.md)

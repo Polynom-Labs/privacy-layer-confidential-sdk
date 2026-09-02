@@ -1,0 +1,33 @@
+{
+  "name": "@arcanetech/privacy-sdk-relay",
+  "version": "0.1.0",
+  "description": "Chain-agnostic protocol relay runtime: admission, polling, retry, and fallback over caller-supplied ports",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.test.json"
+  },
+  "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Polynom-Labs/privacy-layer-confidential-sdk.git",
+    "directory": "packages/relay"
+  },
+  "license": "UNLICENSED",
+  "publishConfig": {
+    "access": "public"
+  }
+}

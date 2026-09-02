@@ -19,11 +19,13 @@ All public packages use the `@arcanetech` scope. You install presets and state a
 flowchart BT
   App[Your application]
   Stellar["@arcanetech/privacy-sdk-stellar"]
+  Relay["@arcanetech/privacy-sdk-relay"]
   Core["@arcanetech/privacy-sdk-core"]
   Memory["@arcanetech/privacy-sdk-state-memory"]
   Redux["@arcanetech/privacy-sdk-state-redux"]
 
   App --> Stellar
+  App --> Relay
   App --> Memory
   App --> Redux
   Stellar --> Core
@@ -32,6 +34,7 @@ flowchart BT
 ```
 
 - **Core** — network-agnostic orchestration: intents, prepare/execute lifecycle, errors, progress events.
+- **Relay** — chain-agnostic protocol relay runtime: admission, polling, retry, and fallback over caller-supplied ports. It never inspects opaque package payloads.
 - **State adapters** — pluggable persistence for SDK domain state; work with any frontend or backend storage stack.
 - **Network presets** — chain-specific clients, contract bindings, and state schema extensions.
 
@@ -44,6 +47,7 @@ Internal transitive dependencies are not part of the public integration surface.
 | Import | Purpose |
 | --- | --- |
 | `@arcanetech/privacy-sdk-core` | Intents, lifecycle helpers, error types, progress events |
+| `@arcanetech/privacy-sdk-relay` | Protocol relay runtime (ports, polling, retry, fallback) |
 | `@arcanetech/privacy-sdk-state-memory` | In-memory state adapter for prototypes and tests |
 | `@arcanetech/privacy-sdk-state-redux` | Redux Toolkit adapter for React apps |
 

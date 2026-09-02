@@ -11,7 +11,7 @@ The SDK splits into two layers:
 
 | Layer | Packages | Role |
 | --- | --- | --- |
-| **Core + state** | `@arcanetech/privacy-sdk-core`, `@arcanetech/privacy-sdk-state-*` | Chain-agnostic intents, operation lifecycle, errors, progress events, pluggable state |
+| **Core + state** | `@arcanetech/privacy-sdk-core`, `@arcanetech/privacy-sdk-state-*`, `@arcanetech/privacy-sdk-relay` | Chain-agnostic intents, operation lifecycle, errors, progress events, pluggable state, protocol relay runtime |
 | **Network preset** | `@arcanetech/privacy-sdk-stellar` (first shipped preset) | Binding to a specific blockchain: contracts, wallet format, bundled runtime assets |
 
 The SDK **orchestrates** private transactions on the client and maintains a **local cache** of domain state (private records, pool snapshot, registry lookups, wallet keys). It does **not** replace your backend or indexer — those services still supply asset catalogs, delivery indexing, and audit interpretation.
