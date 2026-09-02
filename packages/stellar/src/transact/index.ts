@@ -31,6 +31,7 @@ export type {
   StellarKytEnvironment,
   TransferRecipientExecutionContext,
   TransferTemporaryRecipientKey,
+  TransferEscrowSend,
 } from './environment/types.js';
 export {
   generateRandomDepositScalarHex,
@@ -70,9 +71,17 @@ export { prepareRelayTransactPackageFromPrepared } from './relay/from-prepared.j
 export { readRelayTransactSupportedProfile } from './relay/profile.js';
 export {
   SUBMISSION_METHOD,
+  ESCROW_SUBMISSION_REFUSAL,
+  EscrowSubmissionRefusedError,
+  evaluateRequiredSubmissionMethod,
+  isEscrowPreparedOperation,
   requiredSubmissionMethod,
 } from './relay/required-submission-method.js';
-export type { SubmissionMethod } from './relay/required-submission-method.js';
+export type {
+  EscrowSubmissionRefusal,
+  RequiredSubmissionMethodResult,
+  SubmissionMethod,
+} from './relay/required-submission-method.js';
 export {
   RELAY_TRANSACT_PACKAGE_VERSION_V1,
   RELAY_TRANSACT_SUPPORTED_SIGNAL_COUNT,

@@ -26,6 +26,7 @@ function buildPreparedOperation(input: NewPrivateOperation): PendingPrivateOpera
     finalized: false,
     deliveriesDrained: false,
     transactionPersisted: false,
+    ...(input.escrowSend ? { escrowSend: true } : {}),
   };
 }
 
@@ -112,6 +113,9 @@ function shouldSubmitDirect(input: {
   ports: ProtocolRelayPorts;
   operation: NewPrivateOperation;
 }): boolean {
+  if (input.operation.escrowSend) {
+    return false;
+  }
   return (
     input.operation.submissionPath === SUBMISSION_PATH.direct ||
     !isRelayConfigured(input.ports.relayConfig)
@@ -123,6 +127,13 @@ export async function submitPreparedPrivateOperation(input: {
   operation: NewPrivateOperation;
 }): Promise<SubmitPrivateOperationResult> {
   const prepared = buildPreparedOperation(input.operation);
+  if (input.operation.escrowSend && !isRelayConfigured(input.ports.relayConfig)) {
+    return saveRejectedWithoutRequest({
+      ports: input.ports,
+      operation: prepared,
+      reason: RELAY_PUBLIC_REASON.escrowRelayUnconfigured,
+    });
+  }
   if (shouldSubmitDirect(input)) {
     return submitDirectPath({
       ports: input.ports,

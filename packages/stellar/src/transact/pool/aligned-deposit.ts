@@ -10,6 +10,20 @@ import type { AlignedDepositSlot } from '../pool/proof-types.js';
 
 const SAMPLE_SCALAR_ATTEMPTS = 10;
 
+function escrowDepositFields(parameters: {
+  escrowNonce?: string;
+  recipientHi?: string;
+  recipientLo?: string;
+}): Partial<Pick<DepositObject, 'escrowNonce' | 'recipientStellar'>> {
+  if (!parameters.escrowNonce || !parameters.recipientHi || !parameters.recipientLo) {
+    return {};
+  }
+  return {
+    escrowNonce: parameters.escrowNonce,
+    recipientStellar: [parameters.recipientHi, parameters.recipientLo],
+  };
+}
+
 function sampleValidDepositScalarHex(): string {
   for (let index = 0; index < SAMPLE_SCALAR_ATTEMPTS; index++) {
     const candidate = PrivacyPoolSDK.generateRandomScalarHex32();
@@ -30,6 +44,9 @@ export async function buildAlignedDepositSlotForSdk(
     privateAddressStpl1: string;
     amountStroops: bigint;
     tokenAddress: string;
+    escrowNonce?: string;
+    recipientHi?: string;
+    recipientLo?: string;
   },
 ): Promise<AlignedDepositSlot> {
   const privateAddressPoint = decodePrivateAddress(parameters.privateAddressStpl1);
@@ -55,6 +72,7 @@ export async function buildAlignedDepositSlotForSdk(
     asset: [generated.coin.asset_hi, generated.coin.asset_lo],
     applicationId: resolvedApplicationId,
     recipientPublicKeys,
+    ...escrowDepositFields(parameters),
   };
   return {
     deposit,

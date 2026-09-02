@@ -65,4 +65,42 @@ describe('protocol relay fallback gating', () => {
     });
     expect(canOfferDirectSubmission(reconciling.operation)).toBe(false);
   });
+
+  it('refuses an escrow send when relay is unconfigured without offering wallet submission', async () => {
+    const ports = createTestPorts();
+    ports.relayConfig = undefined;
+    const refused = await submitPreparedPrivateOperation({
+      ports,
+      operation: {
+        ...newOperation(SUBMISSION_PATH.relay),
+        escrowSend: true,
+      },
+    });
+    expect(refused.outcome).toBe(PENDING_OPERATION_PHASE.rejected);
+    expect(refused.operation.publicReason).toBe('escrow_relay_unconfigured');
+    expect(refused.fallbackAllowed).toBe(false);
+    expect(canOfferDirectSubmission(refused.operation)).toBe(false);
+    expect(ports.probe.directCalls).toEqual([]);
+  });
+
+  it('does not offer wallet submission after a failed relay admission on an escrow send', async () => {
+    const ports = createTestPorts({
+      createRequest: async () => {
+        throw new RelayApiError({
+          reason: 'relayer_unavailable',
+          httpStatus: RELAYER_UNAVAILABLE_STATUS,
+        });
+      },
+    });
+    const failed = await submitPreparedPrivateOperation({
+      ports,
+      operation: {
+        ...newOperation(SUBMISSION_PATH.relay),
+        escrowSend: true,
+      },
+    });
+    expect(failed.outcome).toBe(PENDING_OPERATION_PHASE.admissionFailed);
+    expect(canOfferDirectSubmission(failed.operation)).toBe(false);
+    expect(failed.fallbackAllowed).toBe(false);
+  });
 });

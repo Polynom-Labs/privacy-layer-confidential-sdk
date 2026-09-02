@@ -12,6 +12,9 @@ const BLOCKED_DIRECT_STATUSES = new Set<string>([
 ]);
 
 export function canOfferDirectSubmission(operation: PendingPrivateOperation): boolean {
+  if (operation.escrowSend) {
+    return false;
+  }
   if (operation.finalized) {
     return false;
   }

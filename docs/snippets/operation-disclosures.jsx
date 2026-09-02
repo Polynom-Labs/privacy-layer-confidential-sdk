@@ -27,9 +27,9 @@ export const OperationDisclosures = ({ operation }) => {
     },
     'transfer-unregistered': {
       sender: 'both',
-      recipient: 'public',
-      asset: 'public',
-      amount: 'public',
+      recipient: 'private',
+      asset: 'private',
+      amount: 'private',
     },
   };
 

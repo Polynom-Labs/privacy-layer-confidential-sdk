@@ -1,10 +1,9 @@
+import { StrKey } from '@stellar/stellar-sdk';
 import type { StellarAddress } from '../../types.js';
 import type { TransferRecipientExecutionContext } from '../../transact/environment/types.js';
 import type { StellarContractContext } from '../contract-context.js';
 import { readRegistryLookupFromChain } from './registry-domain-service.js';
-
-const UNREGISTERED_TRANSFER_RECIPIENT_ERROR =
-  'Transfers to unregistered recipients are not supported.';
+import { deriveEscrowRecipientFromStellarAddress } from '../../transact/escrow/derived-escrow-recipient.js';
 
 export async function resolveTransferRecipientFromChain(input: {
   contractContext: StellarContractContext;
@@ -27,5 +26,22 @@ export async function resolveTransferRecipientFromChain(input: {
       recipientStellarAddress,
     };
   }
-  throw new Error(UNREGISTERED_TRANSFER_RECIPIENT_ERROR);
+  if (!StrKey.isValidEd25519PublicKey(recipientStellarAddress)) {
+    throw new Error(
+      'Transfers to unregistered recipients require a Stellar G-address.',
+    );
+  }
+  const escrow = await deriveEscrowRecipientFromStellarAddress({
+    recipientStellarAddress,
+  });
+  return {
+    recipientPrivateAddressStpl1: escrow.privateAddressStpl1,
+    recipientStellarAddress,
+    escrowSend: {
+      nonceDecimal: escrow.nonceDecimal,
+      recipientHi: escrow.recipientHi,
+      recipientLo: escrow.recipientLo,
+      recipientStellarAddress,
+    },
+  };
 }

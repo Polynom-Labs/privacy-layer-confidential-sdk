@@ -2,7 +2,12 @@ import { Buffer } from 'buffer';
 import { describe, expect, it } from 'vitest';
 import type { OperationKind } from '@arcanetech/privacy-sdk-core';
 import type { StellarPreparedOperation } from '../src/types.js';
-import { SUBMISSION_METHOD, requiredSubmissionMethod } from '../src/transact/index.js';
+import {
+  ESCROW_SUBMISSION_REFUSAL,
+  EscrowSubmissionRefusedError,
+  SUBMISSION_METHOD,
+  requiredSubmissionMethod,
+} from '../src/transact/index.js';
 
 const FIELD_BYTES = 32;
 const SUPPORTED_SIGNAL_COUNT = 93;
@@ -34,13 +39,18 @@ function preparedOperation(input: {
   spendSource?: NonNullable<
     StellarPreparedOperation['transactArtifacts']
   >['spendSource'];
+  escrowSend?: boolean;
+  omitPublicHex?: boolean;
 }): StellarPreparedOperation {
   const transactArtifacts: NonNullable<StellarPreparedOperation['transactArtifacts']> =
     {
       proofHex: PROOF_BYTES,
-      publicHex: packSignals(input.publicDepositAmount),
       applicationIdsPlaintext: APPLICATION_ID_HINTS,
+      ...(input.omitPublicHex
+        ? {}
+        : { publicHex: packSignals(input.publicDepositAmount) }),
       ...(input.spendSource ? { spendSource: input.spendSource } : {}),
+      ...(input.escrowSend ? { escrowSend: true } : {}),
     };
   return {
     kind: input.kind,
@@ -112,20 +122,62 @@ describe('requiredSubmissionMethod', () => {
       publicDepositAmount: 10_000_000n,
       expected: SUBMISSION_METHOD.direct,
     },
+    {
+      name: 'escrow send',
+      kind: 'transfer' as const,
+      spendSource: 'escrow' as const,
+      publicDepositAmount: 0n,
+      expected: SUBMISSION_METHOD.relay,
+    },
+    {
+      name: 'escrow send flagged without public signals',
+      kind: 'transfer' as const,
+      spendSource: 'escrow' as const,
+      publicDepositAmount: 0n,
+      omitPublicHex: true,
+      expected: SUBMISSION_METHOD.relay,
+    },
   ])(
     'returns $expected for $name',
-    ({ kind, spendSource, publicDepositAmount, expected }) => {
+    ({ kind, spendSource, publicDepositAmount, expected, omitPublicHex }) => {
       expect(
         requiredSubmissionMethod(
           preparedOperation({
             kind,
             publicDepositAmount,
             ...(spendSource ? { spendSource } : {}),
+            ...(omitPublicHex ? { omitPublicHex: true } : {}),
           }),
         ),
       ).toBe(expected);
     },
   );
+
+  it('refuses an escrow send with any positive public deposit instead of downgrading', () => {
+    expect(() =>
+      requiredSubmissionMethod(
+        preparedOperation({
+          kind: 'transfer',
+          spendSource: 'escrow',
+          publicDepositAmount: 1n,
+        }),
+      ),
+    ).toThrow(EscrowSubmissionRefusedError);
+    try {
+      requiredSubmissionMethod(
+        preparedOperation({
+          kind: 'transfer',
+          spendSource: 'escrow',
+          publicDepositAmount: 1n,
+        }),
+      );
+    } catch (error) {
+      expect(error).toBeInstanceOf(EscrowSubmissionRefusedError);
+      expect((error as EscrowSubmissionRefusedError).reason).toBe(
+        ESCROW_SUBMISSION_REFUSAL.positivePublicDeposit,
+      );
+    }
+  });
 
   it('refuses a prepared operation that is missing packed public signals', () => {
     const prepared = preparedOperation({

@@ -1,10 +1,11 @@
+import { StrKey } from '@stellar/stellar-sdk';
 import type { StellarPreparedOperation } from '../../../types.js';
 import type { StellarTransactEnvironment } from '../../environment/types.js';
 
-function isPublicRecipientTransfer(prepared: StellarPreparedOperation): boolean {
+function isStellarAccountRecipient(prepared: StellarPreparedOperation): boolean {
   return (
     prepared.kind === 'transfer' &&
-    prepared.intent.disclosure.recipientAddress === 'public'
+    StrKey.isValidEd25519PublicKey(prepared.intent.to.trim())
   );
 }
 
@@ -13,7 +14,7 @@ export async function resolveTransferRecipientForExecute(
   environment: StellarTransactEnvironment,
   walletPublicKey: string,
 ) {
-  if (!isPublicRecipientTransfer(prepared)) {
+  if (!isStellarAccountRecipient(prepared)) {
     return {
       recipientPrivateAddressStpl1: prepared.intent.to.trim(),
     };

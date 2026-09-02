@@ -116,6 +116,9 @@ export class PrivacyPoolService {
     privateAddressStpl1: string;
     amountStroops: bigint;
     tokenAddress: string;
+    escrowNonce?: string;
+    recipientHi?: string;
+    recipientLo?: string;
   }) {
     const sdk = await this.getInitializedSdk();
     return buildAlignedDepositSlotForSdk(sdk, this.getApplicationId(), parameters);

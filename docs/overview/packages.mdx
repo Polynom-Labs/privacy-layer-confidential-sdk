@@ -68,7 +68,7 @@ Internal transitive dependencies are not part of the public integration surface.
 - **Private-address registry** — maps public Stellar accounts to private payment addresses.
 - **Soroban RPC** — submission and confirmation.
 - **`createStellarPrivacyClient()`** — main browser entrypoint.
-- **`requiredSubmissionMethod(prepared)`** — Direct Submission vs Protocol Relay for a prepared operation (pending claims and positive public deposits stay direct; a zero public deposit uses relay).
+- **`requiredSubmissionMethod(prepared)`** — Direct Submission vs Protocol Relay for a prepared operation (pending claims and positive public deposits stay direct; a zero public deposit uses relay). Escrow sends require relay and a zero public deposit; a positive public deposit is refused rather than downgraded.
 
 **Address model (Stellar only):**
 

@@ -55,7 +55,7 @@ async function ensurePendingClaimReadyForExecute(input: {
 function buildTransferFinalizeArtifacts(input: {
   proof: Awaited<ReturnType<typeof prepareConfidentialTransferProof>>;
   context: Awaited<ReturnType<typeof buildSpendProofContextAtExecute>>;
-  escrowRecipient?: string;
+  escrowSend?: boolean;
 }) {
   return {
     proofHex: input.proof.proof_hex,
@@ -64,7 +64,9 @@ function buildTransferFinalizeArtifacts(input: {
     tokenAddress: input.context.tokenAddress,
     walletPublicKey: input.context.walletPublicKey,
     executeFinalizeRequired: false,
-    ...(input.escrowRecipient ? { escrowRecipient: input.escrowRecipient } : {}),
+    ...(input.escrowSend
+      ? { escrowSend: true as const, spendSource: 'escrow' as const }
+      : {}),
   };
 }
 
@@ -87,13 +89,25 @@ async function runTransferFinalizeSteps(input: {
     prepared: input.prepared,
     environment: input.environment,
     recipientPrivateAddressStpl1: recipient.recipientPrivateAddressStpl1,
+    ...(recipient.escrowSend ? { escrowSend: recipient.escrowSend } : {}),
   });
+  if (recipient.escrowSend) {
+    const [recipientRecord, ...rest] = input.prepared.outputRecords;
+    if (recipientRecord) {
+      input.prepared.outputRecords = [
+        {
+          ...recipientRecord,
+          privateAddress: recipient.recipientPrivateAddressStpl1,
+        },
+        ...rest,
+      ];
+    }
+  }
   enrichTransferOutputRecords(input.prepared, proof);
-  const escrowRecipient = recipient.recipientStellarAddress?.trim();
   return buildTransferFinalizeArtifacts({
     proof,
     context,
-    ...(escrowRecipient ? { escrowRecipient } : {}),
+    ...(recipient.escrowSend ? { escrowSend: true } : {}),
   });
 }
 

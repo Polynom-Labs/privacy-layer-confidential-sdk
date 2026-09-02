@@ -74,6 +74,14 @@ function throwKytInspectRejected(
   });
 }
 
+function inspectRequestHeaders(inspectAuthorization?: string): Record<string, string> {
+  const token = inspectAuthorization?.trim();
+  return {
+    'content-type': 'application/json',
+    ...(token ? { authorization: `Bearer ${token}` } : {}),
+  };
+}
+
 export async function requestKytPassageForPoolInteraction(
   input: RequestKytPassageForPoolInteractionInput,
 ): Promise<InspectKytPassageApproved> {
@@ -88,7 +96,9 @@ export async function requestKytPassageForPoolInteraction(
     `${input.transactEnvironment.kyt.apiBaseUrl}/kyt/passages/inspect`,
     {
       method: 'POST',
-      headers: { 'content-type': 'application/json' },
+      headers: inspectRequestHeaders(
+        input.transactEnvironment.kyt.inspectAuthorization,
+      ),
       body: JSON.stringify(
         {
           owner: input.owner,

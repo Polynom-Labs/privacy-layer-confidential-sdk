@@ -2,6 +2,7 @@ import type { CoinData, DepositSlot } from '@auditable/privacy-pool-zk-sdk';
 import { buildRecipientAndOptionalChangeDeposits } from './recipient-change-deposits.js';
 import { withTokenAddressPublicInputs } from '../../proofs/transaction-input.js';
 import { senderWithdrawFrAndScalar } from '../../proofs/confidential/helpers.js';
+import type { TransferEscrowSend } from '../../environment/types.js';
 
 export type GeneratedOutputCoin = {
   commitment_hex: string;
@@ -31,6 +32,7 @@ async function buildTransferDepositsAndPublicInput(parameters: {
   withdrawAddressHi: string;
   withdrawAddressLo: string;
   privKeyScalar: string;
+  escrowSend?: TransferEscrowSend;
 }): Promise<{
   recipientSlot: GeneratedOutputCoin;
   deposits: [DepositSlot, DepositSlot];
@@ -44,6 +46,7 @@ async function buildTransferDepositsAndPublicInput(parameters: {
       changeStroops: parameters.changeStroops,
       selfPrivateAddressStpl1ForChange: parameters.selfPrivateAddressStpl1ForChange,
       tokenAddress: parameters.tokenAddress,
+      ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
     });
   const publicInput = withTokenAddressPublicInputs(
     {
@@ -71,6 +74,7 @@ export async function buildSenderTransferDepositsAndPublicInput(parameters: {
   selfPrivateAddressStpl1ForChange: string | undefined;
   tokenAddress: string;
   stateRoot: string;
+  escrowSend?: TransferEscrowSend;
 }): ReturnType<typeof buildTransferDepositsAndPublicInput> {
   const { hi, lo, privKeyScalar } = senderWithdrawFrAndScalar({
     senderGAddress: parameters.senderGAddress,
@@ -86,5 +90,6 @@ export async function buildSenderTransferDepositsAndPublicInput(parameters: {
     withdrawAddressHi: hi,
     withdrawAddressLo: lo,
     privKeyScalar,
+    ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
   });
 }

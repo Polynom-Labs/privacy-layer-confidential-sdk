@@ -70,13 +70,13 @@ Spend a sender note and create output note(s) for a recipient who is **already i
 
 <OperationDisclosures operation="transfer-registered" />
 
-## Transfer to unregistered recipient (pending claim)
+## Transfer to unregistered recipient (escrow send)
 
-Send to a **public wallet** when the recipient has not registered a private address yet.
+Send to a **public wallet** when the recipient has not registered a private address yet. The prepared transaction stays indistinguishable from an ordinary private transfer.
 
-1. **Prepare** — validate sender state and disclosure (recipient/asset/amount usually public).
-2. **Execute** — preset binds `escrow_recipient` to the public wallet so the pool can credit the recipient.
-3. **After success** — sender note consumed; pending claim indexed by your backend.
+1. **Prepare** — validate sender state and use private disclosure (recipient/asset/amount private).
+2. **Execute** — preset derives an escrow note owner from a random nonce and the recipient G-address. Public escrow recipient limbs stay zero.
+3. **Submit** — escrow sends require Protocol Relay and a zero public deposit.
 
 Requires preset-specific `transactEnvironment` hooks. See [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient).
 

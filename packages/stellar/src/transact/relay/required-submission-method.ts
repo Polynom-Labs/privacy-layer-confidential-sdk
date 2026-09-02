@@ -12,10 +12,39 @@ export const SUBMISSION_METHOD = {
 export type SubmissionMethod =
   (typeof SUBMISSION_METHOD)[keyof typeof SUBMISSION_METHOD];
 
-function publicDepositAmountFromPrepared(prepared: StellarPreparedOperation): bigint {
+export const ESCROW_SUBMISSION_REFUSAL = {
+  positivePublicDeposit: 'escrow_positive_public_deposit',
+} as const;
+
+export type EscrowSubmissionRefusal =
+  (typeof ESCROW_SUBMISSION_REFUSAL)[keyof typeof ESCROW_SUBMISSION_REFUSAL];
+
+export type RequiredSubmissionMethodResult =
+  { method: SubmissionMethod } | { refused: EscrowSubmissionRefusal };
+
+export class EscrowSubmissionRefusedError extends Error {
+  readonly reason: EscrowSubmissionRefusal;
+
+  constructor(reason: EscrowSubmissionRefusal) {
+    super(reason);
+    this.name = 'EscrowSubmissionRefusedError';
+    this.reason = reason;
+  }
+}
+
+export function isEscrowPreparedOperation(prepared: StellarPreparedOperation): boolean {
+  return (
+    prepared.transactArtifacts?.escrowSend === true ||
+    prepared.transactArtifacts?.spendSource === 'escrow'
+  );
+}
+
+function publicDepositAmountFromPrepared(
+  prepared: StellarPreparedOperation,
+): bigint | undefined {
   const publicHex = prepared.transactArtifacts?.publicHex;
   if (!publicHex) {
-    throw new Error('Prepared operation is missing transact artifacts.');
+    return undefined;
   }
   const fields = sliceSupportedPublicSignalFields(publicHex);
   const field = fields.find(
@@ -29,13 +58,39 @@ function publicDepositAmountFromPrepared(prepared: StellarPreparedOperation): bi
   return BigInt(`0x${field.toString('hex')}`);
 }
 
+export function evaluateRequiredSubmissionMethod(
+  prepared: StellarPreparedOperation,
+): RequiredSubmissionMethodResult {
+  const publicDepositAmount = publicDepositAmountFromPrepared(prepared);
+  if (isEscrowPreparedOperation(prepared)) {
+    if (
+      publicDepositAmount !== undefined &&
+      publicDepositAmount > ZERO_PUBLIC_DEPOSIT
+    ) {
+      return { refused: ESCROW_SUBMISSION_REFUSAL.positivePublicDeposit };
+    }
+    return { method: SUBMISSION_METHOD.relay };
+  }
+  if (prepared.transactArtifacts?.spendSource === 'pendingClaim') {
+    return { method: SUBMISSION_METHOD.direct };
+  }
+  if (publicDepositAmount === undefined) {
+    throw new Error('Prepared operation is missing transact artifacts.');
+  }
+  return {
+    method:
+      publicDepositAmount > ZERO_PUBLIC_DEPOSIT
+        ? SUBMISSION_METHOD.direct
+        : SUBMISSION_METHOD.relay,
+  };
+}
+
 export function requiredSubmissionMethod(
   prepared: StellarPreparedOperation,
 ): SubmissionMethod {
-  if (prepared.transactArtifacts?.spendSource === 'pendingClaim') {
-    return SUBMISSION_METHOD.direct;
+  const result = evaluateRequiredSubmissionMethod(prepared);
+  if ('refused' in result) {
+    throw new EscrowSubmissionRefusedError(result.refused);
   }
-  return publicDepositAmountFromPrepared(prepared) > ZERO_PUBLIC_DEPOSIT
-    ? SUBMISSION_METHOD.direct
-    : SUBMISSION_METHOD.relay;
+  return result.method;
 }

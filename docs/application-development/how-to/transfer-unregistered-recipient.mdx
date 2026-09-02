@@ -1,6 +1,6 @@
 ---
 title: Transfer to unregistered recipient
-description: Transfer to a recipient who is not yet registered, using a temporary private address and public escrow recipient
+description: Transfer to a recipient who is not yet registered, using a derived escrow note that stays indistinguishable from a private transfer
 ---
 
 import { OperationDisclosures } from '../../snippets/operation-disclosures.jsx';
@@ -11,29 +11,27 @@ import { OperationDisclosures } from '../../snippets/operation-disclosures.jsx';
 
 ## Transact environment hooks
 
-Unregistered-recipient transfers are **not supported** on the owner-bound note format until the escrow-bootstrap path lands. `resolveTransferRecipientFromChain` refuses an unregistered lookup instead of minting a temporary private address. Keep this page as the intended execute-time shape; do not wire it as a live send path yet.
+Unregistered recipients need `resolveTransferRecipientAtExecute` on `transactEnvironment`. The default chain resolver (`resolveTransferRecipientFromChain`) looks up the registry, then **derives an escrow key** from a random nonce and the recipient's Stellar G-address. That pins exactly one recipient to the note. Public escrow recipient limbs stay zero on send, so the transaction matches an ordinary private transfer.
 
-Unregistered recipients need `resolveTransferRecipientAtExecute` on `transactEnvironment`. The resolver supplies a temporary private address for the output note. At execute time the SDK sets the pool `escrow_recipient` argument to the recipient's Stellar G-address. Add the hook during client bootstrap (see [Setup](/application-development/setup)).
+The hook is registered during client bootstrap (see [Setup](/application-development/setup)). Custom resolvers should return `escrowSend` with the derived nonce and G-address limbs rather than a temporary private address.
 
 ```ts
-import { generateTemporaryRecipientPrivateAddress } from '@arcanetech/privacy-sdk-stellar/transact';
-
 const transactEnvironment = {
   // ...network, kyt, signTransaction from setup
-  resolveTransferRecipientAtExecute: async ({ recipientStellarAddress }) => {
-    const temporaryRecipientKey = await generateTemporaryRecipientPrivateAddress();
-    return {
-      recipientPrivateAddressStpl1: temporaryRecipientKey.temporaryPrivateAddressStpl1,
+  resolveTransferRecipientAtExecute: async ({ recipientStellarAddress, walletPublicKey }) => {
+    return client.resolveTransferRecipient({
       recipientStellarAddress,
-      temporaryRecipientKey,
-    };
+      walletPublicKey,
+    });
   },
 };
 ```
 
+Escrow sends require Protocol Relay and a zero public deposit. A positive public deposit is refused (not downgraded to Direct Submission). If relay is unconfigured, submission fails with `escrow_relay_unconfigured` and wallet submission is not offered.
+
 ## Example
 
-Call `transfer` with a public Stellar `to` address so escrow recipient is bound at execute time.
+Call `transfer` with a public Stellar `to` address and the same private disclosure as a registered transfer.
 
 ### Seed state
 
@@ -101,9 +99,9 @@ const operation = await client.transfer({
   amount: 25_0000000n,
   disclosure: {
     senderAddress: 'private',
-    recipientAddress: 'public',
-    assetAddress: 'public',
-    amount: 'public',
+    recipientAddress: 'private',
+    assetAddress: 'private',
+    amount: 'private',
   },
 });
 
@@ -114,7 +112,7 @@ if (operation.status === 'rejected') {
 await operation.execute({});
 ```
 
-The SDK binds `escrow_recipient` during `execute` when the recipient resolver returns a Stellar G-address.
+The SDK derives the escrow note owner at execute. It does not put the recipient G-address in pool calldata or the relay package on send.
 
 ## Related
 
@@ -126,7 +124,7 @@ The SDK binds `escrow_recipient` during `execute` when the recipient resolver re
     Seed state is a doc fixture; production data flows.
   </Card>
   <Card title="Disclosure policy" icon="eye" href="/concepts/disclosure-policy">
-    Public-recipient disclosure constraints.
+    Private-transfer disclosure constraints.
   </Card>
   <Card title="Domain model" icon="sitemap" href="/concepts/domain-model">
     Private records and registry lookups.

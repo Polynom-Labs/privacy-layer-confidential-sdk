@@ -31,9 +31,9 @@ const DOC_TRANSFER_REGISTERED_DISCLOSURE = {
 
 const DOC_TRANSFER_UNREGISTERED_DISCLOSURE = {
   senderAddress: 'private' as const,
-  recipientAddress: 'public' as const,
-  assetAddress: 'public' as const,
-  amount: 'public' as const,
+  recipientAddress: 'private' as const,
+  assetAddress: 'private' as const,
+  amount: 'private' as const,
 };
 
 const pendingClaim: StellarPendingClaim = {
@@ -107,6 +107,23 @@ describe('validateStellarDisclosure transfer routes', () => {
         recipientAddress: 'public',
         assetAddress: 'public',
         amount: 'public',
+      },
+    });
+
+    expect(errors).toEqual([]);
+  });
+
+  it('accepts fully private disclosure for an escrow send to a Stellar G-address', () => {
+    const errors = validateStellarDisclosure('transfer', {
+      from: 'stpl1-sender',
+      to: 'G-RECIPIENT',
+      asset: 'USDC',
+      amount: 10n,
+      disclosure: {
+        senderAddress: 'private',
+        recipientAddress: 'private',
+        assetAddress: 'private',
+        amount: 'private',
       },
     });
 

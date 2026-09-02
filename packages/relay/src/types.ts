@@ -77,6 +77,7 @@ export type PendingPrivateOperation = {
   finalized: boolean;
   deliveriesDrained: boolean;
   transactionPersisted: boolean;
+  escrowSend?: boolean;
   relayRequestId?: string;
   relayStatus?: RelayLifecycleStatus;
   publicReason?: string;
@@ -147,6 +148,7 @@ export type NewPrivateOperation = {
   snapshot: SdkFinalizationSnapshot;
   deliveryOutbox: DeliveryOutboxEntry[];
   relayPackage: RelayPackageJson;
+  escrowSend?: boolean;
 };
 
 export type SubmitPrivateOperationResult = {

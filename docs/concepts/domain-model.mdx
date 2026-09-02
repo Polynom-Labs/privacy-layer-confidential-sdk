@@ -16,7 +16,7 @@ Before writing integration code, understand the domain objects the SDK reads and
 
 - **Deposit** — `from` public wallet, `to` private payment address.
 - **Withdraw** — `from` private payment address, `to` public wallet.
-- **Transfer** — both sides are usually private payment addresses; unregistered recipients use a public wallet `to` with an escrow recipient at execute time.
+- **Transfer** — both sides are usually private payment addresses; unregistered recipients still use a public wallet `to`, but the on-chain transfer looks like a private send.
 
 ## Private address registry
 

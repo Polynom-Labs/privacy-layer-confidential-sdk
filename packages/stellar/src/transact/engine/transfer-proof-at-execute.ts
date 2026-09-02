@@ -1,5 +1,8 @@
 import type { StellarPreparedOperation } from '../../types.js';
-import type { StellarTransactEnvironment } from '../environment/types.js';
+import type {
+  StellarTransactEnvironment,
+  TransferEscrowSend,
+} from '../environment/types.js';
 import {
   prepareConfidentialTransferProof,
   prepareConfidentialTransferProofDual,
@@ -32,6 +35,7 @@ async function buildSingleTransferProofAtExecute(input: {
   prepared: StellarPreparedOperation;
   environment: StellarTransactEnvironment;
   recipientPrivateAddressStpl1: string;
+  escrowSend?: TransferEscrowSend;
 }) {
   const context = await buildSpendProofContextAtExecute(input);
   const changeStroops = context.pendingClaim
@@ -50,6 +54,7 @@ async function buildSingleTransferProofAtExecute(input: {
     recipientPrivateAddressStpl1: context.recipientPrivateAddressStpl1,
     selfPrivateAddressStpl1ForChange: readChangeRecipient(input, changeStroops),
     tokenAddress: context.tokenAddress,
+    ...(input.escrowSend ? { escrowSend: input.escrowSend } : {}),
   });
   return { context, proof };
 }
@@ -58,6 +63,7 @@ async function buildDualTransferProofAtExecute(input: {
   prepared: StellarPreparedOperation;
   environment: StellarTransactEnvironment;
   recipientPrivateAddressStpl1: string;
+  escrowSend?: TransferEscrowSend;
 }) {
   const [primaryRecord, secondaryRecord] = input.prepared.consumedRecords;
   if (!primaryRecord || !secondaryRecord) {
@@ -90,6 +96,7 @@ async function buildDualTransferProofAtExecute(input: {
     recipientPrivateAddressStpl1: context.recipientPrivateAddressStpl1,
     selfPrivateAddressStpl1ForChange: readChangeRecipient(input, changeStroops),
     tokenAddress: context.tokenAddress,
+    ...(input.escrowSend ? { escrowSend: input.escrowSend } : {}),
   });
   return { context, proof };
 }
@@ -98,6 +105,7 @@ export async function buildTransferProofAtExecute(input: {
   prepared: StellarPreparedOperation;
   environment: StellarTransactEnvironment;
   recipientPrivateAddressStpl1: string;
+  escrowSend?: TransferEscrowSend;
 }) {
   const recordCount = input.prepared.consumedRecords.length;
   if (recordCount === 1) {

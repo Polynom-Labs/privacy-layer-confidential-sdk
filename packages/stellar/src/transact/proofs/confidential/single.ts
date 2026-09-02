@@ -14,6 +14,7 @@ import {
   generatedOutputCoinFromSlot,
   type GeneratedOutputCoin,
 } from './shared.js';
+import type { TransferEscrowSend } from '../../environment/types.js';
 type PrepareConfidentialTransferProofParameters = {
   coin: CoinData;
   state: StateFile;
@@ -24,6 +25,7 @@ type PrepareConfidentialTransferProofParameters = {
   recipientPrivateAddressStpl1: string;
   selfPrivateAddressStpl1ForChange: string | undefined;
   tokenAddress: string;
+  escrowSend?: TransferEscrowSend;
 };
 
 type PrepareConfidentialTransferProofResult = {
@@ -136,6 +138,9 @@ async function buildTransferProofInputs(parameters: {
         parameters.input.selfPrivateAddressStpl1ForChange,
       tokenAddress: parameters.input.tokenAddress,
       stateRoot: witness.stateRoot,
+      ...(parameters.input.escrowSend
+        ? { escrowSend: parameters.input.escrowSend }
+        : {}),
     });
   return {
     witness,

@@ -14,6 +14,7 @@ import {
   type GeneratedOutputCoin,
 } from './shared.js';
 import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-key-scalar-from-recipient-hex.js';
+import type { TransferEscrowSend } from '../../environment/types.js';
 
 type PrepareConfidentialTransferProofDualParameters = {
   coinA: CoinData;
@@ -27,6 +28,7 @@ type PrepareConfidentialTransferProofDualParameters = {
   recipientPrivateAddressStpl1: string;
   selfPrivateAddressStpl1ForChange: string | undefined;
   tokenAddress: string;
+  escrowSend?: TransferEscrowSend;
 };
 
 type PrepareConfidentialTransferProofDualResult = {
@@ -119,6 +121,7 @@ async function buildDualTransferProofContext(
     selfPrivateAddressStpl1ForChange: parameters.selfPrivateAddressStpl1ForChange,
     tokenAddress: parameters.tokenAddress,
     stateRoot: legA.witness.stateRoot,
+    ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
   });
   return { legA, legB, applicationId, ...transferInputs };
 }

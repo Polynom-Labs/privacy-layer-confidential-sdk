@@ -11,9 +11,17 @@ export interface TransferTemporaryRecipientKey {
   temporaryPrivateAddressStpl1: string;
 }
 
+export interface TransferEscrowSend {
+  nonceDecimal: string;
+  recipientHi: string;
+  recipientLo: string;
+  recipientStellarAddress: string;
+}
+
 export interface TransferRecipientExecutionContext {
   recipientPrivateAddressStpl1: string;
   recipientStellarAddress?: string;
+  escrowSend?: TransferEscrowSend;
   temporaryRecipientKey?: TransferTemporaryRecipientKey;
 }
 
@@ -21,6 +29,7 @@ export interface StellarKytEnvironment {
   apiBaseUrl: string;
   kytPassageRegistryContract: string;
   registerPassageOnChain?: boolean;
+  inspectAuthorization?: string;
 }
 
 export interface StellarTransactEnvironment {

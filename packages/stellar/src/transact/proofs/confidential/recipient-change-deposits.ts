@@ -2,6 +2,7 @@ import type { CoinData, DepositSlot } from '@auditable/privacy-pool-zk-sdk';
 import { getPrivacyPoolService } from '../../pool/singleton.js';
 import { ZERO_STROOPS } from './helpers.js';
 import type { AlignedDepositSlot } from '../../pool/proof-types.js';
+import type { TransferEscrowSend } from '../../environment/types.js';
 
 type ChangeCoin = {
   commitment_hex: string;
@@ -10,15 +11,27 @@ type ChangeCoin = {
   precommitementHex: string;
 };
 
+function escrowSlotFields(escrowSend?: TransferEscrowSend) {
+  return escrowSend
+    ? {
+        escrowNonce: escrowSend.nonceDecimal,
+        recipientHi: escrowSend.recipientHi,
+        recipientLo: escrowSend.recipientLo,
+      }
+    : {};
+}
+
 async function buildPaddingDepositPair(
   recipientPrivateAddressStpl1: string,
   tokenAddress: string,
   recipientDeposit: DepositSlot,
+  escrowSend?: TransferEscrowSend,
 ): Promise<[DepositSlot, DepositSlot]> {
   const paddingSlot = await getPrivacyPoolService().buildAlignedDepositSlot({
     privateAddressStpl1: recipientPrivateAddressStpl1,
     amountStroops: ZERO_STROOPS,
     tokenAddress,
+    ...escrowSlotFields(escrowSend),
   });
   return [recipientDeposit, paddingSlot.deposit];
 }
@@ -52,6 +65,7 @@ export async function buildRecipientAndOptionalChangeDeposits(parameters: {
   changeStroops: bigint;
   selfPrivateAddressStpl1ForChange: string | undefined;
   tokenAddress: string;
+  escrowSend?: TransferEscrowSend;
 }): Promise<{
   recipientSlot: AlignedDepositSlot;
   deposits: [DepositSlot, DepositSlot];
@@ -62,6 +76,7 @@ export async function buildRecipientAndOptionalChangeDeposits(parameters: {
     privateAddressStpl1: recipientPrivateAddress,
     amountStroops: parameters.transferStroops,
     tokenAddress: parameters.tokenAddress,
+    ...escrowSlotFields(parameters.escrowSend),
   });
   if (parameters.changeStroops <= ZERO_STROOPS) {
     return {
@@ -70,6 +85,7 @@ export async function buildRecipientAndOptionalChangeDeposits(parameters: {
         recipientPrivateAddress,
         parameters.tokenAddress,
         recipientSlot.deposit,
+        parameters.escrowSend,
       ),
     };
   }
