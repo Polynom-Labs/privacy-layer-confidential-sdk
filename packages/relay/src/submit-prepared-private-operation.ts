@@ -1,5 +1,6 @@
 import { completeSucceededOperation } from './complete-succeeded-operation.js';
 import { toSubmitResult } from './complete-succeeded-operation.js';
+import { isRelayConfigured, requireRelayApi } from './relay-config.js';
 import {
   PENDING_OPERATION_PHASE,
   RELAY_STATUS,
@@ -74,11 +75,10 @@ async function createRelayRequest(input: {
   ports: ProtocolRelayPorts;
   operation: PendingPrivateOperation;
 }): Promise<SubmitPrivateOperationResult> {
+  const relayApi = requireRelayApi(input.ports);
   await input.ports.store.save(input.operation);
   try {
-    const accepted = await input.ports.relayApi.createRequest(
-      input.operation.relayPackage,
-    );
+    const accepted = await relayApi.createRequest(input.operation.relayPackage);
     const stored: PendingPrivateOperation = {
       ...input.operation,
       phase: PENDING_OPERATION_PHASE.relayAccepted,
@@ -108,12 +108,22 @@ async function createRelayRequest(input: {
   }
 }
 
+function shouldSubmitDirect(input: {
+  ports: ProtocolRelayPorts;
+  operation: NewPrivateOperation;
+}): boolean {
+  return (
+    input.operation.submissionPath === SUBMISSION_PATH.direct ||
+    !isRelayConfigured(input.ports.relayConfig)
+  );
+}
+
 export async function submitPreparedPrivateOperation(input: {
   ports: ProtocolRelayPorts;
   operation: NewPrivateOperation;
 }): Promise<SubmitPrivateOperationResult> {
   const prepared = buildPreparedOperation(input.operation);
-  if (input.operation.submissionPath === SUBMISSION_PATH.direct) {
+  if (shouldSubmitDirect(input)) {
     return submitDirectPath({
       ports: input.ports,
       operation: prepared,

@@ -25,6 +25,7 @@ export const PENDING_OPERATION_PHASE = {
   succeeded: 'succeeded',
   rejected: 'rejected',
   failed: 'failed',
+  settlementTimedOut: 'settlement_timed_out',
 } as const;
 
 export type PendingOperationPhase =
@@ -115,8 +116,13 @@ export type PendingPrivateOperationStore = {
   }) => Promise<PendingPrivateOperation | undefined>;
 };
 
+export type RelayRuntimeConfig = {
+  origin: string;
+};
+
 export type ProtocolRelayPorts = {
-  relayApi: RelayApi;
+  relayApi?: RelayApi;
+  relayConfig?: RelayRuntimeConfig;
   store: PendingPrivateOperationStore;
   submitDirect: (operation: PendingPrivateOperation) => Promise<{ txId: string }>;
   finalizeLocalState: (input: {
@@ -153,6 +159,6 @@ export type SubmitPrivateOperationResult = {
 };
 
 export type CreateRelayApiInput = {
-  baseUrl: string;
+  origin: string;
   fetch?: typeof globalThis.fetch;
 };

@@ -2,6 +2,7 @@ import { requireStoredOperation } from './complete-succeeded-operation.js';
 import { isUnfinalizedRelayOperation } from './is-unfinalized-relay-operation.js';
 import { canRetryRelayAttempt } from './fallback-policy.js';
 import { pollPendingOperation } from './poll-pending-operation.js';
+import { requireRelayApi } from './relay-config.js';
 import {
   PENDING_OPERATION_PHASE,
   RELAY_STATUS,
@@ -27,7 +28,7 @@ export async function retryFailedRelayAttempt(input: {
   if (!canRetryRelayAttempt(operation) || !operation.relayRequestId) {
     throw new Error('Relay retry is not allowed for this operation.');
   }
-  await input.ports.relayApi.retryAttempt(operation.relayRequestId);
+  await requireRelayApi(input.ports).retryAttempt(operation.relayRequestId);
   await input.ports.store.save({
     ...withoutPublicReason(operation),
     phase: PENDING_OPERATION_PHASE.relayAccepted,

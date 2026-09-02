@@ -1,5 +1,5 @@
 export { jsonSafeClone } from './json-safe.js';
-export { relayApiOrigin } from './relay-api-origin.js';
+export { resolveRelayOrigin, isRelayConfigured } from './relay-config.js';
 export { createRelayApi } from './relay-api.js';
 export {
   RelayApiError,
@@ -21,6 +21,8 @@ export { submitDirectFallback } from './submit-direct-fallback.js';
 export {
   awaitRelaySettlement,
   submitAndAwaitPrivateOperation,
+  DEFAULT_SETTLEMENT_POLL_INTERVAL_MS,
+  DEFAULT_SETTLEMENT_MAX_ATTEMPTS,
 } from './await-relay-settlement.js';
 export {
   ProtocolRelayClientError,
@@ -53,6 +55,7 @@ export type {
   RelayPackageJson,
   RelayRequestAccepted,
   RelayRequestStatus,
+  RelayRuntimeConfig,
   SafeDisplayMetadata,
   SdkFinalizationSnapshot,
   SubmissionPath,

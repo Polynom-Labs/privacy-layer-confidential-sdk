@@ -1,4 +1,4 @@
-import { relayApiOrigin } from './relay-api-origin.js';
+import { requireRelayOrigin } from './relay-config.js';
 import { RelayApiError } from './relay-api-error.js';
 import { RELAY_PUBLIC_REASON } from './reasons.js';
 import type {
@@ -107,13 +107,13 @@ function resolveFetcher(input: CreateRelayApiInput): RelayFetcher {
 }
 
 export function createRelayApi(input: CreateRelayApiInput): RelayApi {
-  const baseUrl = relayApiOrigin(input.baseUrl);
+  const origin = requireRelayOrigin(input.origin);
   const fetchImpl = resolveFetcher(input);
   return {
     async createRequest(body) {
       const result = await requestJson({
         fetch: fetchImpl,
-        url: `${baseUrl}/relay-requests`,
+        url: `${origin}/relay-requests`,
         method: 'POST',
         body,
       });
@@ -128,7 +128,7 @@ export function createRelayApi(input: CreateRelayApiInput): RelayApi {
     async readStatus(relayRequestId) {
       const result = await requestJson({
         fetch: fetchImpl,
-        url: `${baseUrl}/relay-requests/${relayRequestId}`,
+        url: `${origin}/relay-requests/${relayRequestId}`,
         method: 'GET',
       });
       return mapStatus(
@@ -142,7 +142,7 @@ export function createRelayApi(input: CreateRelayApiInput): RelayApi {
     async retryAttempt(relayRequestId) {
       const result = await requestJson({
         fetch: fetchImpl,
-        url: `${baseUrl}/relay-requests/${relayRequestId}/attempts`,
+        url: `${origin}/relay-requests/${relayRequestId}/attempts`,
         method: 'POST',
       });
       return mapStatus(

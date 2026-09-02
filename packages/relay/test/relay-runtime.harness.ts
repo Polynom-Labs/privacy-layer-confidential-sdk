@@ -22,7 +22,10 @@ export type OrchestrationProbe = {
   statusById: Map<string, RelayRequestStatus>;
 };
 
-export type TestPorts = ProtocolRelayPorts & { probe: OrchestrationProbe };
+export type TestPorts = ProtocolRelayPorts & {
+  probe: OrchestrationProbe;
+  relayApi: RelayApi;
+};
 
 function emptyPackage(): RelayPackageJson {
   return {
@@ -172,6 +175,7 @@ export function createTestPorts(relayApi?: Partial<RelayApi>): TestPorts {
   return {
     probe,
     relayApi: createSubstitutedRelayApi(probe, relayApi),
+    relayConfig: { origin: 'http://relay.test' },
     store: bindProbedStore(probe, createMemoryStore()),
     async submitDirect() {
       probe.directCalls.push('direct');

@@ -20,23 +20,29 @@ The six ports are:
 ```ts
 import {
   createRelayApi,
+  resolveRelayOrigin,
   submitAndAwaitPrivateOperation,
   throwIfRelayUnsuccessful,
   type ProtocolRelayPorts,
 } from '@arcanetech/privacy-sdk-relay';
 
+const origin = resolveRelayOrigin(relayOriginFromEnv);
 const ports: ProtocolRelayPorts = {
-  relayApi: createRelayApi({ baseUrl: relayOrigin }),
   store,
   submitDirect,
   finalizeLocalState,
   drainDeliveries,
   persistUserTransaction,
+  ...(origin
+    ? { relayConfig: { origin }, relayApi: createRelayApi({ origin }) }
+    : {}),
 };
 
 const result = await submitAndAwaitPrivateOperation({ ports, operation });
 const { txId } = throwIfRelayUnsuccessful(result);
 ```
+
+Relaying is off until `relayConfig.origin` is set. An unset origin Direct-submits even when the caller marks the operation as `relay`, and the relayer is never contacted.
 
 Substitute `relayApi` (or the optional `fetch` on `createRelayApi`) in tests. Direct submission stays a caller-supplied port because it closes over a prepared operation that cannot be serialized.
 

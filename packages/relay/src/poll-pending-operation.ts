@@ -3,6 +3,7 @@ import {
   requireStoredOperation,
   toSubmitResult,
 } from './complete-succeeded-operation.js';
+import { requireRelayApi } from './relay-config.js';
 import {
   PENDING_OPERATION_PHASE,
   RELAY_STATUS,
@@ -59,7 +60,9 @@ export async function pollPendingOperation(input: {
   if (!operation.relayRequestId) {
     return toSubmitResult(operation);
   }
-  const status = await input.ports.relayApi.readStatus(operation.relayRequestId);
+  const status = await requireRelayApi(input.ports).readStatus(
+    operation.relayRequestId,
+  );
   const updated = applyStatus(operation, status);
   await input.ports.store.save(updated);
   if (status.status === RELAY_STATUS.succeeded && status.transactionHash) {

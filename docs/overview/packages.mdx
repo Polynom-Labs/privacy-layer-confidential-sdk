@@ -34,7 +34,7 @@ flowchart BT
 ```
 
 - **Core** — network-agnostic orchestration: intents, prepare/execute lifecycle, errors, progress events.
-- **Relay** — chain-agnostic protocol relay runtime: admission, polling, retry, and fallback over caller-supplied ports. It owns statuses, reason codes, and package JSON serialization, follows a caller-supplied submission path, and never inspects opaque package payloads or deposit amounts.
+- **Relay** — chain-agnostic protocol relay runtime: admission, polling, retry, and fallback over caller-supplied ports. It owns statuses, reason codes, and package JSON serialization, follows a caller-supplied submission path, and never inspects opaque package payloads or deposit amounts. Relaying is enabled only when the caller sets `relayConfig.origin`; otherwise the runtime Direct-submits and does not contact a relayer. Settlement polling is bounded.
 - **State adapters** — pluggable persistence for SDK domain state; work with any frontend or backend storage stack.
 - **Network presets** — chain-specific clients, contract bindings, and state schema extensions.
 
