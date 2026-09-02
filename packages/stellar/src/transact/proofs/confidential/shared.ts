@@ -2,7 +2,10 @@ import type { CoinData, DepositSlot } from '@auditable/privacy-pool-zk-sdk';
 import { buildRecipientAndOptionalChangeDeposits } from './recipient-change-deposits.js';
 import { withTokenAddressPublicInputs } from '../../proofs/transaction-input.js';
 import { senderWithdrawFrAndScalar } from '../../proofs/confidential/helpers.js';
-import type { TransferEscrowSend } from '../../environment/types.js';
+import type {
+  TransferEscrowClaimantLimbs,
+  TransferEscrowSend,
+} from '../../environment/types.js';
 
 export type GeneratedOutputCoin = {
   commitment_hex: string;
@@ -33,6 +36,7 @@ async function buildTransferDepositsAndPublicInput(parameters: {
   withdrawAddressLo: string;
   privKeyScalar: string;
   escrowSend?: TransferEscrowSend;
+  escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
 }): Promise<{
   recipientSlot: GeneratedOutputCoin;
   deposits: [DepositSlot, DepositSlot];
@@ -54,6 +58,12 @@ async function buildTransferDepositsAndPublicInput(parameters: {
       withdrawAddressHi: parameters.withdrawAddressHi,
       withdrawAddressLo: parameters.withdrawAddressLo,
       privKeyScalar: parameters.privKeyScalar,
+      ...(parameters.escrowClaimantLimbs
+        ? {
+            escrowRecipientHi: parameters.escrowClaimantLimbs.recipientHi,
+            escrowRecipientLo: parameters.escrowClaimantLimbs.recipientLo,
+          }
+        : {}),
     },
     parameters.tokenAddress,
   );
@@ -75,6 +85,7 @@ export async function buildSenderTransferDepositsAndPublicInput(parameters: {
   tokenAddress: string;
   stateRoot: string;
   escrowSend?: TransferEscrowSend;
+  escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
 }): ReturnType<typeof buildTransferDepositsAndPublicInput> {
   const { hi, lo, privKeyScalar } = senderWithdrawFrAndScalar({
     senderGAddress: parameters.senderGAddress,
@@ -91,5 +102,8 @@ export async function buildSenderTransferDepositsAndPublicInput(parameters: {
     withdrawAddressLo: lo,
     privKeyScalar,
     ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
+    ...(parameters.escrowClaimantLimbs
+      ? { escrowClaimantLimbs: parameters.escrowClaimantLimbs }
+      : {}),
   });
 }

@@ -1,6 +1,7 @@
 import type { StellarPreparedOperation } from '../../types.js';
 import type {
   StellarTransactEnvironment,
+  TransferEscrowClaimantLimbs,
   TransferEscrowSend,
 } from '../environment/types.js';
 import {
@@ -31,11 +32,24 @@ function readChangeRecipient(
   return readTransferFromPrivateAddress(from);
 }
 
+function proofEscrowFields(input: {
+  escrowSend?: TransferEscrowSend;
+  escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
+}) {
+  return {
+    ...(input.escrowSend ? { escrowSend: input.escrowSend } : {}),
+    ...(input.escrowClaimantLimbs
+      ? { escrowClaimantLimbs: input.escrowClaimantLimbs }
+      : {}),
+  };
+}
+
 async function buildSingleTransferProofAtExecute(input: {
   prepared: StellarPreparedOperation;
   environment: StellarTransactEnvironment;
   recipientPrivateAddressStpl1: string;
   escrowSend?: TransferEscrowSend;
+  escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
 }) {
   const context = await buildSpendProofContextAtExecute(input);
   const changeStroops = context.pendingClaim
@@ -54,7 +68,7 @@ async function buildSingleTransferProofAtExecute(input: {
     recipientPrivateAddressStpl1: context.recipientPrivateAddressStpl1,
     selfPrivateAddressStpl1ForChange: readChangeRecipient(input, changeStroops),
     tokenAddress: context.tokenAddress,
-    ...(input.escrowSend ? { escrowSend: input.escrowSend } : {}),
+    ...proofEscrowFields(input),
   });
   return { context, proof };
 }
@@ -64,6 +78,7 @@ async function buildDualTransferProofAtExecute(input: {
   environment: StellarTransactEnvironment;
   recipientPrivateAddressStpl1: string;
   escrowSend?: TransferEscrowSend;
+  escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
 }) {
   const [primaryRecord, secondaryRecord] = input.prepared.consumedRecords;
   if (!primaryRecord || !secondaryRecord) {
@@ -96,7 +111,7 @@ async function buildDualTransferProofAtExecute(input: {
     recipientPrivateAddressStpl1: context.recipientPrivateAddressStpl1,
     selfPrivateAddressStpl1ForChange: readChangeRecipient(input, changeStroops),
     tokenAddress: context.tokenAddress,
-    ...(input.escrowSend ? { escrowSend: input.escrowSend } : {}),
+    ...proofEscrowFields(input),
   });
   return { context, proof };
 }
@@ -106,6 +121,7 @@ export async function buildTransferProofAtExecute(input: {
   environment: StellarTransactEnvironment;
   recipientPrivateAddressStpl1: string;
   escrowSend?: TransferEscrowSend;
+  escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
 }) {
   const recordCount = input.prepared.consumedRecords.length;
   if (recordCount === 1) {

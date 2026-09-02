@@ -77,7 +77,13 @@ export interface StellarTransactArtifacts {
   commitmentHex?: string;
   walletPublicKey?: string;
   escrowRecipient?: string;
+  escrowAuthorization?: string;
   escrowSend?: boolean;
+  escrowSpendScalarHex?: string;
+  escrowClaimantLimbs?: {
+    recipientHi: string;
+    recipientLo: string;
+  };
   executeFinalizeRequired?: boolean;
   pendingClaim?: StellarPendingClaim;
   spendSource?: 'privateAddress' | 'pendingClaim' | 'escrow';

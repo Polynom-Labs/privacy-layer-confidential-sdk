@@ -30,6 +30,7 @@ type WireContractVector = {
       publicSignals: string;
       applicationIdHints: [string, string, string, string];
       escrowRecipient: string;
+      escrowAuthorization: string;
       keyVersionHints: Array<number | null>;
     };
     wire: Record<string, unknown>;
@@ -108,5 +109,20 @@ describe('relay wire-contract vectors', () => {
     const deserialized = deserializeRelayPackage(vector.serialize.wire);
     expect(deserialized).toBeDefined();
     expect(jsonSafeClone(deserialized)).toEqual(vector.serialize.wire);
+  });
+
+  it('copies an opaque escrow authorization without reading note secrets from package bytes', () => {
+    const credential = vector.serialize.source.escrowAuthorization;
+    const withSecret = {
+      ...vector.serialize.wire,
+      coinNote: { secret: 'must-not-round-trip' },
+      spendScalar: 'deadbeef',
+    };
+    const deserialized = deserializeRelayPackage(withSecret);
+    expect(deserialized?.escrowAuthorization).toBe(credential);
+    expect(deserialized).not.toHaveProperty('coinNote');
+    expect(deserialized).not.toHaveProperty('spendScalar');
+    expect(deserialized?.proofBytes).toBe(vector.serialize.wire.proofBytes);
+    expect(deserialized?.publicSignals).toBe(vector.serialize.wire.publicSignals);
   });
 });

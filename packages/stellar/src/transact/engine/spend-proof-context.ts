@@ -20,6 +20,11 @@ async function resolveSenderPrivKeyScalarHex(input: {
   environment: StellarTransactEnvironment;
   walletPublicKey: string;
 }): Promise<string> {
+  const escrowSpendScalarHex =
+    input.prepared.transactArtifacts?.escrowSpendScalarHex?.trim();
+  if (escrowSpendScalarHex) {
+    return escrowSpendScalarHex;
+  }
   const pendingClaim = input.prepared.transactArtifacts?.pendingClaim;
   if (pendingClaim) {
     return recoveryScalarHexFromClaim(pendingClaim);

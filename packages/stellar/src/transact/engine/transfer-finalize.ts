@@ -52,10 +52,28 @@ async function ensurePendingClaimReadyForExecute(input: {
   });
 }
 
+function escrowSpendArtifacts(input: {
+  escrowSend?: boolean;
+  preparedSpendSource?: NonNullable<
+    StellarPreparedOperation['transactArtifacts']
+  >['spendSource'];
+}) {
+  if (input.escrowSend) {
+    return { escrowSend: true as const, spendSource: 'escrow' as const };
+  }
+  if (input.preparedSpendSource === 'escrow') {
+    return { spendSource: 'escrow' as const };
+  }
+  return {};
+}
+
 function buildTransferFinalizeArtifacts(input: {
   proof: Awaited<ReturnType<typeof prepareConfidentialTransferProof>>;
   context: Awaited<ReturnType<typeof buildSpendProofContextAtExecute>>;
   escrowSend?: boolean;
+  preparedSpendSource?: NonNullable<
+    StellarPreparedOperation['transactArtifacts']
+  >['spendSource'];
 }) {
   return {
     proofHex: input.proof.proof_hex,
@@ -64,9 +82,7 @@ function buildTransferFinalizeArtifacts(input: {
     tokenAddress: input.context.tokenAddress,
     walletPublicKey: input.context.walletPublicKey,
     executeFinalizeRequired: false,
-    ...(input.escrowSend
-      ? { escrowSend: true as const, spendSource: 'escrow' as const }
-      : {}),
+    ...escrowSpendArtifacts(input),
   };
 }
 
@@ -90,6 +106,11 @@ async function runTransferFinalizeSteps(input: {
     environment: input.environment,
     recipientPrivateAddressStpl1: recipient.recipientPrivateAddressStpl1,
     ...(recipient.escrowSend ? { escrowSend: recipient.escrowSend } : {}),
+    ...(input.prepared.transactArtifacts?.escrowClaimantLimbs
+      ? {
+          escrowClaimantLimbs: input.prepared.transactArtifacts.escrowClaimantLimbs,
+        }
+      : {}),
   });
   if (recipient.escrowSend) {
     const [recipientRecord, ...rest] = input.prepared.outputRecords;
@@ -108,6 +129,9 @@ async function runTransferFinalizeSteps(input: {
     proof,
     context,
     ...(recipient.escrowSend ? { escrowSend: true } : {}),
+    ...(input.prepared.transactArtifacts?.spendSource
+      ? { preparedSpendSource: input.prepared.transactArtifacts.spendSource }
+      : {}),
   });
 }
 

@@ -23,6 +23,22 @@ export {
 export type { SpendScalarDomain } from './private-address/codec.js';
 export { buildBlindedRecipientTagChallengeMessage } from './escrow/tag-challenge-message.js';
 export type { BlindedRecipientTagChallengeFields } from './escrow/tag-challenge-message.js';
+export { deriveEscrowRecipientFromStellarAddress } from './escrow/derived-escrow-recipient.js';
+export { assertEscrowSweepClaimant } from './escrow/assert-escrow-sweep-claimant.js';
+export { reconstructEscrowNote } from './escrow/reconstruct-escrow-note.js';
+export {
+  prepareEscrowSweepOperation,
+  attachEscrowAuthorization,
+} from './escrow/prepare-escrow-sweep.js';
+export {
+  parseEscrowOutputNoteEvent,
+  parseEscrowOutputNoteEventsFromMeta,
+} from './escrow/parse-output-note-events.js';
+export { fetchEscrowOutputNoteEvents } from './escrow/fetch-output-note-events.js';
+export { pickUnsignedEscrowAuthorization } from './escrow/pick-escrow-authorization.js';
+export { unsignedEscrowAuthorizationForSweep } from './escrow/simulate-escrow-authorization.js';
+export type { EscrowOutputNoteCiphertextEvent } from './escrow/reconstruct-escrow-note.js';
+export type { ReconstructedEscrowNote } from './escrow/reconstruct-escrow-note.js';
 export {
   loadStellarBrowserAssets,
   loadDefaultStellarBrowserAssets,
@@ -34,6 +50,7 @@ export type {
   TransferRecipientExecutionContext,
   TransferTemporaryRecipientKey,
   TransferEscrowSend,
+  TransferEscrowClaimantLimbs,
 } from './environment/types.js';
 export {
   generateRandomDepositScalarHex,

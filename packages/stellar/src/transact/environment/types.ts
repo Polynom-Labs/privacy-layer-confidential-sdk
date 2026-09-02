@@ -18,6 +18,11 @@ export interface TransferEscrowSend {
   recipientStellarAddress: string;
 }
 
+export interface TransferEscrowClaimantLimbs {
+  recipientHi: string;
+  recipientLo: string;
+}
+
 export interface TransferRecipientExecutionContext {
   recipientPrivateAddressStpl1: string;
   recipientStellarAddress?: string;

@@ -57,6 +57,7 @@ describe('Relay Transact Package V1 preparation', () => {
       publicSignals,
       applicationIdHints: APPLICATION_ID_HINTS,
       escrowRecipient: ESCROW_RECIPIENT,
+      escrowAuthorization: 'AAAAAGVsc2Vjcm93LWF1dGgtZW50cnk=',
     });
 
     expect(prepared.version).toBe(1);
@@ -66,6 +67,7 @@ describe('Relay Transact Package V1 preparation', () => {
     expect(prepared.publicSignals).toBe(publicSignals);
     expect(prepared.applicationIdHints).toEqual(APPLICATION_ID_HINTS);
     expect(prepared.escrowRecipient).toBe(ESCROW_RECIPIENT);
+    expect(prepared.escrowAuthorization).toBe('AAAAAGVsc2Vjcm93LWF1dGgtZW50cnk=');
     expect(prepared).not.toHaveProperty('signer');
     expect(prepared).not.toHaveProperty('from');
     expect(prepared).not.toHaveProperty('verificationKey');

@@ -20,6 +20,7 @@
     "kytRejected": "kyt_rejected",
     "kytAuthorizationMismatch": "kyt_authorization_mismatch",
     "escrowRelayUnconfigured": "escrow_relay_unconfigured",
+    "escrowAuthorizationMismatch": "escrow_authorization_mismatch",
     "nullifiersSpent": "nullifiers_spent",
     "simulationFailed": "simulation_failed",
     "resourceFeeExceeded": "resource_fee_exceeded",
@@ -52,6 +53,7 @@
     "kyt_rejected",
     "kyt_authorization_mismatch",
     "escrow_relay_unconfigured",
+    "escrow_authorization_mismatch",
     "nullifiers_spent",
     "simulation_failed",
     "resource_fee_exceeded",
@@ -83,6 +85,7 @@
         "0"
       ],
       "escrowRecipient": "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+      "escrowAuthorization": "AAAAAGVsc2Vjcm93LWF1dGgtZW50cnk=",
       "keyVersionHints": [
         1,
         null,
@@ -103,6 +106,7 @@
         "0"
       ],
       "escrowRecipient": "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+      "escrowAuthorization": "AAAAAGVsc2Vjcm93LWF1dGgtZW50cnk=",
       "keyVersionHints": [
         1,
         null,

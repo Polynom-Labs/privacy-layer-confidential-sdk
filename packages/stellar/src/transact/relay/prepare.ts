@@ -24,6 +24,9 @@ export function prepareRelayTransactPackage(
   if (input.escrowRecipient) {
     prepared.escrowRecipient = input.escrowRecipient;
   }
+  if (input.escrowAuthorization) {
+    prepared.escrowAuthorization = input.escrowAuthorization;
+  }
   if (input.keyVersionHints) {
     prepared.keyVersionHints = input.keyVersionHints;
   }

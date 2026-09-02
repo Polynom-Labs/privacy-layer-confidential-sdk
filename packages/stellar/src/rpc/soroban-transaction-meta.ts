@@ -90,7 +90,9 @@ function pushSorobanV4ContractEvents(
   }
 }
 
-function collectContractEventsFromMeta(meta: xdr.TransactionMeta): xdr.ContractEvent[] {
+export function collectContractEventsFromMeta(
+  meta: xdr.TransactionMeta,
+): xdr.ContractEvent[] {
   const out: xdr.ContractEvent[] = [];
   const code = meta.switch();
   if (code === TRANSACTION_META_SWITCH_SOROBAN_V3) {

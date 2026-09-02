@@ -14,7 +14,10 @@ import {
   generatedOutputCoinFromSlot,
   type GeneratedOutputCoin,
 } from './shared.js';
-import type { TransferEscrowSend } from '../../environment/types.js';
+import type {
+  TransferEscrowClaimantLimbs,
+  TransferEscrowSend,
+} from '../../environment/types.js';
 type PrepareConfidentialTransferProofParameters = {
   coin: CoinData;
   state: StateFile;
@@ -26,6 +29,7 @@ type PrepareConfidentialTransferProofParameters = {
   selfPrivateAddressStpl1ForChange: string | undefined;
   tokenAddress: string;
   escrowSend?: TransferEscrowSend;
+  escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
 };
 
 type PrepareConfidentialTransferProofResult = {
@@ -103,6 +107,15 @@ type TransferProofInputs = {
   publicInput: SenderTransferBuild['publicInput'];
 };
 
+function confidentialEscrowFields(input: PrepareConfidentialTransferProofParameters) {
+  return {
+    ...(input.escrowSend ? { escrowSend: input.escrowSend } : {}),
+    ...(input.escrowClaimantLimbs
+      ? { escrowClaimantLimbs: input.escrowClaimantLimbs }
+      : {}),
+  };
+}
+
 async function buildTransferProofInputs(parameters: {
   sdk: InitializedPrivacySdk;
   applicationId: string;
@@ -138,9 +151,7 @@ async function buildTransferProofInputs(parameters: {
         parameters.input.selfPrivateAddressStpl1ForChange,
       tokenAddress: parameters.input.tokenAddress,
       stateRoot: witness.stateRoot,
-      ...(parameters.input.escrowSend
-        ? { escrowSend: parameters.input.escrowSend }
-        : {}),
+      ...confidentialEscrowFields(parameters.input),
     });
   return {
     witness,
