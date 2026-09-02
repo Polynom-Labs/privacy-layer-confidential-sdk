@@ -7,7 +7,6 @@ export {
   isInfrastructureRelayFailure,
 } from './relay-api-error.js';
 export { canOfferDirectSubmission, canRetryRelayAttempt } from './fallback-policy.js';
-export { chooseSubmissionPath } from './choose-submission-path.js';
 export { isUnfinalizedRelayOperation } from './is-unfinalized-relay-operation.js';
 export { submitPreparedPrivateOperation } from './submit-prepared-private-operation.js';
 export {

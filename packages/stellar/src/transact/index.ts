@@ -69,6 +69,11 @@ export { prepareRelayTransactPackage } from './relay/prepare.js';
 export { prepareRelayTransactPackageFromPrepared } from './relay/from-prepared.js';
 export { readRelayTransactSupportedProfile } from './relay/profile.js';
 export {
+  SUBMISSION_METHOD,
+  requiredSubmissionMethod,
+} from './relay/required-submission-method.js';
+export type { SubmissionMethod } from './relay/required-submission-method.js';
+export {
   RELAY_TRANSACT_PACKAGE_VERSION_V1,
   RELAY_TRANSACT_SUPPORTED_SIGNAL_COUNT,
   RELAY_TRANSACT_FIELD_BYTES,

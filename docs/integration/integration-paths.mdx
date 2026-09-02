@@ -74,6 +74,7 @@ Tests can call `prepare` and `execute` without a live Soroban RPC endpoint.
 | Wallet adapter | Transaction preparation and submission |
 | State adapter library | Domain state reads/writes during lifecycle |
 | Protocol relay ports (transport, store, direct submit, finalize, drain, persist) | Relay admission, polling, retry, and fallback |
+| Caller-supplied `submissionPath` on each private operation | `requiredSubmissionMethod(prepared)` in the Stellar preset |
 | Audit public key and disclosure choices | Policy validation for supported routes |
 | Backend-provided asset, delivery, and registry data (production) | Progress events and structured errors |
 | Runtime assets loader (browser or Node) | Bundled assets inside Stellar preset package |

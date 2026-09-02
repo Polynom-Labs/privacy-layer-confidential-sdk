@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   PENDING_OPERATION_PHASE,
   RelayApiError,
+  SUBMISSION_PATH,
   canOfferDirectSubmission,
   pollPendingOperation,
   submitDirectFallback,
@@ -30,7 +31,7 @@ describe('protocol relay fallback gating', () => {
     });
     const failed = await submitPreparedPrivateOperation({
       ports,
-      operation: newOperation('0'),
+      operation: newOperation(SUBMISSION_PATH.relay),
     });
     expect(failed.outcome).toBe(PENDING_OPERATION_PHASE.admissionFailed);
     expect(canOfferDirectSubmission(failed.operation)).toBe(true);
@@ -47,7 +48,7 @@ describe('protocol relay fallback gating', () => {
     const ports = createTestPorts();
     await submitPreparedPrivateOperation({
       ports,
-      operation: newOperation('0'),
+      operation: newOperation(SUBMISSION_PATH.relay),
     });
     ports.probe.statusById.set(TEST_RELAY_REQUEST_ID, testRelayStatus('submitted'));
     const submitted = await pollPendingOperation({

@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import {
   PENDING_OPERATION_PHASE,
   SUBMISSION_PATH,
-  chooseSubmissionPath,
   pollPendingOperation,
   resumePendingOperations,
   submitPreparedPrivateOperation,
@@ -19,11 +18,10 @@ import {
 
 describe('protocol relay routing and recovery', () => {
   it('routes a positive public deposit to wallet-signed direct submission', async () => {
-    expect(chooseSubmissionPath('10000000')).toBe(SUBMISSION_PATH.direct);
     const ports = createTestPorts();
     const result = await submitPreparedPrivateOperation({
       ports,
-      operation: newOperation('10000000'),
+      operation: newOperation(SUBMISSION_PATH.direct),
     });
     expect(ports.probe.directCalls).toEqual(['direct']);
     expect(ports.probe.order).not.toContain('create');
@@ -35,9 +33,8 @@ describe('protocol relay routing and recovery', () => {
   });
 
   it('routes a pending claim to wallet-signed direct submission', async () => {
-    expect(chooseSubmissionPath('0', 'pending_claim')).toBe(SUBMISSION_PATH.direct);
     const ports = createTestPorts();
-    const operation = newOperation('0');
+    const operation = newOperation(SUBMISSION_PATH.direct);
     const result = await submitPreparedPrivateOperation({
       ports,
       operation: {
@@ -52,7 +49,6 @@ describe('protocol relay routing and recovery', () => {
   });
 
   it('persists a pending operation before creating an all-zero-deposit relay request', async () => {
-    expect(chooseSubmissionPath('0')).toBe(SUBMISSION_PATH.relay);
     const ports = createTestPorts();
     const originalCreate = ports.relayApi.createRequest.bind(ports.relayApi);
     ports.relayApi.createRequest = async (body) => {
@@ -61,7 +57,7 @@ describe('protocol relay routing and recovery', () => {
     };
     const result = await submitPreparedPrivateOperation({
       ports,
-      operation: newOperation('0'),
+      operation: newOperation(SUBMISSION_PATH.relay),
     });
     expect(ports.probe.order.slice(0, 2)).toEqual(['save', 'create']);
     expect(result.outcome).toBe(PENDING_OPERATION_PHASE.relayAccepted);
@@ -76,7 +72,7 @@ describe('protocol relay routing and recovery', () => {
     const ports = createTestPorts();
     await submitPreparedPrivateOperation({
       ports,
-      operation: newOperation('0'),
+      operation: newOperation(SUBMISSION_PATH.relay),
     });
     ports.probe.statusById.set(TEST_RELAY_REQUEST_ID, succeededStatus());
     const resumed = await resumePendingOperations({
@@ -110,7 +106,7 @@ describe('protocol relay concurrent success', () => {
     };
     await submitPreparedPrivateOperation({
       ports,
-      operation: newOperation('0'),
+      operation: newOperation(SUBMISSION_PATH.relay),
     });
     ports.probe.statusById.set(TEST_RELAY_REQUEST_ID, succeededStatus());
     const [first, second] = await Promise.all([

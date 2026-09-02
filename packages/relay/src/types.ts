@@ -136,7 +136,7 @@ export type ProtocolRelayPorts = {
 export type NewPrivateOperation = {
   id: string;
   walletPublicKey: string;
-  publicDepositAmount: string;
+  submissionPath: SubmissionPath;
   display: SafeDisplayMetadata;
   snapshot: SdkFinalizationSnapshot;
   deliveryOutbox: DeliveryOutboxEntry[];

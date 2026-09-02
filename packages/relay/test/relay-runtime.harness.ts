@@ -1,10 +1,11 @@
-import type {
-  NewPrivateOperation,
-  PendingPrivateOperation,
-  ProtocolRelayPorts,
-  RelayApi,
-  RelayPackageJson,
-  RelayRequestStatus,
+import {
+  type NewPrivateOperation,
+  type PendingPrivateOperation,
+  type ProtocolRelayPorts,
+  type RelayApi,
+  type RelayPackageJson,
+  type RelayRequestStatus,
+  type SubmissionPath,
 } from '../src/index.js';
 
 export const TEST_WALLET = 'GTESTWALLET';
@@ -34,11 +35,11 @@ function emptyPackage(): RelayPackageJson {
   };
 }
 
-export function newOperation(publicDepositAmount: string): NewPrivateOperation {
+export function newOperation(submissionPath: SubmissionPath): NewPrivateOperation {
   return {
     id: TEST_OPERATION_ID,
     walletPublicKey: TEST_WALLET,
-    publicDepositAmount,
+    submissionPath,
     display: {
       kind: 'withdraw',
       assetId: 'USDC',

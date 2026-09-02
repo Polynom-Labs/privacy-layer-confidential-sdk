@@ -1,5 +1,4 @@
 import { completeSucceededOperation } from './complete-succeeded-operation.js';
-import { chooseSubmissionPath } from './choose-submission-path.js';
 import { toSubmitResult } from './complete-succeeded-operation.js';
 import {
   PENDING_OPERATION_PHASE,
@@ -114,12 +113,7 @@ export async function submitPreparedPrivateOperation(input: {
   operation: NewPrivateOperation;
 }): Promise<SubmitPrivateOperationResult> {
   const prepared = buildPreparedOperation(input.operation);
-  if (
-    chooseSubmissionPath(
-      input.operation.publicDepositAmount,
-      input.operation.display.kind,
-    ) === SUBMISSION_PATH.direct
-  ) {
+  if (input.operation.submissionPath === SUBMISSION_PATH.direct) {
     return submitDirectPath({
       ports: input.ports,
       operation: prepared,

@@ -43,7 +43,7 @@ Substitute `relayApi` (or the optional `fetch` on `createRelayApi`) in tests. Di
 ## Public API boundaries
 
 - Bind ports in the application; keep chain-specific finalize, delivery, and persist adapters there.
-- Pass the opaque relay package through unchanged. Routing uses `publicDepositAmount` and display kind only.
+- Pass the opaque relay package through unchanged. Routing follows the caller-supplied `submissionPath`; this package does not inspect deposit amounts or display kind.
 - This package owns the wire vocabulary: lifecycle statuses (`RELAY_STATUS`), public/HTTP reason codes, and JSON serialization (`serializeRelayPackage` / `deserializeRelayPackage`). Serialization copies package fields only and never inspects proof or public-signal bytes.
 - After a reload, resume with `resumePendingOperations` and `retryFailedRelayAttempt`. Direct fallback requires an in-memory submitter the caller registered before unload.
 

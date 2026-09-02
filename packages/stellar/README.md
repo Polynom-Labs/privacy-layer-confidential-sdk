@@ -12,6 +12,7 @@ This package provides:
 - Stellar wallet, storage, and policy adapter contracts
 - disclosure validation for currently supported Stellar routes
 - orchestration over `@auditable/privacy-pool-zk-sdk`
+- `requiredSubmissionMethod()` (`@arcanetech/privacy-sdk-stellar/transact`) — chooses Direct Submission vs Protocol Relay from a prepared operation
 
 ## Browser Example
 
