@@ -1,7 +1,11 @@
 export { jsonSafeClone } from './json-safe.js';
 export { relayApiOrigin } from './relay-api-origin.js';
 export { createRelayApi } from './relay-api.js';
-export { RelayApiError, isRelayApiError } from './relay-api-error.js';
+export {
+  RelayApiError,
+  isRelayApiError,
+  isInfrastructureRelayFailure,
+} from './relay-api-error.js';
 export { canOfferDirectSubmission, canRetryRelayAttempt } from './fallback-policy.js';
 export { chooseSubmissionPath } from './choose-submission-path.js';
 export { isUnfinalizedRelayOperation } from './is-unfinalized-relay-operation.js';
@@ -23,6 +27,15 @@ export {
   ProtocolRelayClientError,
   throwIfRelayUnsuccessful,
 } from './protocol-relay-client-error.js';
+export { serializeRelayPackage, deserializeRelayPackage } from './serialize.js';
+export type { RelayPackageSerializable } from './serialize.js';
+export {
+  RELAY_PUBLIC_REASON,
+  RELAY_HTTP_REASON,
+  isRejectionReason,
+  isRetryableFailureReason,
+} from './reasons.js';
+export type { RelayHttpReason, RelayPublicReason } from './reasons.js';
 export { SUBMISSION_PATH, RELAY_STATUS, PENDING_OPERATION_PHASE } from './types.js';
 export type {
   CreateRelayApiInput,

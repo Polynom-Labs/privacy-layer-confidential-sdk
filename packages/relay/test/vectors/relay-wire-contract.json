@@ -1,0 +1,112 @@
+{
+  "lifecycleStatuses": [
+    "accepted",
+    "validating",
+    "queued",
+    "submitted",
+    "reconciling",
+    "succeeded",
+    "rejected",
+    "failed"
+  ],
+  "publicReasons": {
+    "invalidPackage": "invalid_package",
+    "unsupportedSignalShape": "unsupported_signal_shape",
+    "positivePublicDeposit": "positive_public_deposit",
+    "zkConfigMissing": "zk_config_missing",
+    "zkConfigDeprecated": "zk_config_deprecated",
+    "zkConfigIncompatible": "zk_config_incompatible",
+    "invalidProof": "invalid_proof",
+    "kytRejected": "kyt_rejected",
+    "kytAuthorizationMismatch": "kyt_authorization_mismatch",
+    "nullifiersSpent": "nullifiers_spent",
+    "simulationFailed": "simulation_failed",
+    "resourceFeeExceeded": "resource_fee_exceeded",
+    "resourceLimitExceeded": "resource_limit_exceeded",
+    "sendFailed": "send_failed",
+    "transactionFailed": "transaction_failed",
+    "infrastructureFailed": "infrastructure_failed"
+  },
+  "httpReasons": {
+    "payloadTooLarge": "payload_too_large",
+    "rateLimited": "rate_limited",
+    "unsupportedPool": "unsupported_pool",
+    "queueAtCapacity": "queue_at_capacity",
+    "lowBalance": "low_balance",
+    "conflictingPayload": "conflicting_payload",
+    "retryNotAllowed": "retry_not_allowed",
+    "notFound": "not_found",
+    "relayerUnavailable": "relayer_unavailable",
+    "invalidPackage": "invalid_package",
+    "unsupportedSignalShape": "unsupported_signal_shape"
+  },
+  "rejectionReasons": [
+    "invalid_package",
+    "unsupported_signal_shape",
+    "positive_public_deposit",
+    "zk_config_missing",
+    "zk_config_deprecated",
+    "zk_config_incompatible",
+    "invalid_proof",
+    "kyt_rejected",
+    "kyt_authorization_mismatch",
+    "nullifiers_spent",
+    "simulation_failed",
+    "resource_fee_exceeded",
+    "resource_limit_exceeded"
+  ],
+  "retryableFailureReasons": [
+    "send_failed",
+    "transaction_failed",
+    "infrastructure_failed"
+  ],
+  "infrastructureHttpReasons": [
+    "rate_limited",
+    "queue_at_capacity",
+    "low_balance",
+    "relayer_unavailable",
+    "payload_too_large"
+  ],
+  "serialize": {
+    "source": {
+      "version": 1,
+      "poolSelector": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+      "zkConfigNonce": 3,
+      "proofBytes": "aabbccddeeff",
+      "publicSignals": "0011",
+      "applicationIdHints": [
+        "101",
+        "101",
+        "0",
+        "0"
+      ],
+      "escrowRecipient": "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+      "keyVersionHints": [
+        1,
+        null,
+        2,
+        null
+      ]
+    },
+    "wire": {
+      "version": 1,
+      "poolSelector": "CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC",
+      "zkConfigNonce": "3",
+      "proofBytes": "aabbccddeeff",
+      "publicSignals": "0011",
+      "applicationIdHints": [
+        "101",
+        "101",
+        "0",
+        "0"
+      ],
+      "escrowRecipient": "GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF",
+      "keyVersionHints": [
+        1,
+        null,
+        2,
+        null
+      ]
+    }
+  }
+}

@@ -11,6 +11,7 @@ import {
   type SubmitPrivateOperationResult,
 } from './types.js';
 import { RelayApiError, isInfrastructureRelayFailure } from './relay-api-error.js';
+import { RELAY_PUBLIC_REASON } from './reasons.js';
 
 function buildPreparedOperation(input: NewPrivateOperation): PendingPrivateOperation {
   return {
@@ -90,7 +91,9 @@ async function createRelayRequest(input: {
     return toSubmitResult(stored);
   } catch (error: unknown) {
     const reason =
-      error instanceof RelayApiError ? error.reason : 'infrastructure_failed';
+      error instanceof RelayApiError
+        ? error.reason
+        : RELAY_PUBLIC_REASON.infrastructureFailed;
     if (error instanceof RelayApiError && !isInfrastructureRelayFailure(error)) {
       return saveRejectedWithoutRequest({
         ports: input.ports,

@@ -68,7 +68,25 @@ export { finalizeSpendOperationAtExecute } from './engine/execute.js';
 export { prepareRelayTransactPackage } from './relay/prepare.js';
 export { prepareRelayTransactPackageFromPrepared } from './relay/from-prepared.js';
 export { readRelayTransactSupportedProfile } from './relay/profile.js';
-export { RELAY_TRANSACT_PACKAGE_VERSION_V1 } from './relay/constants.js';
+export {
+  RELAY_TRANSACT_PACKAGE_VERSION_V1,
+  RELAY_TRANSACT_SUPPORTED_SIGNAL_COUNT,
+  RELAY_TRANSACT_FIELD_BYTES,
+  RELAY_TRANSACT_SIGNAL_PREFIX_BYTES,
+  RELAY_SIGNAL_INDEX_NULLIFIER_0,
+  RELAY_SIGNAL_INDEX_NULLIFIER_1,
+  RELAY_SIGNAL_INDEX_STATE_ROOT,
+  RELAY_SIGNAL_INDEX_WITHDRAW_ADDRESS_HI,
+  RELAY_SIGNAL_INDEX_WITHDRAW_ADDRESS_LO,
+  RELAY_SIGNAL_INDEX_ESCROW_RECIPIENT_HI,
+  RELAY_SIGNAL_INDEX_ESCROW_RECIPIENT_LO,
+  RELAY_SIGNAL_INDEX_PUBLIC_WITHDRAWAL_ASSET_HI,
+  RELAY_SIGNAL_INDEX_PUBLIC_WITHDRAWAL_ASSET_LO,
+  RELAY_SIGNAL_INDEX_PUBLIC_DEPOSIT_ASSET_HI,
+  RELAY_SIGNAL_INDEX_PUBLIC_DEPOSIT_ASSET_LO,
+  RELAY_SIGNAL_INDEX_PUBLIC_DEPOSIT,
+  RELAY_SIGNAL_INDEX_PUBLIC_WITHDRAWAL,
+} from './relay/constants.js';
 export type {
   PrepareRelayTransactPackageInput,
   RelayKeyVersionHints,

@@ -34,7 +34,7 @@ flowchart BT
 ```
 
 - **Core** — network-agnostic orchestration: intents, prepare/execute lifecycle, errors, progress events.
-- **Relay** — chain-agnostic protocol relay runtime: admission, polling, retry, and fallback over caller-supplied ports. It never inspects opaque package payloads.
+- **Relay** — chain-agnostic protocol relay runtime: admission, polling, retry, and fallback over caller-supplied ports. It owns statuses, reason codes, and package JSON serialization, and never inspects opaque package payloads.
 - **State adapters** — pluggable persistence for SDK domain state; work with any frontend or backend storage stack.
 - **Network presets** — chain-specific clients, contract bindings, and state schema extensions.
 
@@ -47,7 +47,7 @@ Internal transitive dependencies are not part of the public integration surface.
 | Import | Purpose |
 | --- | --- |
 | `@arcanetech/privacy-sdk-core` | Intents, lifecycle helpers, error types, progress events |
-| `@arcanetech/privacy-sdk-relay` | Protocol relay runtime (ports, polling, retry, fallback) |
+| `@arcanetech/privacy-sdk-relay` | Protocol relay runtime (ports, polling, retry, fallback) and the chain-agnostic wire vocabulary (statuses, reason codes, package JSON) |
 | `@arcanetech/privacy-sdk-state-memory` | In-memory state adapter for prototypes and tests |
 | `@arcanetech/privacy-sdk-state-redux` | Redux Toolkit adapter for React apps |
 

@@ -1,5 +1,6 @@
 import { relayApiOrigin } from './relay-api-origin.js';
 import { RelayApiError } from './relay-api-error.js';
+import { RELAY_PUBLIC_REASON } from './reasons.js';
 import type {
   CreateRelayApiInput,
   RelayApi,
@@ -67,7 +68,7 @@ function requireOkStatus(input: {
     return asRecord(input.payload);
   }
   throw new RelayApiError({
-    reason: readReason(input.payload, 'infrastructure_failed'),
+    reason: readReason(input.payload, RELAY_PUBLIC_REASON.infrastructureFailed),
     httpStatus: input.httpStatus,
   });
 }

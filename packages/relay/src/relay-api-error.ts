@@ -1,10 +1,4 @@
-const INFRASTRUCTURE_REASONS = new Set([
-  'rate_limited',
-  'queue_at_capacity',
-  'low_balance',
-  'relayer_unavailable',
-  'payload_too_large',
-]);
+import { RELAY_INFRASTRUCTURE_HTTP_REASONS } from './reasons.js';
 
 export class RelayApiError extends Error {
   readonly reason: string;
@@ -19,7 +13,7 @@ export class RelayApiError extends Error {
 }
 
 export function isInfrastructureRelayFailure(error: RelayApiError): boolean {
-  return INFRASTRUCTURE_REASONS.has(error.reason);
+  return RELAY_INFRASTRUCTURE_HTTP_REASONS.has(error.reason);
 }
 
 export function isRelayApiError(error: unknown): error is RelayApiError {
