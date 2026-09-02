@@ -27,7 +27,11 @@ export {
   ProtocolRelayClientError,
   throwIfRelayUnsuccessful,
 } from './protocol-relay-client-error.js';
-export { serializeRelayPackage, deserializeRelayPackage } from './serialize.js';
+export {
+  RELAY_PACKAGE_VERSION_V1,
+  serializeRelayPackage,
+  deserializeRelayPackage,
+} from './serialize.js';
 export type { RelayPackageSerializable } from './serialize.js';
 export {
   RELAY_PUBLIC_REASON,

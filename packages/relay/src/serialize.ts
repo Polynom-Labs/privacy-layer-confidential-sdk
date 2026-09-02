@@ -1,5 +1,7 @@
 import type { RelayPackageJson } from './types.js';
 
+export const RELAY_PACKAGE_VERSION_V1 = 1;
+
 export type RelayPackageSerializable = {
   version: number;
   poolSelector: string;
@@ -81,7 +83,11 @@ export function deserializeRelayPackage(
   payload: unknown,
 ): RelayPackageJson | undefined {
   const record = readWireRecord(payload);
-  if (!record || record.version !== 1 || typeof record.proofBytes !== 'string') {
+  if (
+    !record ||
+    record.version !== RELAY_PACKAGE_VERSION_V1 ||
+    typeof record.proofBytes !== 'string'
+  ) {
     return undefined;
   }
   if (
@@ -96,7 +102,7 @@ export function deserializeRelayPackage(
     return undefined;
   }
   const body: RelayPackageJson = {
-    version: 1,
+    version: RELAY_PACKAGE_VERSION_V1,
     poolSelector: record.poolSelector,
     zkConfigNonce,
     proofBytes: record.proofBytes,

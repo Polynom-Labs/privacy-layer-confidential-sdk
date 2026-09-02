@@ -18,6 +18,8 @@ import {
   RELAY_TRANSACT_PACKAGE_VERSION_V1,
   RELAY_TRANSACT_SIGNAL_PREFIX_BYTES,
   RELAY_TRANSACT_SUPPORTED_SIGNAL_COUNT,
+} from '../src/transact/relay/constants.js';
+import {
   prepareRelayTransactPackage,
   readRelayTransactSupportedProfile,
 } from '../src/transact/index.js';

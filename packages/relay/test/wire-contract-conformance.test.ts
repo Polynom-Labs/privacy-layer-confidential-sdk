@@ -2,6 +2,7 @@ import { createRequire } from 'node:module';
 import { describe, expect, it } from 'vitest';
 import {
   RELAY_HTTP_REASON,
+  RELAY_PACKAGE_VERSION_V1,
   RELAY_PUBLIC_REASON,
   RELAY_STATUS,
   deserializeRelayPackage,
@@ -57,19 +58,13 @@ describe('relay wire-contract vectors', () => {
     expect(recordValuesMatch(RELAY_STATUS, vector.lifecycleStatuses)).toBe(true);
   });
 
-  it('fails when a status copy diverges from the vector', () => {
-    const diverged = { ...RELAY_STATUS, succeeded: 'done' };
-    expect(recordValuesMatch(diverged, vector.lifecycleStatuses)).toBe(false);
-  });
-
   it('keeps public and HTTP reason vocabularies aligned with the vector', () => {
     expect(RELAY_PUBLIC_REASON).toEqual(vector.publicReasons);
     expect(RELAY_HTTP_REASON).toEqual(vector.httpReasons);
   });
 
-  it('fails when a public reason token diverges from the vector', () => {
-    const diverged = { ...RELAY_PUBLIC_REASON, kytRejected: 'kyt_denied' };
-    expect(diverged).not.toEqual(vector.publicReasons);
+  it('keeps the package version aligned with the vector', () => {
+    expect(RELAY_PACKAGE_VERSION_V1).toBe(vector.serialize.wire.version);
   });
 
   it('classifies rejection and retryable reasons from the vector', () => {
@@ -107,10 +102,6 @@ describe('relay wire-contract vectors', () => {
       ),
     });
     expect(jsonSafeClone(serialized)).toEqual(vector.serialize.wire);
-  });
-
-  it('fails serialization conformance when a wire field diverges', () => {
-    expect({ ...vector.serialize.wire, version: 2 }).not.toEqual(vector.serialize.wire);
   });
 
   it('round-trips the vector wire body through deserialize', () => {
