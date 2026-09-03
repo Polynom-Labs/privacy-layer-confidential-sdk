@@ -17,7 +17,6 @@ export type RelayTransactPackageV1 = {
   proofBytes: string;
   publicSignals: string;
   applicationIdHints: KytApplicationIdHints;
-  escrowRecipient?: string;
   escrowAuthorization?: string;
   keyVersionHints?: RelayKeyVersionHints;
 };
@@ -28,7 +27,6 @@ export type PrepareRelayTransactPackageInput = {
   publicSignals: string;
   applicationIdHints: KytApplicationIdHints;
   zkConfigNonce?: bigint;
-  escrowRecipient?: string;
   escrowAuthorization?: string;
   keyVersionHints?: RelayKeyVersionHints;
 };

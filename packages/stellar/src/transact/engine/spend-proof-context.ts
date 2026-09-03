@@ -10,6 +10,10 @@ import {
   loadMerkleState,
   resolveTokenContractId,
 } from './prepare/shared.js';
+import {
+  isEscrowSweepSpend,
+  requireEscrowSpendScalarHex,
+} from '../escrow/require-escrow-spend-scalar.js';
 import { readTransferFromPrivateAddress } from '../transfer-source/index.js';
 
 async function resolveSenderPrivKeyScalarHex(input: {
@@ -17,10 +21,8 @@ async function resolveSenderPrivKeyScalarHex(input: {
   environment: StellarTransactEnvironment;
   walletPublicKey: string;
 }): Promise<string> {
-  const escrowSpendScalarHex =
-    input.prepared.transactArtifacts?.escrowSpendScalarHex?.trim();
-  if (escrowSpendScalarHex) {
-    return escrowSpendScalarHex;
+  if (isEscrowSweepSpend(input.prepared.transactArtifacts)) {
+    return requireEscrowSpendScalarHex(input.prepared.transactArtifacts);
   }
   if (input.prepared.kind !== 'transfer' && input.prepared.kind !== 'withdraw') {
     throw new Error('Spend execution requires a transfer or withdraw intent.');

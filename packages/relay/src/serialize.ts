@@ -9,7 +9,6 @@ export type RelayPackageSerializable = {
   proofBytes: string;
   publicSignals: string;
   applicationIdHints: [string, string, string, string];
-  escrowRecipient?: string;
   escrowAuthorization?: string;
   keyVersionHints?: Array<number | undefined | null>;
 };
@@ -35,9 +34,6 @@ export function serializeRelayPackage(
     publicSignals: source.publicSignals,
     applicationIdHints: source.applicationIdHints,
   };
-  if (source.escrowRecipient !== undefined) {
-    body.escrowRecipient = source.escrowRecipient;
-  }
   if (source.escrowAuthorization !== undefined) {
     body.escrowAuthorization = source.escrowAuthorization;
   }
@@ -113,9 +109,6 @@ export function deserializeRelayPackage(
     publicSignals: record.publicSignals,
     applicationIdHints,
   };
-  if (typeof record.escrowRecipient === 'string') {
-    body.escrowRecipient = record.escrowRecipient;
-  }
   if (typeof record.escrowAuthorization === 'string') {
     body.escrowAuthorization = record.escrowAuthorization;
   }

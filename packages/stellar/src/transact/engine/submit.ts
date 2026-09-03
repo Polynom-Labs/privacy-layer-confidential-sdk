@@ -71,9 +71,6 @@ async function submitPreparedPoolTransact(
     ...(artifacts.applicationIdsPlaintext
       ? { applicationIdsPlaintext: artifacts.applicationIdsPlaintext }
       : {}),
-    ...(artifacts.escrowAuthorization && artifacts.escrowRecipient
-      ? { escrowRecipient: artifacts.escrowRecipient }
-      : {}),
     networkPassphrase: environment.network.networkPassphrase,
     sorobanRpcUrl: environment.network.rpcUrl,
     transactEnvironment: environment,

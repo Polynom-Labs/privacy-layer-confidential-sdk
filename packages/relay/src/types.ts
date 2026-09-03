@@ -38,7 +38,6 @@ export type RelayPackageJson = {
   proofBytes: string;
   publicSignals: string;
   applicationIdHints: [string, string, string, string];
-  escrowRecipient?: string;
   escrowAuthorization?: string;
   keyVersionHints?: Array<number | undefined>;
 };

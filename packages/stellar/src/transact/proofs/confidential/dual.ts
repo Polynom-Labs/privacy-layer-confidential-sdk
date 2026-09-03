@@ -11,8 +11,8 @@ import type { KytApplicationIdHints } from '../../pool/proof-types.js';
 import {
   buildSenderTransferDepositsAndPublicInput,
   generatedOutputCoinFromSlot,
-  publicEscrowRecipientLimbs,
   stampWithdrawEscrowLimbs,
+  sweepWithdrawStamp,
   type GeneratedOutputCoin,
 } from './shared.js';
 import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-key-scalar-from-recipient-hex.js';
@@ -60,7 +60,7 @@ function stampDualWithdrawLegs(
   legs: ReturnType<typeof dualWithdrawLegsWithSharedRoot>,
   parameters: PrepareConfidentialTransferProofDualParameters,
 ) {
-  const escrowLimbs = publicEscrowRecipientLimbs(confidentialEscrowFields(parameters));
+  const escrowLimbs = sweepWithdrawStamp(confidentialEscrowFields(parameters));
   return {
     legA: {
       ...legs.legA,

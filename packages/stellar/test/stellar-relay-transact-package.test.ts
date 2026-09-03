@@ -56,7 +56,6 @@ describe('Relay Transact Package V1 preparation', () => {
       proofBytes: PROOF_BYTES,
       publicSignals,
       applicationIdHints: APPLICATION_ID_HINTS,
-      escrowRecipient: ESCROW_RECIPIENT,
       escrowAuthorization: 'AAAAAGVsc2Vjcm93LWF1dGgtZW50cnk=',
     });
 
@@ -66,7 +65,7 @@ describe('Relay Transact Package V1 preparation', () => {
     expect(prepared.proofBytes).toBe(PROOF_BYTES);
     expect(prepared.publicSignals).toBe(publicSignals);
     expect(prepared.applicationIdHints).toEqual(APPLICATION_ID_HINTS);
-    expect(prepared.escrowRecipient).toBe(ESCROW_RECIPIENT);
+    expect(prepared).not.toHaveProperty('escrowRecipient');
     expect(prepared.escrowAuthorization).toBe('AAAAAGVsc2Vjcm93LWF1dGgtZW50cnk=');
     expect(prepared).not.toHaveProperty('signer');
     expect(prepared).not.toHaveProperty('from');
@@ -214,11 +213,7 @@ describe('Relay Transact Package V1 preparation', () => {
       expect(prepared).not.toHaveProperty('signer');
       expect(prepared).not.toHaveProperty('kytAuthorization');
       expect(prepared).not.toHaveProperty('onboarding');
-      if (kind === 'transfer') {
-        expect(prepared.escrowRecipient).toBe(ESCROW_RECIPIENT);
-      } else {
-        expect(prepared).not.toHaveProperty('escrowRecipient');
-      }
+      expect(prepared).not.toHaveProperty('escrowRecipient');
       expect(
         readRelayTransactSupportedProfile(prepared).publicLegContext
           .publicDepositAmount,

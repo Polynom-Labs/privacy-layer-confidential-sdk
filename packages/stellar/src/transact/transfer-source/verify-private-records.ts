@@ -8,13 +8,16 @@ import { privKeyScalarDecimalFromRecipientScalarHex } from '../encoding/priv-key
 import type { StellarPrivateRecord } from '../../types.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
 
-async function readPrivateRecordNullifierSpendStatus(input: {
+async function resolveNullifierSpendScalarHex(input: {
   record: StellarPrivateRecord;
   environment: StellarTransactEnvironment;
   walletPublicKey: string;
-  poolContractId?: string;
-}): Promise<{ spent: boolean; nullifierHashHex: string }> {
-  const coin = requireCoinNoteFromRecord(input.record);
+  spendScalarHex?: string;
+}): Promise<string> {
+  const stamped = input.spendScalarHex?.trim();
+  if (stamped) {
+    return stamped;
+  }
   const privateAddress = input.record.privateAddress?.trim();
   if (!privateAddress) {
     throw executionError(
@@ -26,11 +29,22 @@ async function readPrivateRecordNullifierSpendStatus(input: {
       },
     );
   }
-  const scalarHex = await ensureSenderPrivKeyScalarHex(
+  return ensureSenderPrivKeyScalarHex(
     input.environment,
     privateAddress,
     input.walletPublicKey,
   );
+}
+
+async function readPrivateRecordNullifierSpendStatus(input: {
+  record: StellarPrivateRecord;
+  environment: StellarTransactEnvironment;
+  walletPublicKey: string;
+  poolContractId?: string;
+  spendScalarHex?: string;
+}): Promise<{ spent: boolean; nullifierHashHex: string }> {
+  const coin = requireCoinNoteFromRecord(input.record);
+  const scalarHex = await resolveNullifierSpendScalarHex(input);
   const nullifierHashHex = await getPrivacyPoolService().calculateNullifierHash(
     coin.nullifier,
     privKeyScalarDecimalFromRecipientScalarHex(scalarHex),
@@ -52,6 +66,7 @@ export async function verifyPrivateRecordsNullifiersBeforeExecute(input: {
   environment: StellarTransactEnvironment;
   walletPublicKey: string;
   poolContractId?: string;
+  spendScalarHex?: string;
 }): Promise<void> {
   for (const record of input.records) {
     const status = await readPrivateRecordNullifierSpendStatus({
@@ -59,6 +74,7 @@ export async function verifyPrivateRecordsNullifiersBeforeExecute(input: {
       environment: input.environment,
       walletPublicKey: input.walletPublicKey,
       ...(input.poolContractId ? { poolContractId: input.poolContractId } : {}),
+      ...(input.spendScalarHex ? { spendScalarHex: input.spendScalarHex } : {}),
     });
     if (status.spent) {
       throw executionError(

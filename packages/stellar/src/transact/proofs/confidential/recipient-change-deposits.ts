@@ -2,7 +2,10 @@ import type { CoinData, DepositSlot } from '@auditable/privacy-pool-zk-sdk';
 import { getPrivacyPoolService } from '../../pool/singleton.js';
 import { ZERO_STROOPS } from './helpers.js';
 import type { AlignedDepositSlot } from '../../pool/proof-types.js';
-import type { TransferEscrowSend } from '../../environment/types.js';
+import type {
+  TransferEscrowClaimantLimbs,
+  TransferEscrowSend,
+} from '../../environment/types.js';
 
 type ChangeCoin = {
   commitment_hex: string;
@@ -11,14 +14,19 @@ type ChangeCoin = {
   precommitementHex: string;
 };
 
-function escrowSlotFields(escrowSend?: TransferEscrowSend) {
-  if (!escrowSend) {
+type EscrowSlotInput = {
+  escrowSend?: TransferEscrowSend;
+  escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
+};
+
+function escrowOutputFields(input: EscrowSlotInput) {
+  if (!input.escrowSend) {
     return {};
   }
   return {
-    escrowNonce: escrowSend.nonceDecimal,
-    recipientHi: escrowSend.recipientHi,
-    recipientLo: escrowSend.recipientLo,
+    escrowNonce: input.escrowSend.nonceDecimal,
+    recipientHi: input.escrowSend.recipientHi,
+    recipientLo: input.escrowSend.recipientLo,
   };
 }
 
@@ -26,13 +34,11 @@ async function buildPaddingDepositPair(
   recipientPrivateAddressStpl1: string,
   tokenAddress: string,
   recipientDeposit: DepositSlot,
-  escrowSend?: TransferEscrowSend,
 ): Promise<[DepositSlot, DepositSlot]> {
   const paddingSlot = await getPrivacyPoolService().buildAlignedDepositSlot({
     privateAddressStpl1: recipientPrivateAddressStpl1,
     amountStroops: ZERO_STROOPS,
     tokenAddress,
-    ...escrowSlotFields(escrowSend),
   });
   return [recipientDeposit, paddingSlot.deposit];
 }
@@ -42,13 +48,11 @@ async function buildChangeDepositPair(parameters: {
   changeStroops: bigint;
   tokenAddress: string;
   recipientDeposit: DepositSlot;
-  escrowSend?: TransferEscrowSend;
 }): Promise<{ deposits: [DepositSlot, DepositSlot]; changeCoin: ChangeCoin }> {
   const changeSlot = await getPrivacyPoolService().buildAlignedDepositSlot({
     privateAddressStpl1: parameters.selfPrivateAddressStpl1ForChange.trim(),
     amountStroops: parameters.changeStroops,
     tokenAddress: parameters.tokenAddress,
-    ...escrowSlotFields(parameters.escrowSend),
   });
   return {
     deposits: [parameters.recipientDeposit, changeSlot.deposit],
@@ -68,17 +72,24 @@ export async function buildRecipientAndOptionalChangeDeposits(parameters: {
   selfPrivateAddressStpl1ForChange: string | undefined;
   tokenAddress: string;
   escrowSend?: TransferEscrowSend;
+  escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
 }): Promise<{
   recipientSlot: AlignedDepositSlot;
   deposits: [DepositSlot, DepositSlot];
   changeCoin?: ChangeCoin;
 }> {
+  const escrow: EscrowSlotInput = {
+    ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
+    ...(parameters.escrowClaimantLimbs
+      ? { escrowClaimantLimbs: parameters.escrowClaimantLimbs }
+      : {}),
+  };
   const recipientPrivateAddress = parameters.recipientPrivateAddressStpl1.trim();
   const recipientSlot = await getPrivacyPoolService().buildAlignedDepositSlot({
     privateAddressStpl1: recipientPrivateAddress,
     amountStroops: parameters.transferStroops,
     tokenAddress: parameters.tokenAddress,
-    ...escrowSlotFields(parameters.escrowSend),
+    ...escrowOutputFields(escrow),
   });
   if (parameters.changeStroops <= ZERO_STROOPS) {
     return {
@@ -87,7 +98,6 @@ export async function buildRecipientAndOptionalChangeDeposits(parameters: {
         recipientPrivateAddress,
         parameters.tokenAddress,
         recipientSlot.deposit,
-        parameters.escrowSend,
       ),
     };
   }
@@ -96,7 +106,6 @@ export async function buildRecipientAndOptionalChangeDeposits(parameters: {
     changeStroops: parameters.changeStroops,
     tokenAddress: parameters.tokenAddress,
     recipientDeposit: recipientSlot.deposit,
-    ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
   });
   return {
     recipientSlot,

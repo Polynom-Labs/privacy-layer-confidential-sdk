@@ -3,7 +3,7 @@ import { StrKey } from '@stellar/stellar-sdk';
 import {
   derivedEscrowKey,
   ed25519PubkeyPayloadHexToWithdrawFrDecimals,
-  randomFrDecimal,
+  sampleDerivedEscrowKey,
 } from '@auditable/privacy-pool-zk-sdk';
 import { encodePrivateAddressFromHexCoordinates } from '../private-address/codec.js';
 
@@ -54,13 +54,24 @@ export async function deriveEscrowRecipientFromStellarAddress(input: {
   const { recipientHi, recipientLo } = stellarAccountToFieldLimbs(
     recipientStellarAddress,
   );
-  const nonceDecimal = input.nonceDecimal ?? randomFrDecimal();
   const deriveKey = input.deriveKey ?? derivedEscrowKey;
-  const key = await deriveKey(
-    BigInt(nonceDecimal),
-    BigInt(recipientHi),
-    BigInt(recipientLo),
-  );
+  let nonceDecimal: string;
+  let key: Awaited<ReturnType<DerivedEscrowKeyFn>>;
+  if (input.nonceDecimal) {
+    nonceDecimal = input.nonceDecimal;
+    key = await deriveKey(
+      BigInt(nonceDecimal),
+      BigInt(recipientHi),
+      BigInt(recipientLo),
+    );
+  } else {
+    const sampled = await sampleDerivedEscrowKey(
+      BigInt(recipientHi),
+      BigInt(recipientLo),
+    );
+    nonceDecimal = sampled.nonce.toString();
+    key = sampled.key;
+  }
   return {
     nonceDecimal,
     recipientHi,

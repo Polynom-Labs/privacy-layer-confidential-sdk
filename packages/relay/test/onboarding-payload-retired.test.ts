@@ -21,7 +21,6 @@ describe('retired pending-claim and onboarding relay display', () => {
       proofBytes: 'aa',
       publicSignals: 'bb',
       applicationIdHints: ['1', '1', '0', '0'],
-      escrowRecipient: 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
       escrowAuthorization: 'opaque-auth-entry',
     };
     expect(relayPackage).not.toHaveProperty('onboarding');

@@ -94,7 +94,6 @@ async function simulateSweepAuthEntries(input: {
       expirationLedger: input.approval.expiresAtLedger,
       signature: approvalSignatureToBytes(input.approval.signature),
     }),
-    new Address(input.artifacts.escrowRecipient).toScVal(),
   );
   const built = new TransactionBuilder(
     new Account(account.accountId(), account.sequenceNumber()),
@@ -112,7 +111,7 @@ async function simulateSweepAuthEntries(input: {
     RECORD_NONROOT_AUTH,
   );
   if (rpc.Api.isSimulationError(simulated)) {
-    throw new Error('Escrow sweep authorization simulation failed.');
+    throw new Error(`Escrow sweep authorization simulation failed: ${simulated.error}`);
   }
   return simulated.result?.auth ?? [];
 }

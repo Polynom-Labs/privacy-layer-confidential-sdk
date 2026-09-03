@@ -14,7 +14,6 @@ export interface SubmitSorobanConfidentialTransferInput {
   networkPassphrase: string;
   sorobanRpcUrl: string;
   transactEnvironment: StellarTransactEnvironment;
-  escrowRecipient?: string;
 }
 
 export async function submitSorobanConfidentialTransfer(
@@ -49,6 +48,5 @@ export async function submitSorobanConfidentialTransfer(
     networkPassphrase: input.networkPassphrase,
     sorobanRpcUrl: input.sorobanRpcUrl,
     transactEnvironment: input.transactEnvironment,
-    ...(input.escrowRecipient ? { escrowRecipient: input.escrowRecipient } : {}),
   });
 }

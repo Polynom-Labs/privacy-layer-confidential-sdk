@@ -31,7 +31,7 @@ function environmentStub(): StellarTransactEnvironment {
   };
 }
 
-async function captureTransactArgs(escrowRecipient?: string) {
+async function captureTransactArgs() {
   let captured: Parameters<PoolTransactClient['transact']>[0] | undefined;
   const contractClient: PoolTransactClient = {
     get_merkle_root: async () => ({ result: Buffer.alloc(32) }),
@@ -65,22 +65,15 @@ async function captureTransactArgs(escrowRecipient?: string) {
     networkPassphrase: 'Test SDF Network ; September 2015',
     sorobanRpcUrl: 'https://example.invalid',
     transactEnvironment: environmentStub(),
-    ...(escrowRecipient ? { escrowRecipient } : {}),
   });
   return captured;
 }
 
-describe('submitPoolTransact escrow_recipient', () => {
-  it('always includes escrow_recipient so the generated client can encode None', async () => {
+describe('submitPoolTransact five-argument transact', () => {
+  it('invokes transact without an independent escrow_recipient argument', async () => {
     const args = await captureTransactArgs();
     expect(args).toBeDefined();
-    expect(Object.hasOwn(args ?? {}, 'escrow_recipient')).toBe(true);
-    expect(args?.escrow_recipient).toBeUndefined();
-  });
-
-  it('forwards a registered escrow recipient', async () => {
-    const recipient = 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF';
-    const args = await captureTransactArgs(recipient);
-    expect(args?.escrow_recipient).toBe(recipient);
+    expect(Object.hasOwn(args ?? {}, 'escrow_recipient')).toBe(false);
+    expect(args?.from).toBe('GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF');
   });
 });

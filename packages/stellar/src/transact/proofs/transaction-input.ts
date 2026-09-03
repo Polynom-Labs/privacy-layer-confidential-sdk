@@ -16,6 +16,8 @@ type BasePublicInput = {
   privKeyScalar: string;
   escrowRecipientHi?: string;
   escrowRecipientLo?: string;
+  sweepOutputOwnerPubX?: string;
+  sweepOutputOwnerPubY?: string;
 };
 
 const CONTRACT_ADDRESS_HALF_BYTES = 16;
@@ -56,8 +58,8 @@ export function withTokenAddressPublicInputs(
     tokenAddressLo: lo,
     escrowRecipientHi: base.escrowRecipientHi ?? '0',
     escrowRecipientLo: base.escrowRecipientLo ?? '0',
-    sweepOutputOwnerPubX: '0',
-    sweepOutputOwnerPubY: '0',
+    sweepOutputOwnerPubX: base.sweepOutputOwnerPubX ?? '0',
+    sweepOutputOwnerPubY: base.sweepOutputOwnerPubY ?? '0',
   };
 }
 

@@ -21,6 +21,7 @@ export interface TransferEscrowSend {
 export interface TransferEscrowClaimantLimbs {
   recipientHi: string;
   recipientLo: string;
+  nonceDecimal?: string;
 }
 
 export interface TransferRecipientExecutionContext {

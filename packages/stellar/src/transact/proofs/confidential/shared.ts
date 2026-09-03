@@ -2,6 +2,7 @@ import type { CoinData, DepositSlot } from '@auditable/privacy-pool-zk-sdk';
 import { buildRecipientAndOptionalChangeDeposits } from './recipient-change-deposits.js';
 import { withTokenAddressPublicInputs } from '../../proofs/transaction-input.js';
 import { senderWithdrawFrAndScalar } from '../../proofs/confidential/helpers.js';
+import { recipientPublicKeysDecimalFromPrivateAddress } from '../../private-address/codec.js';
 import type {
   TransferEscrowClaimantLimbs,
   TransferEscrowSend,
@@ -25,11 +26,11 @@ export function generatedOutputCoinFromSlot(
   };
 }
 
-export function publicEscrowRecipientLimbs(parameters: {
+function publicEscrowRecipientLimbs(parameters: {
   escrowSend?: TransferEscrowSend;
   escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
 }): { escrowRecipientHi: string; escrowRecipientLo: string } | undefined {
-  const limbs = parameters.escrowClaimantLimbs ?? parameters.escrowSend;
+  const limbs = parameters.escrowClaimantLimbs;
   if (!limbs) {
     return undefined;
   }
@@ -39,11 +40,37 @@ export function publicEscrowRecipientLimbs(parameters: {
   };
 }
 
+export function sweepWithdrawStamp(parameters: {
+  escrowSend?: TransferEscrowSend;
+  escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
+}):
+  | {
+      escrowRecipientHi: string;
+      escrowRecipientLo: string;
+      escrowNonce?: string;
+    }
+  | undefined {
+  const publicLimbs = publicEscrowRecipientLimbs(parameters);
+  if (!publicLimbs) {
+    return undefined;
+  }
+  return {
+    ...publicLimbs,
+    ...(parameters.escrowClaimantLimbs?.nonceDecimal
+      ? { escrowNonce: parameters.escrowClaimantLimbs.nonceDecimal }
+      : {}),
+  };
+}
+
 export function stampWithdrawEscrowLimbs<
-  T extends { recipientStellar: [string, string] },
+  T extends { recipientStellar: [string, string]; escrowNonce?: string },
 >(
   withdrawObject: T,
-  limbs?: { escrowRecipientHi: string; escrowRecipientLo: string },
+  limbs?: {
+    escrowRecipientHi: string;
+    escrowRecipientLo: string;
+    escrowNonce?: string;
+  },
 ): T {
   if (!limbs) {
     return withdrawObject;
@@ -51,7 +78,22 @@ export function stampWithdrawEscrowLimbs<
   return {
     ...withdrawObject,
     recipientStellar: [limbs.escrowRecipientHi, limbs.escrowRecipientLo],
+    ...(limbs.escrowNonce ? { escrowNonce: limbs.escrowNonce } : {}),
   };
+}
+
+function sweepOutputOwnerFields(parameters: {
+  recipientPrivateAddressStpl1: string;
+  escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
+}): { sweepOutputOwnerPubX: string; sweepOutputOwnerPubY: string } | undefined {
+  if (!parameters.escrowClaimantLimbs) {
+    return undefined;
+  }
+  const [sweepOutputOwnerPubX, sweepOutputOwnerPubY] =
+    recipientPublicKeysDecimalFromPrivateAddress(
+      parameters.recipientPrivateAddressStpl1,
+    ) as [string, string];
+  return { sweepOutputOwnerPubX, sweepOutputOwnerPubY };
 }
 
 async function buildTransferDepositsAndPublicInput(parameters: {
@@ -80,15 +122,18 @@ async function buildTransferDepositsAndPublicInput(parameters: {
       selfPrivateAddressStpl1ForChange: parameters.selfPrivateAddressStpl1ForChange,
       tokenAddress: parameters.tokenAddress,
       ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
+      ...(parameters.escrowClaimantLimbs
+        ? { escrowClaimantLimbs: parameters.escrowClaimantLimbs }
+        : {}),
     });
-  const publicEscrow = publicEscrowRecipientLimbs(parameters);
   const publicInput = withTokenAddressPublicInputs(
     {
       stateRoot: parameters.stateRoot,
       withdrawAddressHi: parameters.withdrawAddressHi,
       withdrawAddressLo: parameters.withdrawAddressLo,
       privKeyScalar: parameters.privKeyScalar,
-      ...publicEscrow,
+      ...publicEscrowRecipientLimbs(parameters),
+      ...sweepOutputOwnerFields(parameters),
     },
     parameters.tokenAddress,
   );

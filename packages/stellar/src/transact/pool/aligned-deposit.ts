@@ -15,11 +15,11 @@ function escrowDepositFields(parameters: {
   recipientHi?: string;
   recipientLo?: string;
 }): Partial<Pick<DepositObject, 'escrowNonce' | 'recipientStellar'>> {
-  if (!parameters.escrowNonce || !parameters.recipientHi || !parameters.recipientLo) {
+  if (!parameters.recipientHi || !parameters.recipientLo) {
     return {};
   }
   return {
-    escrowNonce: parameters.escrowNonce,
+    ...(parameters.escrowNonce ? { escrowNonce: parameters.escrowNonce } : {}),
     recipientStellar: [parameters.recipientHi, parameters.recipientLo],
   };
 }

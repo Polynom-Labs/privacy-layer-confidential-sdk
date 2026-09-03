@@ -3,6 +3,11 @@ import { assertEscrowSweepClaimant } from '../src/transact/escrow/assert-escrow-
 import { prepareEscrowSweepOperation } from '../src/transact/escrow/prepare-escrow-sweep.js';
 import { reconstructEscrowNote } from '../src/transact/escrow/reconstruct-escrow-note.js';
 import {
+  isEscrowSweepSpend,
+  nullifierCheckSpendScalarHex,
+  requireEscrowSpendScalarHex,
+} from '../src/transact/escrow/require-escrow-spend-scalar.js';
+import {
   isEscrowPreparedOperation,
   requiredSubmissionMethod,
   SUBMISSION_METHOD,
@@ -34,6 +39,7 @@ function reconstructedNote(): ReconstructedEscrowNote {
     privateAddressStpl1: 'stpl1derivedescrow',
     recipientHi: '11',
     recipientLo: '22',
+    nonceDecimal: '99',
     tokenAddress: TOKEN,
     commitmentHex: 'aa'.repeat(32),
   };
@@ -77,12 +83,53 @@ describe('prepareEscrowSweepOperation', () => {
     expect(prepared.transactArtifacts?.escrowClaimantLimbs).toEqual({
       recipientHi: '11',
       recipientLo: '22',
+      nonceDecimal: '99',
     });
     expect(prepared.submissionPayload.signed).toBe(false);
     expect(requiredSubmissionMethod(prepared)).toBe(SUBMISSION_METHOD.relay);
     expect(prepared.consumedRecords[0]?.id).toBe(reconstructedNote().commitmentHex);
     expect(prepared.consumedRecords[0]?.owner).toBe(CLAIMANT);
     expect(JSON.stringify(prepared.outputRecords)).not.toMatch(/pending-output/);
+    expect(requireEscrowSpendScalarHex(prepared.transactArtifacts)).toBe(
+      DERIVED_ESCROW_FIXTURE.scalarHex,
+    );
+    expect(nullifierCheckSpendScalarHex(prepared.transactArtifacts)).toBe(
+      DERIVED_ESCROW_FIXTURE.scalarHex,
+    );
+  });
+
+  it('refuses to fall back to a registry spend scalar for an escrow sweep', () => {
+    expect(() =>
+      requireEscrowSpendScalarHex({
+        spendSource: 'escrow',
+      }),
+    ).toThrow(/reconstructed note owner scalar/i);
+    expect(
+      nullifierCheckSpendScalarHex({ spendSource: 'privateAddress' }),
+    ).toBeUndefined();
+  });
+
+  it('does not treat an unregistered escrow send as a sweep spend', () => {
+    const sendArtifacts = {
+      spendSource: 'escrow' as const,
+      escrowSend: true,
+    };
+    expect(isEscrowSweepSpend(sendArtifacts)).toBe(false);
+    expect(nullifierCheckSpendScalarHex(sendArtifacts)).toBeUndefined();
+    expect(() => requireEscrowSpendScalarHex(sendArtifacts)).toThrow(
+      /spendSource escrow/i,
+    );
+  });
+
+  it('uses the derived escrow scalar only for sweep spends', () => {
+    expect(
+      isEscrowSweepSpend({
+        spendSource: 'escrow',
+        escrowSpendScalarHex: DERIVED_ESCROW_FIXTURE.scalarHex,
+      }),
+    ).toBe(true);
+    expect(isEscrowSweepSpend({ spendSource: 'privateAddress' })).toBe(false);
+    expect(isEscrowSweepSpend(undefined)).toBe(false);
   });
 
   it('refuses to build a sweep package for a different G-address', () => {

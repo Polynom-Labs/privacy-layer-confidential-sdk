@@ -76,6 +76,7 @@ function sweepTransactArtifacts(input: {
     escrowClaimantLimbs: {
       recipientHi: input.reconstructed.recipientHi,
       recipientLo: input.reconstructed.recipientLo,
+      nonceDecimal: input.reconstructed.nonceDecimal,
     },
     executeFinalizeRequired: true,
     walletPublicKey: input.walletPublicKey,

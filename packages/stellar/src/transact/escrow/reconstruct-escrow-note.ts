@@ -21,6 +21,7 @@ export type ReconstructedEscrowNote = {
   privateAddressStpl1: string;
   recipientHi: string;
   recipientLo: string;
+  nonceDecimal: string;
   tokenAddress: string;
   commitmentHex: string;
 };
@@ -31,6 +32,7 @@ export type DecryptEscrowOutputNote = (input: {
   createdEphemeralKey: readonly [string, string];
   ciphertext: readonly string[];
   tag: string;
+  ownerMode?: bigint;
 }) => Promise<{
   value: string;
   assetHi: string;
@@ -87,6 +89,7 @@ export async function reconstructEscrowNote(input: {
     createdEphemeralKey: event.createdEphemeralKey,
     ciphertext: event.ciphertext,
     tag: event.tag,
+    ownerMode: 1n,
   });
   return {
     coin: {
@@ -101,6 +104,7 @@ export async function reconstructEscrowNote(input: {
     privateAddressStpl1: derived.privateAddressStpl1,
     recipientHi: derived.recipientHi,
     recipientLo: derived.recipientLo,
+    nonceDecimal: derived.nonceDecimal,
     tokenAddress: assetLegToTokenAddress(decrypted.assetHi, decrypted.assetLo),
     commitmentHex: padFieldHex(decrypted.commitmentHex),
   };

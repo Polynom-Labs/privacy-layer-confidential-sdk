@@ -29,7 +29,6 @@ type WireContractVector = {
       proofBytes: string;
       publicSignals: string;
       applicationIdHints: [string, string, string, string];
-      escrowRecipient: string;
       escrowAuthorization: string;
       keyVersionHints: Array<number | null>;
     };
@@ -124,5 +123,15 @@ describe('relay wire-contract vectors', () => {
     expect(deserialized).not.toHaveProperty('spendScalar');
     expect(deserialized?.proofBytes).toBe(vector.serialize.wire.proofBytes);
     expect(deserialized?.publicSignals).toBe(vector.serialize.wire.publicSignals);
+  });
+
+  it('ignores a leftover wire escrowRecipient instead of persisting it', () => {
+    const leftover = {
+      ...vector.serialize.wire,
+      escrowRecipient: 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
+    };
+    const deserialized = deserializeRelayPackage(leftover);
+    expect(deserialized).not.toHaveProperty('escrowRecipient');
+    expect(jsonSafeClone(deserialized)).toEqual(vector.serialize.wire);
   });
 });

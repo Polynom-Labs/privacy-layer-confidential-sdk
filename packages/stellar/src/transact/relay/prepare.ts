@@ -22,9 +22,6 @@ export function prepareRelayTransactPackage(
     publicSignals: normalizeHex(input.publicSignals),
     applicationIdHints: input.applicationIdHints,
   };
-  if (input.escrowRecipient) {
-    prepared.escrowRecipient = input.escrowRecipient;
-  }
   if (input.escrowAuthorization) {
     prepared.escrowAuthorization = input.escrowAuthorization;
   }

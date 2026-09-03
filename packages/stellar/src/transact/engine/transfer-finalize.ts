@@ -2,6 +2,7 @@ import type { StellarPreparedOperation } from '../../types.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
 import { resolveTransferRecipientForExecute } from './prepare/transfer-helpers.js';
 import { verifyPrivateRecordsNullifiersBeforeExecute } from '../transfer-source/index.js';
+import { nullifierCheckSpendScalarHex } from '../escrow/require-escrow-spend-scalar.js';
 import { buildTransferProofAtExecute } from './transfer-proof-at-execute.js';
 import type { buildSpendProofContextAtExecute } from './spend-proof-context.js';
 import type { prepareConfidentialTransferProof } from '../proofs/confidential/single.js';
@@ -85,9 +86,13 @@ function enrichTransferOutputRecords(
 function escrowSpendArtifacts(input: {
   escrowSend?: boolean;
   escrowRecipient?: string;
+  escrowSpendScalarHex?: string;
   preparedSpendSource?: NonNullable<
     StellarPreparedOperation['transactArtifacts']
   >['spendSource'];
+  escrowClaimantLimbs?: NonNullable<
+    StellarPreparedOperation['transactArtifacts']
+  >['escrowClaimantLimbs'];
 }) {
   if (input.escrowSend) {
     return {
@@ -97,7 +102,16 @@ function escrowSpendArtifacts(input: {
     };
   }
   if (input.preparedSpendSource === 'escrow') {
-    return { spendSource: 'escrow' as const };
+    return {
+      spendSource: 'escrow' as const,
+      ...(input.escrowRecipient ? { escrowRecipient: input.escrowRecipient } : {}),
+      ...(input.escrowSpendScalarHex
+        ? { escrowSpendScalarHex: input.escrowSpendScalarHex }
+        : {}),
+      ...(input.escrowClaimantLimbs
+        ? { escrowClaimantLimbs: input.escrowClaimantLimbs }
+        : {}),
+    };
   }
   return {};
 }
@@ -107,9 +121,13 @@ function buildTransferFinalizeArtifacts(input: {
   context: Awaited<ReturnType<typeof buildSpendProofContextAtExecute>>;
   escrowSend?: boolean;
   escrowRecipient?: string;
+  escrowSpendScalarHex?: string;
   preparedSpendSource?: NonNullable<
     StellarPreparedOperation['transactArtifacts']
   >['spendSource'];
+  escrowClaimantLimbs?: NonNullable<
+    StellarPreparedOperation['transactArtifacts']
+  >['escrowClaimantLimbs'];
 }) {
   return {
     proofHex: input.proof.proof_hex,
@@ -132,10 +150,12 @@ async function runTransferFinalizeSteps(input: {
     input.environment,
     input.walletPublicKey,
   );
+  const spendScalarHex = nullifierCheckSpendScalarHex(input.prepared.transactArtifacts);
   await verifyPrivateRecordsNullifiersBeforeExecute({
     records: input.prepared.consumedRecords,
     environment: input.environment,
     walletPublicKey: input.walletPublicKey,
+    ...(spendScalarHex ? { spendScalarHex } : {}),
   });
   const { context, proof } = await buildTransferProofAtExecute({
     prepared: input.prepared,
@@ -159,14 +179,34 @@ async function runTransferFinalizeSteps(input: {
   return buildTransferFinalizeArtifacts({
     proof,
     context,
-    ...(recipient.escrowSend ? { escrowSend: true } : {}),
-    ...(recipient.escrowSend?.recipientStellarAddress
-      ? { escrowRecipient: recipient.escrowSend.recipientStellarAddress.trim() }
-      : {}),
-    ...(input.prepared.transactArtifacts?.spendSource
-      ? { preparedSpendSource: input.prepared.transactArtifacts.spendSource }
-      : {}),
+    ...sweepFinalizeStamp(input.prepared, recipient),
   });
+}
+
+function sweepArtifactStamp(artifacts: StellarPreparedOperation['transactArtifacts']) {
+  return {
+    ...(artifacts?.escrowSpendScalarHex
+      ? { escrowSpendScalarHex: artifacts.escrowSpendScalarHex }
+      : {}),
+    ...(artifacts?.spendSource ? { preparedSpendSource: artifacts.spendSource } : {}),
+    ...(artifacts?.escrowClaimantLimbs
+      ? { escrowClaimantLimbs: artifacts.escrowClaimantLimbs }
+      : {}),
+  };
+}
+
+function sweepFinalizeStamp(
+  prepared: StellarPreparedOperation,
+  recipient: Awaited<ReturnType<typeof resolveTransferRecipientForExecute>>,
+) {
+  const artifacts = prepared.transactArtifacts;
+  const fromSend = recipient.escrowSend?.recipientStellarAddress?.trim();
+  const escrowRecipient = fromSend || artifacts?.escrowRecipient?.trim();
+  return {
+    ...(recipient.escrowSend ? { escrowSend: true as const } : {}),
+    ...(escrowRecipient ? { escrowRecipient } : {}),
+    ...sweepArtifactStamp(artifacts),
+  };
 }
 
 export async function finalizeTransferAtExecute(

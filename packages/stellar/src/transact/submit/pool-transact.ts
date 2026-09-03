@@ -17,7 +17,6 @@ export async function submitPoolTransact(parameters: {
   networkPassphrase: string;
   sorobanRpcUrl: string;
   transactEnvironment: StellarTransactEnvironment;
-  escrowRecipient?: string;
 }): Promise<string> {
   await extendZkConfigTtlIfNeeded({
     sorobanRpcUrl: parameters.sorobanRpcUrl,
@@ -36,7 +35,6 @@ export async function submitPoolTransact(parameters: {
       expiration_ledger: parameters.approval.expiresAtLedger,
       signature: approvalSignatureToBytes(parameters.approval.signature),
     },
-    escrow_recipient: parameters.escrowRecipient,
   });
   await runTtlPreflight(assembledTransaction);
   const sentTransaction = await assembledTransaction.signAndSend();
