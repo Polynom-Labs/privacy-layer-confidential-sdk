@@ -12,11 +12,12 @@ function normalizeHex(value: string): string {
 export function prepareRelayTransactPackage(
   input: PrepareRelayTransactPackageInput,
 ): RelayTransactPackageV1 {
-  assertSupportedPublicSignals(input.publicSignals);
+  const zkConfigNonce = input.zkConfigNonce ?? 0n;
+  assertSupportedPublicSignals(input.publicSignals, zkConfigNonce);
   const prepared: RelayTransactPackageV1 = {
     version: RELAY_TRANSACT_PACKAGE_VERSION_V1,
     poolSelector: input.poolSelector,
-    zkConfigNonce: input.zkConfigNonce ?? 0n,
+    zkConfigNonce,
     proofBytes: normalizeHex(input.proofBytes),
     publicSignals: normalizeHex(input.publicSignals),
     applicationIdHints: input.applicationIdHints,

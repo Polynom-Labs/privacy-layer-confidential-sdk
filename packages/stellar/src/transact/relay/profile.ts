@@ -1,18 +1,4 @@
-import {
-  RELAY_SIGNAL_INDEX_NULLIFIER_0,
-  RELAY_SIGNAL_INDEX_NULLIFIER_1,
-  RELAY_SIGNAL_INDEX_PUBLIC_DEPOSIT,
-  RELAY_SIGNAL_INDEX_PUBLIC_DEPOSIT_ASSET_HI,
-  RELAY_SIGNAL_INDEX_PUBLIC_DEPOSIT_ASSET_LO,
-  RELAY_SIGNAL_INDEX_PUBLIC_WITHDRAWAL,
-  RELAY_SIGNAL_INDEX_PUBLIC_WITHDRAWAL_ASSET_HI,
-  RELAY_SIGNAL_INDEX_PUBLIC_WITHDRAWAL_ASSET_LO,
-  RELAY_SIGNAL_INDEX_STATE_ROOT,
-  RELAY_SIGNAL_INDEX_WITHDRAW_ADDRESS_HI,
-  RELAY_SIGNAL_INDEX_WITHDRAW_ADDRESS_LO,
-  RELAY_SIGNAL_INDEX_ESCROW_RECIPIENT_HI,
-  RELAY_SIGNAL_INDEX_ESCROW_RECIPIENT_LO,
-} from './constants.js';
+import { relayLayoutProfileForNonce } from './layout-profile.js';
 import { sliceSupportedPublicSignalFields } from './signals.js';
 import type { RelayTransactPackageV1 } from './types.js';
 
@@ -54,36 +40,29 @@ function fieldAmount(fields: readonly Buffer[], index: number): string {
 export function readRelayTransactSupportedProfile(
   prepared: RelayTransactPackageV1,
 ): RelayTransactSupportedProfile {
-  const fields = sliceSupportedPublicSignalFields(prepared.publicSignals);
+  const layout = relayLayoutProfileForNonce(prepared.zkConfigNonce);
+  const fields = sliceSupportedPublicSignalFields(
+    prepared.publicSignals,
+    prepared.zkConfigNonce,
+  );
+  const { indices } = layout;
   return {
     orderedNullifiers: [
-      fieldHex(fields, RELAY_SIGNAL_INDEX_NULLIFIER_0),
-      fieldHex(fields, RELAY_SIGNAL_INDEX_NULLIFIER_1),
+      fieldHex(fields, indices.nullifier0),
+      fieldHex(fields, indices.nullifier1),
     ],
     publicLegContext: {
-      stateRoot: fieldHex(fields, RELAY_SIGNAL_INDEX_STATE_ROOT),
-      withdrawAddressHi: fieldHex(fields, RELAY_SIGNAL_INDEX_WITHDRAW_ADDRESS_HI),
-      withdrawAddressLo: fieldHex(fields, RELAY_SIGNAL_INDEX_WITHDRAW_ADDRESS_LO),
-      escrowRecipientHi: fieldHex(fields, RELAY_SIGNAL_INDEX_ESCROW_RECIPIENT_HI),
-      escrowRecipientLo: fieldHex(fields, RELAY_SIGNAL_INDEX_ESCROW_RECIPIENT_LO),
-      publicWithdrawalAssetHi: fieldHex(
-        fields,
-        RELAY_SIGNAL_INDEX_PUBLIC_WITHDRAWAL_ASSET_HI,
-      ),
-      publicWithdrawalAssetLo: fieldHex(
-        fields,
-        RELAY_SIGNAL_INDEX_PUBLIC_WITHDRAWAL_ASSET_LO,
-      ),
-      publicDepositAssetHi: fieldHex(
-        fields,
-        RELAY_SIGNAL_INDEX_PUBLIC_DEPOSIT_ASSET_HI,
-      ),
-      publicDepositAssetLo: fieldHex(
-        fields,
-        RELAY_SIGNAL_INDEX_PUBLIC_DEPOSIT_ASSET_LO,
-      ),
-      publicDepositAmount: fieldAmount(fields, RELAY_SIGNAL_INDEX_PUBLIC_DEPOSIT),
-      publicWithdrawalAmount: fieldAmount(fields, RELAY_SIGNAL_INDEX_PUBLIC_WITHDRAWAL),
+      stateRoot: fieldHex(fields, indices.stateRoot),
+      withdrawAddressHi: fieldHex(fields, indices.withdrawAddressHi),
+      withdrawAddressLo: fieldHex(fields, indices.withdrawAddressLo),
+      escrowRecipientHi: fieldHex(fields, indices.escrowRecipientHi),
+      escrowRecipientLo: fieldHex(fields, indices.escrowRecipientLo),
+      publicWithdrawalAssetHi: fieldHex(fields, indices.publicWithdrawalAssetHi),
+      publicWithdrawalAssetLo: fieldHex(fields, indices.publicWithdrawalAssetLo),
+      publicDepositAssetHi: fieldHex(fields, indices.publicDepositAssetHi),
+      publicDepositAssetLo: fieldHex(fields, indices.publicDepositAssetLo),
+      publicDepositAmount: fieldAmount(fields, indices.publicDeposit),
+      publicWithdrawalAmount: fieldAmount(fields, indices.publicWithdrawal),
     },
   };
 }

@@ -23,6 +23,7 @@ import {
   prepareRelayTransactPackage,
   readRelayTransactSupportedProfile,
 } from '../src/transact/index.js';
+import { relayLayoutProfileForNonce } from '../src/transact/relay/layout-profile.js';
 
 type SignalLayoutVector = {
   packageVersion: number;
@@ -128,5 +129,16 @@ describe('relay signal-layout vectors', () => {
         applicationIdHints: ['101', '101', '0', '0'],
       }),
     ).toThrow(/exactly 93 packed public signals/i);
+  });
+
+  it('derives the nonce-0 profile from the circuit shape', () => {
+    const profile = relayLayoutProfileForNonce(0n);
+    expect(profile.signalCount).toBe(vector.signalCount);
+    expect(profile.indices.stateRoot).toBe(vector.indices.stateRoot);
+    expect(profile.indices.publicWithdrawal).toBe(vector.indices.publicWithdrawal);
+  });
+
+  it('fails closed for an unknown ZK nonce', () => {
+    expect(() => relayLayoutProfileForNonce(1n)).toThrow(/unknown zk config nonce/i);
   });
 });

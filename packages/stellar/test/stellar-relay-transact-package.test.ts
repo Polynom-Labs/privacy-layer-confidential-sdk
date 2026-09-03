@@ -90,6 +90,19 @@ describe('Relay Transact Package V1 preparation', () => {
     ).toThrow(/exactly 93 packed public signals/i);
   });
 
+  it('fails closed on an unknown ZK config nonce', () => {
+    const publicSignals = packSignals([[NULLIFIER_0_INDEX, 11n]]);
+    expect(() =>
+      prepareRelayTransactPackage({
+        poolSelector: POOL_SELECTOR,
+        zkConfigNonce: 1n,
+        proofBytes: PROOF_BYTES,
+        publicSignals,
+        applicationIdHints: APPLICATION_ID_HINTS,
+      }),
+    ).toThrow(/unknown zk config nonce/i);
+  });
+
   it('preserves ordered nullifiers and public-leg context from packed signals', () => {
     const publicSignals = packSignals([
       [NULLIFIER_0_INDEX, 11n],
@@ -190,12 +203,12 @@ describe('Relay Transact Package V1 preparation', () => {
       const prepared = prepareRelayTransactPackageFromPrepared({
         prepared: preparedOperation,
         poolSelector: POOL_SELECTOR,
-        zkConfigNonce: 3n,
+        zkConfigNonce: 0n,
       });
 
       expect(prepared.version).toBe(1);
       expect(prepared.poolSelector).toBe(POOL_SELECTOR);
-      expect(prepared.zkConfigNonce).toBe(3n);
+      expect(prepared.zkConfigNonce).toBe(0n);
       expect(prepared.proofBytes).toBe(PROOF_BYTES);
       expect(prepared).not.toHaveProperty('walletPublicKey');
       expect(prepared).not.toHaveProperty('signer');
