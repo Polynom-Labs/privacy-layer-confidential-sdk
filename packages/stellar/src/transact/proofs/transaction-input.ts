@@ -56,6 +56,8 @@ export function withTokenAddressPublicInputs(
     tokenAddressLo: lo,
     escrowRecipientHi: base.escrowRecipientHi ?? '0',
     escrowRecipientLo: base.escrowRecipientLo ?? '0',
+    sweepOutputOwnerPubX: '0',
+    sweepOutputOwnerPubY: '0',
   };
 }
 

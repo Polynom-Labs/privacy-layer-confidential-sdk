@@ -32,9 +32,11 @@ export type RelayLayoutProfile = {
 
 const FIELD_BYTES = 32;
 const PREFIX_BYTES = 4;
-const PUBLIC_INPUT_PREFIX_LEN = 5;
+const LEGACY_PUBLIC_INPUT_PREFIX_LEN = 5;
+const V2_PUBLIC_INPUT_PREFIX_LEN = 7;
 const EPHEMERAL_COORDINATE_COUNT = 2;
 const STANDARD_NONCE = 0n;
+const COMMITMENT_V2_NONCE = 2n;
 const STANDARD_SHAPE: ZkLayoutShape = {
   nIns: 2,
   nOuts: 2,
@@ -45,7 +47,11 @@ const STANDARD_SHAPE: ZkLayoutShape = {
   noteOutputLen: 6,
 };
 
-function profileFromShape(nonce: bigint, shape: ZkLayoutShape): RelayLayoutProfile {
+function profileFromShape(
+  nonce: bigint,
+  shape: ZkLayoutShape,
+  publicInputPrefixLength: number,
+): RelayLayoutProfile {
   const auditOffset =
     shape.nIns + shape.nOuts + shape.nOuts * EPHEMERAL_COORDINATE_COUNT;
   const outputNoteOffset =
@@ -57,7 +63,7 @@ function profileFromShape(nonce: bigint, shape: ZkLayoutShape): RelayLayoutProfi
     outputNoteOffset + shape.nOuts * shape.noteOutputLen + shape.nOuts;
   const signalCount =
     publicOutputsLength +
-    PUBLIC_INPUT_PREFIX_LEN +
+    publicInputPrefixLength +
     EPHEMERAL_COORDINATE_COUNT * shape.publicNInputs +
     EPHEMERAL_COORDINATE_COUNT * shape.publicNOutputs +
     shape.publicNInputs +
@@ -76,19 +82,22 @@ function profileFromShape(nonce: bigint, shape: ZkLayoutShape): RelayLayoutProfi
       withdrawAddressLo: stateRoot + 2,
       escrowRecipientHi: stateRoot + 3,
       escrowRecipientLo: stateRoot + 4,
-      publicWithdrawalAssetHi: stateRoot + 5,
-      publicWithdrawalAssetLo: stateRoot + 6,
-      publicDepositAssetHi: stateRoot + 7,
-      publicDepositAssetLo: stateRoot + 8,
-      publicDeposit: stateRoot + 9,
-      publicWithdrawal: stateRoot + 10,
+      publicWithdrawalAssetHi: stateRoot + publicInputPrefixLength,
+      publicWithdrawalAssetLo: stateRoot + publicInputPrefixLength + 1,
+      publicDepositAssetHi: stateRoot + publicInputPrefixLength + 2,
+      publicDepositAssetLo: stateRoot + publicInputPrefixLength + 3,
+      publicDeposit: stateRoot + publicInputPrefixLength + 4,
+      publicWithdrawal: stateRoot + publicInputPrefixLength + 5,
     },
   };
 }
 
 export function relayLayoutProfileForNonce(nonce: bigint): RelayLayoutProfile {
-  if (nonce !== STANDARD_NONCE) {
-    throw new Error(`Unknown ZK config nonce ${nonce.toString()}`);
+  if (nonce === STANDARD_NONCE) {
+    return profileFromShape(nonce, STANDARD_SHAPE, LEGACY_PUBLIC_INPUT_PREFIX_LEN);
   }
-  return profileFromShape(nonce, STANDARD_SHAPE);
+  if (nonce === COMMITMENT_V2_NONCE) {
+    return profileFromShape(nonce, STANDARD_SHAPE, V2_PUBLIC_INPUT_PREFIX_LEN);
+  }
+  throw new Error(`Unknown ZK config nonce ${nonce.toString()}`);
 }
