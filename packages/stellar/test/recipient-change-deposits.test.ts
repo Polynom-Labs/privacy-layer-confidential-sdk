@@ -80,7 +80,7 @@ afterEach(() => {
 });
 
 describe('escrow transfer change-note witness', () => {
-  it('proves a live change output with public escrow 0 and a sender-spendable coin', async () => {
+  it('proves a live change output with public escrow John and a sender-spendable coin', async () => {
     installRecordingPoolService();
     const built = await buildRecipientAndOptionalChangeDeposits({
       recipientPrivateAddressStpl1: RECIPIENT_STPL1,
@@ -97,16 +97,16 @@ describe('escrow transfer change-note witness', () => {
       throw new Error('expected live recipient and change deposits');
     }
     expect(changeDeposit.value).toBe('6000000');
-    expect(recipientDeposit.recipientStellar).toBeUndefined();
-    expect(changeDeposit.recipientStellar).toBeUndefined();
+    expect(recipientDeposit.recipientStellar).toEqual([JOHN_HI, JOHN_LO]);
+    expect(changeDeposit.recipientStellar).toEqual([JOHN_HI, JOHN_LO]);
     expect(changeDeposit.escrowNonce).toBe('99');
     expect(built.changeCoin?.coin.secret).toBe(`spend:${SENDER_STPL1}`);
     expect(built.changeCoin?.coin.secret).not.toBe(`spend:${RECIPIENT_STPL1}`);
 
     const changeCall = depositCalls.find((call) => call.amountStroops === 6_000_000n);
     expect(changeCall?.privateAddressStpl1).toBe(SENDER_STPL1);
-    expect(changeCall?.recipientHi).toBeUndefined();
-    expect(changeCall?.recipientLo).toBeUndefined();
+    expect(changeCall?.recipientHi).toBe(JOHN_HI);
+    expect(changeCall?.recipientLo).toBe(JOHN_LO);
     expect(changeCall?.escrowNonce).toBe('99');
   });
 
@@ -150,7 +150,7 @@ describe('escrow transfer change-note witness', () => {
     expect(built.changeCoin).toBeUndefined();
   });
 
-  it('keeps escrow-send public limbs at 0 so live outputs bind and the relay does not demand a sweep', async () => {
+  it('pins escrow-send public limbs to John so live outputs and KYT see the G-address', async () => {
     installRecordingPoolService();
     const built = await buildSenderTransferDepositsAndPublicInput({
       senderGAddress: 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
@@ -169,10 +169,10 @@ describe('escrow transfer change-note witness', () => {
     if (recipientDeposit === 'dummy' || changeDeposit === 'dummy') {
       throw new Error('expected live recipient and change deposits');
     }
-    expect(built.publicInput.escrowRecipientHi).toBe('0');
-    expect(built.publicInput.escrowRecipientLo).toBe('0');
-    expect(recipientDeposit.recipientStellar).toBeUndefined();
-    expect(changeDeposit.recipientStellar).toBeUndefined();
+    expect(built.publicInput.escrowRecipientHi).toBe(JOHN_HI);
+    expect(built.publicInput.escrowRecipientLo).toBe(JOHN_LO);
+    expect(recipientDeposit.recipientStellar).toEqual([JOHN_HI, JOHN_LO]);
+    expect(changeDeposit.recipientStellar).toEqual([JOHN_HI, JOHN_LO]);
     expect(built.changeCoin?.coin.secret).toBe(`spend:${SENDER_STPL1}`);
   });
 

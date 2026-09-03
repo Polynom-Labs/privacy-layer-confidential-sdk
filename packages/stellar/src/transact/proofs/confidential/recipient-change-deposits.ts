@@ -12,7 +12,14 @@ type ChangeCoin = {
 };
 
 function escrowSlotFields(escrowSend?: TransferEscrowSend) {
-  return escrowSend ? { escrowNonce: escrowSend.nonceDecimal } : {};
+  if (!escrowSend) {
+    return {};
+  }
+  return {
+    escrowNonce: escrowSend.nonceDecimal,
+    recipientHi: escrowSend.recipientHi,
+    recipientLo: escrowSend.recipientLo,
+  };
 }
 
 async function buildPaddingDepositPair(

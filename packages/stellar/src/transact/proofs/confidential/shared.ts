@@ -29,7 +29,7 @@ export function publicEscrowRecipientLimbs(parameters: {
   escrowSend?: TransferEscrowSend;
   escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
 }): { escrowRecipientHi: string; escrowRecipientLo: string } | undefined {
-  const limbs = parameters.escrowClaimantLimbs;
+  const limbs = parameters.escrowClaimantLimbs ?? parameters.escrowSend;
   if (!limbs) {
     return undefined;
   }

@@ -71,7 +71,7 @@ async function submitPreparedPoolTransact(
     ...(artifacts.applicationIdsPlaintext
       ? { applicationIdsPlaintext: artifacts.applicationIdsPlaintext }
       : {}),
-    ...(artifacts.escrowRecipient
+    ...(artifacts.escrowAuthorization && artifacts.escrowRecipient
       ? { escrowRecipient: artifacts.escrowRecipient }
       : {}),
     networkPassphrase: environment.network.networkPassphrase,

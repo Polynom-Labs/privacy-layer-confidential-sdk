@@ -84,12 +84,17 @@ function enrichTransferOutputRecords(
 
 function escrowSpendArtifacts(input: {
   escrowSend?: boolean;
+  escrowRecipient?: string;
   preparedSpendSource?: NonNullable<
     StellarPreparedOperation['transactArtifacts']
   >['spendSource'];
 }) {
   if (input.escrowSend) {
-    return { escrowSend: true as const, spendSource: 'escrow' as const };
+    return {
+      escrowSend: true as const,
+      spendSource: 'escrow' as const,
+      ...(input.escrowRecipient ? { escrowRecipient: input.escrowRecipient } : {}),
+    };
   }
   if (input.preparedSpendSource === 'escrow') {
     return { spendSource: 'escrow' as const };
@@ -101,6 +106,7 @@ function buildTransferFinalizeArtifacts(input: {
   proof: Awaited<ReturnType<typeof prepareConfidentialTransferProof>>;
   context: Awaited<ReturnType<typeof buildSpendProofContextAtExecute>>;
   escrowSend?: boolean;
+  escrowRecipient?: string;
   preparedSpendSource?: NonNullable<
     StellarPreparedOperation['transactArtifacts']
   >['spendSource'];
@@ -154,6 +160,9 @@ async function runTransferFinalizeSteps(input: {
     proof,
     context,
     ...(recipient.escrowSend ? { escrowSend: true } : {}),
+    ...(recipient.escrowSend?.recipientStellarAddress
+      ? { escrowRecipient: recipient.escrowSend.recipientStellarAddress.trim() }
+      : {}),
     ...(input.prepared.transactArtifacts?.spendSource
       ? { preparedSpendSource: input.prepared.transactArtifacts.spendSource }
       : {}),
