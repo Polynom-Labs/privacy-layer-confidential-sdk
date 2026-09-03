@@ -11,6 +11,8 @@ import type { KytApplicationIdHints } from '../../pool/proof-types.js';
 import {
   buildSenderTransferDepositsAndPublicInput,
   generatedOutputCoinFromSlot,
+  publicEscrowRecipientLimbs,
+  stampWithdrawEscrowLimbs,
   type GeneratedOutputCoin,
 } from './shared.js';
 import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-key-scalar-from-recipient-hex.js';
@@ -42,6 +44,34 @@ type PrepareConfidentialTransferProofDualResult = {
   recipientCoin: GeneratedOutputCoin;
   changeCoin?: GeneratedOutputCoin;
 };
+
+function confidentialEscrowFields(
+  parameters: PrepareConfidentialTransferProofDualParameters,
+) {
+  return {
+    ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
+    ...(parameters.escrowClaimantLimbs
+      ? { escrowClaimantLimbs: parameters.escrowClaimantLimbs }
+      : {}),
+  };
+}
+
+function stampDualWithdrawLegs(
+  legs: ReturnType<typeof dualWithdrawLegsWithSharedRoot>,
+  parameters: PrepareConfidentialTransferProofDualParameters,
+) {
+  const escrowLimbs = publicEscrowRecipientLimbs(confidentialEscrowFields(parameters));
+  return {
+    legA: {
+      ...legs.legA,
+      withdrawObject: stampWithdrawEscrowLimbs(legs.legA.withdrawObject, escrowLimbs),
+    },
+    legB: {
+      ...legs.legB,
+      withdrawObject: stampWithdrawEscrowLimbs(legs.legB.withdrawObject, escrowLimbs),
+    },
+  };
+}
 
 function buildDualTransferApplicationIds(
   applicationId: string,
@@ -107,15 +137,18 @@ async function buildDualTransferProofContext(
   const ownerPubHex = sdk.ecdhEphemeralPublicKeyFromScalarHex(
     parameters.senderPrivKeyScalarHex,
   );
-  const { legA, legB } = dualWithdrawLegsWithSharedRoot({
-    sdk,
-    coinA: parameters.coinA,
-    coinB: parameters.coinB,
-    state: parameters.state,
-    ownerPubHex,
-    privKeyScalar,
-    applicationId,
-  });
+  const { legA, legB } = stampDualWithdrawLegs(
+    dualWithdrawLegsWithSharedRoot({
+      sdk,
+      coinA: parameters.coinA,
+      coinB: parameters.coinB,
+      state: parameters.state,
+      ownerPubHex,
+      privKeyScalar,
+      applicationId,
+    }),
+    parameters,
+  );
   const transferInputs = await buildSenderTransferDepositsAndPublicInput({
     senderGAddress: parameters.senderGAddress,
     senderPrivKeyScalarHex: parameters.senderPrivKeyScalarHex,
@@ -125,10 +158,7 @@ async function buildDualTransferProofContext(
     selfPrivateAddressStpl1ForChange: parameters.selfPrivateAddressStpl1ForChange,
     tokenAddress: parameters.tokenAddress,
     stateRoot: legA.witness.stateRoot,
-    ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
-    ...(parameters.escrowClaimantLimbs
-      ? { escrowClaimantLimbs: parameters.escrowClaimantLimbs }
-      : {}),
+    ...confidentialEscrowFields(parameters),
   });
   return { legA, legB, applicationId, ...transferInputs };
 }

@@ -25,7 +25,7 @@ The registry links public wallet owners to their private payment addresses.
 | Status | Meaning |
 | --- | --- |
 | `registered` | Owner registered a private address; it is known. |
-| `unregistered` | Owner has no private address yet; transfers may create a pending claim. |
+| `unregistered` | Owner has no private address yet; transfers send to a derived escrow note. |
 | `checking` | Registration status is being resolved. |
 
 The SDK caches registry lookups in local state so prepare can resolve recipients without a round trip on every click.

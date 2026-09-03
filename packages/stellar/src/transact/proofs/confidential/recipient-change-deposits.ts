@@ -12,13 +12,7 @@ type ChangeCoin = {
 };
 
 function escrowSlotFields(escrowSend?: TransferEscrowSend) {
-  return escrowSend
-    ? {
-        escrowNonce: escrowSend.nonceDecimal,
-        recipientHi: escrowSend.recipientHi,
-        recipientLo: escrowSend.recipientLo,
-      }
-    : {};
+  return escrowSend ? { escrowNonce: escrowSend.nonceDecimal } : {};
 }
 
 async function buildPaddingDepositPair(
@@ -37,16 +31,17 @@ async function buildPaddingDepositPair(
 }
 
 async function buildChangeDepositPair(parameters: {
-  recipientPrivateAddressStpl1: string;
   selfPrivateAddressStpl1ForChange: string;
   changeStroops: bigint;
   tokenAddress: string;
   recipientDeposit: DepositSlot;
+  escrowSend?: TransferEscrowSend;
 }): Promise<{ deposits: [DepositSlot, DepositSlot]; changeCoin: ChangeCoin }> {
   const changeSlot = await getPrivacyPoolService().buildAlignedDepositSlot({
     privateAddressStpl1: parameters.selfPrivateAddressStpl1ForChange.trim(),
     amountStroops: parameters.changeStroops,
     tokenAddress: parameters.tokenAddress,
+    ...escrowSlotFields(parameters.escrowSend),
   });
   return {
     deposits: [parameters.recipientDeposit, changeSlot.deposit],
@@ -90,11 +85,11 @@ export async function buildRecipientAndOptionalChangeDeposits(parameters: {
     };
   }
   const changeResult = await buildChangeDepositPair({
-    recipientPrivateAddressStpl1: recipientPrivateAddress,
     selfPrivateAddressStpl1ForChange: parameters.selfPrivateAddressStpl1ForChange!,
     changeStroops: parameters.changeStroops,
     tokenAddress: parameters.tokenAddress,
     recipientDeposit: recipientSlot.deposit,
+    ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
   });
   return {
     recipientSlot,

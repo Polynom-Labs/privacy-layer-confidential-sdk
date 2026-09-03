@@ -12,6 +12,8 @@ import type { KytApplicationIdHints } from '../../pool/proof-types.js';
 import {
   buildSenderTransferDepositsAndPublicInput,
   generatedOutputCoinFromSlot,
+  publicEscrowRecipientLimbs,
+  stampWithdrawEscrowLimbs,
   type GeneratedOutputCoin,
 } from './shared.js';
 import type {
@@ -140,6 +142,10 @@ async function buildTransferProofInputs(parameters: {
     privKeyScalar,
     applicationId: parameters.applicationId,
   });
+  const stampedWithdraw = stampWithdrawEscrowLimbs(
+    withdrawObject,
+    publicEscrowRecipientLimbs(confidentialEscrowFields(parameters.input)),
+  );
   const { recipientSlot, deposits, changeCoin, publicInput } =
     await buildSenderTransferDepositsAndPublicInput({
       senderGAddress: parameters.input.senderGAddress,
@@ -155,7 +161,7 @@ async function buildTransferProofInputs(parameters: {
     });
   return {
     witness,
-    withdrawObject,
+    withdrawObject: stampedWithdraw,
     recipientSlot,
     deposits,
     changeCoin,

@@ -25,6 +25,35 @@ export function generatedOutputCoinFromSlot(
   };
 }
 
+export function publicEscrowRecipientLimbs(parameters: {
+  escrowSend?: TransferEscrowSend;
+  escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
+}): { escrowRecipientHi: string; escrowRecipientLo: string } | undefined {
+  const limbs = parameters.escrowClaimantLimbs;
+  if (!limbs) {
+    return undefined;
+  }
+  return {
+    escrowRecipientHi: limbs.recipientHi,
+    escrowRecipientLo: limbs.recipientLo,
+  };
+}
+
+export function stampWithdrawEscrowLimbs<
+  T extends { recipientStellar: [string, string] },
+>(
+  withdrawObject: T,
+  limbs?: { escrowRecipientHi: string; escrowRecipientLo: string },
+): T {
+  if (!limbs) {
+    return withdrawObject;
+  }
+  return {
+    ...withdrawObject,
+    recipientStellar: [limbs.escrowRecipientHi, limbs.escrowRecipientLo],
+  };
+}
+
 async function buildTransferDepositsAndPublicInput(parameters: {
   recipientPrivateAddressStpl1: string;
   transferStroops: bigint;
@@ -52,18 +81,14 @@ async function buildTransferDepositsAndPublicInput(parameters: {
       tokenAddress: parameters.tokenAddress,
       ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
     });
+  const publicEscrow = publicEscrowRecipientLimbs(parameters);
   const publicInput = withTokenAddressPublicInputs(
     {
       stateRoot: parameters.stateRoot,
       withdrawAddressHi: parameters.withdrawAddressHi,
       withdrawAddressLo: parameters.withdrawAddressLo,
       privKeyScalar: parameters.privKeyScalar,
-      ...(parameters.escrowClaimantLimbs
-        ? {
-            escrowRecipientHi: parameters.escrowClaimantLimbs.recipientHi,
-            escrowRecipientLo: parameters.escrowClaimantLimbs.recipientLo,
-          }
-        : {}),
+      ...publicEscrow,
     },
     parameters.tokenAddress,
   );
