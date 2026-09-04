@@ -3,7 +3,7 @@
 - Keep all repository rules and agent guidance in English.
 - Do not add React or NestJS-specific ESLint rules to this repository.
 - Do not bypass lint or Fallow checks by weakening config files or adding disable comments.
-- Do not regenerate or commit ptau/zkey artifacts inside this repository.
+- Do not add ptau files to this repository. Groth16 zkey/VK regeneration belongs in `soroban-privacy-pools` using its existing `circuits/ptau/` file; never regenerate ptau.
 - Public Mintlify/docs cover only `@arcanetech/*` packages; do not document `@auditable/*`, ZK/circuit/proving internals, or state-bridge implementation details—use adapter-library and "transaction preparation" wording instead.
 - In SDK docs, mention Stellar/Soroban only in stellar-preset sections; document `core` and `state-*` as multi-chain.
 - SDK docs must not name internal backend products or concrete REST endpoint paths; describe integrations generically (e.g. asset catalog sync, registry status).
@@ -28,17 +28,17 @@
 
 ## Repository Tooling
 
-| Area            | Tooling                                                            |
-| --------------- | ------------------------------------------------------------------ |
-| Workspace       | npm workspaces under `packages/*`                                  |
-| Language        | TypeScript only for source, tests, and executable config           |
-| Build           | `tsup` per package                                                 |
-| Tests           | Vitest unit tests and type tests                                   |
-| Lint            | ESLint flat config in `eslint.config.mjs`                          |
+| Area            | Tooling                                                                        |
+| --------------- | ------------------------------------------------------------------------------ |
+| Workspace       | npm workspaces under `packages/*`                                              |
+| Language        | TypeScript only for source, tests, and executable config                       |
+| Build           | `tsup` per package                                                             |
+| Tests           | Vitest unit tests and type tests                                               |
+| Lint            | ESLint flat config in `eslint.config.mjs`                                      |
 | Static analysis | Fallow dead-code and duplication scans via `fallow:dead-code` / `fallow:dupes` |
-| Git hooks       | Lefthook pre-commit runs lint and Fallow checks                    |
-| Docs            | English README files plus Mintlify docs in `docs/`                 |
-| Releases        | Release Please manifest mode plus GitHub Actions publish workflows |
+| Git hooks       | Lefthook pre-commit runs lint and Fallow checks                                |
+| Docs            | English README files plus Mintlify docs in `docs/`                             |
+| Releases        | Release Please manifest mode plus GitHub Actions publish workflows             |
 
 ## Package Boundaries
 
