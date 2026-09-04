@@ -141,4 +141,45 @@ describe('relay signal-layout vectors', () => {
   it('fails closed for an unknown ZK nonce', () => {
     expect(() => relayLayoutProfileForNonce(1n)).toThrow(/unknown zk config nonce/i);
   });
+
+  it('derives the nonce-2 95-signal Commitment V2 profile', () => {
+    const profile = relayLayoutProfileForNonce(2n);
+    expect(profile.signalCount).toBe(95);
+    expect(profile.indices.stateRoot).toBe(vector.indices.stateRoot);
+  });
+
+  it('fails closed when nonce 2 is paired with the 93-signal count', () => {
+    expect(() =>
+      prepareRelayTransactPackage({
+        poolSelector: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
+        zkConfigNonce: 2n,
+        proofBytes: 'aabb',
+        publicSignals: packZeroSignals(vector.signalCount, vector.fieldBytes),
+        applicationIdHints: ['101', '101', '0', '0'],
+      }),
+    ).toThrow(/exactly 95 packed public signals/i);
+  });
+
+  it('fails closed when nonce 0 is paired with the 95-signal count', () => {
+    expect(() =>
+      prepareRelayTransactPackage({
+        poolSelector: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
+        zkConfigNonce: 0n,
+        proofBytes: 'aabb',
+        publicSignals: packZeroSignals(95, vector.fieldBytes),
+        applicationIdHints: ['101', '101', '0', '0'],
+      }),
+    ).toThrow(/exactly 93 packed public signals/i);
+  });
+
+  it('accepts nonce 2 with 95 packed public signals', () => {
+    const prepared = prepareRelayTransactPackage({
+      poolSelector: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
+      zkConfigNonce: 2n,
+      proofBytes: 'aabb',
+      publicSignals: packZeroSignals(95, vector.fieldBytes),
+      applicationIdHints: ['101', '101', '0', '0'],
+    });
+    expect(prepared.zkConfigNonce).toBe(2n);
+  });
 });
