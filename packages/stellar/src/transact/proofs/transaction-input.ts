@@ -11,14 +11,19 @@ export interface TransactionPublicLegParameters {
 
 type BasePublicInput = {
   stateRoot: string;
-  withdrawAddressHi: string;
-  withdrawAddressLo: string;
+  withdrawAddressHi?: string;
+  withdrawAddressLo?: string;
   privKeyScalar: string;
   escrowRecipientHi?: string;
   escrowRecipientLo?: string;
   sweepOutputOwnerPubX?: string;
   sweepOutputOwnerPubY?: string;
 };
+
+const ZERO_PUBLIC_WITHDRAW_ADDRESS = {
+  withdrawAddressHi: '0',
+  withdrawAddressLo: '0',
+} as const;
 
 const CONTRACT_ADDRESS_HALF_BYTES = 16;
 const CONTRACT_ADDRESS_BYTES = 32;
@@ -56,10 +61,34 @@ export function withTokenAddressPublicInputs(
     ...base,
     tokenAddressHi: hi,
     tokenAddressLo: lo,
+    withdrawAddressHi:
+      base.withdrawAddressHi ?? ZERO_PUBLIC_WITHDRAW_ADDRESS.withdrawAddressHi,
+    withdrawAddressLo:
+      base.withdrawAddressLo ?? ZERO_PUBLIC_WITHDRAW_ADDRESS.withdrawAddressLo,
     escrowRecipientHi: base.escrowRecipientHi ?? '0',
     escrowRecipientLo: base.escrowRecipientLo ?? '0',
     sweepOutputOwnerPubX: base.sweepOutputOwnerPubX ?? '0',
     sweepOutputOwnerPubY: base.sweepOutputOwnerPubY ?? '0',
+  };
+}
+
+export function publicWithdrawAddressLimbs(parameters: {
+  publicWithdrawalAmount: string;
+  destinationHi: string;
+  destinationLo: string;
+}): {
+  withdrawAddressHi: string;
+  withdrawAddressLo: string;
+} {
+  if (parameters.publicWithdrawalAmount === '0') {
+    return {
+      withdrawAddressHi: ZERO_PUBLIC_WITHDRAW_ADDRESS.withdrawAddressHi,
+      withdrawAddressLo: ZERO_PUBLIC_WITHDRAW_ADDRESS.withdrawAddressLo,
+    };
+  }
+  return {
+    withdrawAddressHi: parameters.destinationHi,
+    withdrawAddressLo: parameters.destinationLo,
   };
 }
 

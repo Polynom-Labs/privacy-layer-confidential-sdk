@@ -42,8 +42,9 @@ export interface StellarTransactEnvironment {
   network: StellarNetworkConfig;
   /**
    * Nonce (persistent storage key) of the pool's `ZkConfig` entry this
-   * environment's proofs/circuit shape target. Defaults to `0n` (the
-   * standard circuit) when omitted.
+   * environment's proofs/circuit shape target. Defaults to `2n` (Commitment
+   * V2, 95 public signals) when omitted. Nonce `0` is the retired 93-signal
+   * layout and must be passed explicitly.
    */
   zkConfigNonce?: bigint;
   auditPublicKey?: AuditPublicKey;

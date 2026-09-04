@@ -23,7 +23,6 @@ import type {
 type PrepareConfidentialTransferProofParameters = {
   coin: CoinData;
   state: StateFile;
-  senderGAddress: string;
   senderPrivKeyScalarHex: string;
   depositorEphemeralKey: string;
   transferStroops: bigint;
@@ -148,7 +147,6 @@ async function buildTransferProofInputs(parameters: {
   );
   const { recipientSlot, deposits, changeCoin, publicInput } =
     await buildSenderTransferDepositsAndPublicInput({
-      senderGAddress: parameters.input.senderGAddress,
       senderPrivKeyScalarHex: parameters.input.senderPrivKeyScalarHex,
       recipientPrivateAddressStpl1: parameters.input.recipientPrivateAddressStpl1,
       transferStroops: parameters.input.transferStroops,

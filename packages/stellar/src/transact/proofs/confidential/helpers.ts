@@ -1,15 +1,9 @@
-import {
-  ed25519PubkeyPayloadHexToWithdrawFrDecimals,
-  withdrawObjectFromMerkleWitness,
-} from '@auditable/privacy-pool-zk-sdk';
+import { withdrawObjectFromMerkleWitness } from '@auditable/privacy-pool-zk-sdk';
 import type {
   CoinData,
   PrivacyPoolSDK,
   StateFile,
 } from '@auditable/privacy-pool-zk-sdk';
-import { StrKey } from '@stellar/stellar-sdk';
-import { Buffer } from 'buffer';
-import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-key-scalar-from-recipient-hex.js';
 
 export const MIN_CONFIDENTIAL_TRANSFER_STROOPS = 1n;
 export const ZERO_STROOPS = 0n;
@@ -63,23 +57,6 @@ export function dualWithdrawLegsWithSharedRoot(parameters: {
     throw new Error('Merkle state root mismatch between input coins');
   }
   return { legA, legB };
-}
-
-export function senderWithdrawFrAndScalar(parameters: {
-  senderGAddress: string;
-  senderPrivKeyScalarHex: string;
-}): {
-  hi: string;
-  lo: string;
-  privKeyScalar: string;
-} {
-  const pkRaw = StrKey.decodeEd25519PublicKey(parameters.senderGAddress);
-  const pkHex = Buffer.from(pkRaw).toString('hex');
-  const { hi, lo } = ed25519PubkeyPayloadHexToWithdrawFrDecimals(pkHex);
-  const privKeyScalar = privKeyScalarDecimalFromRecipientScalarHex(
-    parameters.senderPrivKeyScalarHex,
-  );
-  return { hi, lo, privKeyScalar };
 }
 
 export function requireChangeRecipientWhenPartial(

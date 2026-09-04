@@ -82,6 +82,7 @@ describe('Relay Transact Package V1 preparation', () => {
     expect(() =>
       prepareRelayTransactPackage({
         poolSelector: POOL_SELECTOR,
+        zkConfigNonce: 0n,
         proofBytes: PROOF_BYTES,
         publicSignals,
         applicationIdHints: APPLICATION_ID_HINTS,
@@ -120,6 +121,7 @@ describe('Relay Transact Package V1 preparation', () => {
     ]);
     const prepared = prepareRelayTransactPackage({
       poolSelector: POOL_SELECTOR,
+      zkConfigNonce: 0n,
       proofBytes: PROOF_BYTES,
       publicSignals,
       applicationIdHints: APPLICATION_ID_HINTS,
@@ -147,6 +149,7 @@ describe('Relay Transact Package V1 preparation', () => {
     const publicSignals = packSignals([[NULLIFIER_0_INDEX, 11n]]);
     const withHints = prepareRelayTransactPackage({
       poolSelector: POOL_SELECTOR,
+      zkConfigNonce: 0n,
       proofBytes: PROOF_BYTES,
       publicSignals,
       applicationIdHints: APPLICATION_ID_HINTS,
@@ -154,6 +157,7 @@ describe('Relay Transact Package V1 preparation', () => {
     });
     const withoutHints = prepareRelayTransactPackage({
       poolSelector: POOL_SELECTOR,
+      zkConfigNonce: 0n,
       proofBytes: PROOF_BYTES,
       publicSignals,
       applicationIdHints: APPLICATION_ID_HINTS,

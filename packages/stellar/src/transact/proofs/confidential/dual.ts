@@ -25,7 +25,6 @@ type PrepareConfidentialTransferProofDualParameters = {
   coinA: CoinData;
   coinB: CoinData;
   state: StateFile;
-  senderGAddress: string;
   senderPrivKeyScalarHex: string;
   ephemeralAKey: string;
   ephemeralBKey: string;
@@ -150,7 +149,6 @@ async function buildDualTransferProofContext(
     parameters,
   );
   const transferInputs = await buildSenderTransferDepositsAndPublicInput({
-    senderGAddress: parameters.senderGAddress,
     senderPrivKeyScalarHex: parameters.senderPrivKeyScalarHex,
     recipientPrivateAddressStpl1: parameters.recipientPrivateAddressStpl1,
     transferStroops: parameters.transferStroops,

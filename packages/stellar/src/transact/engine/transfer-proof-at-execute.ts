@@ -50,7 +50,6 @@ async function buildSingleTransferProofAtExecute(input: {
   const proof = await prepareConfidentialTransferProof({
     coin: context.coin,
     state: { commitments: context.commitments },
-    senderGAddress: context.walletPublicKey,
     senderPrivKeyScalarHex: context.senderPrivKeyScalarHex,
     depositorEphemeralKey: serializeEphemeralKeyString({
       xHex: context.ephemeral.xHex,
@@ -89,7 +88,6 @@ async function buildDualTransferProofAtExecute(input: {
     coinA: context.coin,
     coinB: secondary.coin,
     state: { commitments: context.commitments },
-    senderGAddress: context.walletPublicKey,
     senderPrivKeyScalarHex: context.senderPrivKeyScalarHex,
     ephemeralAKey: serializeEphemeralKeyString({
       xHex: context.ephemeral.xHex,

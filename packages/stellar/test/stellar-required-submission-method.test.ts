@@ -10,8 +10,8 @@ import {
 } from '../src/transact/index.js';
 
 const FIELD_BYTES = 32;
-const SUPPORTED_SIGNAL_COUNT = 93;
-const PUBLIC_DEPOSIT_INDEX = 91;
+const SUPPORTED_SIGNAL_COUNT = 95;
+const PUBLIC_DEPOSIT_INDEX = 93;
 const PROOF_BYTES = 'aabbccddeeff';
 const APPLICATION_ID_HINTS: [string, string, string, string] = ['101', '101', '0', '0'];
 
@@ -112,6 +112,7 @@ describe('requiredSubmissionMethod', () => {
       name: 'escrow send',
       kind: 'transfer' as const,
       spendSource: 'escrow' as const,
+      escrowSend: true,
       publicDepositAmount: 0n,
       expected: SUBMISSION_METHOD.relay,
     },
@@ -119,19 +120,35 @@ describe('requiredSubmissionMethod', () => {
       name: 'escrow send flagged without public signals',
       kind: 'transfer' as const,
       spendSource: 'escrow' as const,
+      escrowSend: true,
       publicDepositAmount: 0n,
       omitPublicHex: true,
       expected: SUBMISSION_METHOD.relay,
     },
+    {
+      name: 'escrow sweep',
+      kind: 'transfer' as const,
+      spendSource: 'escrow' as const,
+      publicDepositAmount: 0n,
+      expected: SUBMISSION_METHOD.direct,
+    },
   ])(
     'returns $expected for $name',
-    ({ kind, spendSource, publicDepositAmount, expected, omitPublicHex }) => {
+    ({
+      kind,
+      spendSource,
+      escrowSend,
+      publicDepositAmount,
+      expected,
+      omitPublicHex,
+    }) => {
       expect(
         requiredSubmissionMethod(
           preparedOperation({
             kind,
             publicDepositAmount,
             ...(spendSource ? { spendSource } : {}),
+            ...(escrowSend ? { escrowSend: true } : {}),
             ...(omitPublicHex ? { omitPublicHex: true } : {}),
           }),
         ),

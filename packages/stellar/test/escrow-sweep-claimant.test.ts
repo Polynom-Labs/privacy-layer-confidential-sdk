@@ -86,7 +86,7 @@ describe('prepareEscrowSweepOperation', () => {
       nonceDecimal: '99',
     });
     expect(prepared.submissionPayload.signed).toBe(false);
-    expect(requiredSubmissionMethod(prepared)).toBe(SUBMISSION_METHOD.relay);
+    expect(requiredSubmissionMethod(prepared)).toBe(SUBMISSION_METHOD.direct);
     expect(prepared.consumedRecords[0]?.id).toBe(reconstructedNote().commitmentHex);
     expect(prepared.consumedRecords[0]?.owner).toBe(CLAIMANT);
     expect(JSON.stringify(prepared.outputRecords)).not.toMatch(/pending-output/);

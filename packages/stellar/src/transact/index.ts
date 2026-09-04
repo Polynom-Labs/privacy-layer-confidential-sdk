@@ -48,6 +48,12 @@ export type {
   TransferEscrowClaimantLimbs,
 } from './environment/types.js';
 export {
+  COMMITMENT_V2_ZK_NONCE,
+  DEFAULT_ZK_CONFIG_NONCE,
+  STANDARD_ZK_CONFIG_NONCE,
+  resolveZkConfigNonce,
+} from './environment/zk-config-nonce.js';
+export {
   generateRandomDepositScalarHex,
   generateTemporaryRecipientPrivateAddress,
 } from './private-address/temporary-recipient.js';

@@ -110,6 +110,7 @@ describe('relay signal-layout vectors', () => {
   it('reads the vector public-leg profile from packed 93-signal bytes', () => {
     const prepared = prepareRelayTransactPackage({
       poolSelector: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
+      zkConfigNonce: 0n,
       proofBytes: 'aabb',
       publicSignals: vector.packedPublicSignals,
       applicationIdHints: ['101', '101', '0', '0'],
@@ -121,6 +122,7 @@ describe('relay signal-layout vectors', () => {
     expect(() =>
       prepareRelayTransactPackage({
         poolSelector: 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC',
+        zkConfigNonce: 0n,
         proofBytes: 'aabb',
         publicSignals: packZeroSignals(
           vector.unsupportedSignalCount,
@@ -179,6 +181,26 @@ describe('relay signal-layout vectors', () => {
       proofBytes: 'aabb',
       publicSignals: packZeroSignals(95, vector.fieldBytes),
       applicationIdHints: ['101', '101', '0', '0'],
+    });
+    expect(prepared.zkConfigNonce).toBe(2n);
+  });
+
+  it('defaults an omitted nonce to Commitment V2 95-signal layout', () => {
+    const poolSelector = 'CDLZFC3SYJYDZT7K67VZ75HPJVIEUVNIXF47ZG2FB2RMQQVU2HHGCYSC';
+    const applicationIdHints = ['101', '101', '0', '0'] as const;
+    expect(() =>
+      prepareRelayTransactPackage({
+        poolSelector,
+        proofBytes: 'aabb',
+        publicSignals: packZeroSignals(vector.signalCount, vector.fieldBytes),
+        applicationIdHints: [...applicationIdHints],
+      }),
+    ).toThrow(/exactly 95 packed public signals/i);
+    const prepared = prepareRelayTransactPackage({
+      poolSelector,
+      proofBytes: 'aabb',
+      publicSignals: packZeroSignals(95, vector.fieldBytes),
+      applicationIdHints: [...applicationIdHints],
     });
     expect(prepared.zkConfigNonce).toBe(2n);
   });

@@ -1,3 +1,4 @@
+import { DEFAULT_ZK_CONFIG_NONCE } from '../environment/zk-config-nonce.js';
 import { RELAY_TRANSACT_PACKAGE_VERSION_V1 } from './constants.js';
 import { assertSupportedPublicSignals } from './signals.js';
 import type {
@@ -12,7 +13,7 @@ function normalizeHex(value: string): string {
 export function prepareRelayTransactPackage(
   input: PrepareRelayTransactPackageInput,
 ): RelayTransactPackageV1 {
-  const zkConfigNonce = input.zkConfigNonce ?? 0n;
+  const zkConfigNonce = input.zkConfigNonce ?? DEFAULT_ZK_CONFIG_NONCE;
   assertSupportedPublicSignals(input.publicSignals, zkConfigNonce);
   const prepared: RelayTransactPackageV1 = {
     version: RELAY_TRANSACT_PACKAGE_VERSION_V1,

@@ -162,8 +162,6 @@ export class PrivacyPoolService {
     const publicInput = withTokenAddressPublicInputs(
       {
         stateRoot,
-        withdrawAddressHi: '0',
-        withdrawAddressLo: '0',
         privKeyScalar: randomFrDecimal253(),
       },
       parameters.tokenAddress,

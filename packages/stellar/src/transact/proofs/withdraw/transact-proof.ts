@@ -94,10 +94,9 @@ async function prepareSingleWithdrawProofInputs(parameters: {
   tokenAddress: string;
   auditPublicKey?: [string, string];
 }) {
-  const noteStroops = BigInt(parameters.coin.value);
   const changeStroops = validateSingleWithdrawAmounts(
     parameters.withdrawAmountStroops,
-    noteStroops,
+    BigInt(parameters.coin.value),
   );
   const { witness, primaryWithdraw } = buildPrimaryWithdrawForCoin({
     sdk: parameters.sdk,
@@ -117,6 +116,7 @@ async function prepareSingleWithdrawProofInputs(parameters: {
     destinationStellarAddress: parameters.destinationStellarAddress,
     privKeyScalarHex: parameters.privKeyScalarHex,
     tokenAddress: parameters.tokenAddress,
+    publicWithdrawalAmount: parameters.withdrawAmountStroops.toString(),
   });
   const audit = buildPoolTransactionAuditParameters({
     applicationId: parameters.applicationId,

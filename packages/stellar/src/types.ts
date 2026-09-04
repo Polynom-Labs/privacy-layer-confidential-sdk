@@ -73,6 +73,7 @@ export interface StellarTransactArtifacts {
   escrowClaimantLimbs?: {
     recipientHi: string;
     recipientLo: string;
+    nonceDecimal?: string;
   };
   executeFinalizeRequired?: boolean;
   spendSource?: 'privateAddress' | 'escrow';

@@ -1,3 +1,8 @@
+import {
+  COMMITMENT_V2_ZK_NONCE,
+  STANDARD_ZK_CONFIG_NONCE,
+} from '../environment/zk-config-nonce.js';
+
 type ZkLayoutShape = {
   nIns: number;
   nOuts: number;
@@ -35,8 +40,6 @@ const PREFIX_BYTES = 4;
 const LEGACY_PUBLIC_INPUT_PREFIX_LEN = 5;
 const V2_PUBLIC_INPUT_PREFIX_LEN = 7;
 const EPHEMERAL_COORDINATE_COUNT = 2;
-const STANDARD_NONCE = 0n;
-const COMMITMENT_V2_NONCE = 2n;
 const STANDARD_SHAPE: ZkLayoutShape = {
   nIns: 2,
   nOuts: 2,
@@ -93,10 +96,10 @@ function profileFromShape(
 }
 
 export function relayLayoutProfileForNonce(nonce: bigint): RelayLayoutProfile {
-  if (nonce === STANDARD_NONCE) {
+  if (nonce === STANDARD_ZK_CONFIG_NONCE) {
     return profileFromShape(nonce, STANDARD_SHAPE, LEGACY_PUBLIC_INPUT_PREFIX_LEN);
   }
-  if (nonce === COMMITMENT_V2_NONCE) {
+  if (nonce === COMMITMENT_V2_ZK_NONCE) {
     return profileFromShape(nonce, STANDARD_SHAPE, V2_PUBLIC_INPUT_PREFIX_LEN);
   }
   throw new Error(`Unknown ZK config nonce ${nonce.toString()}`);

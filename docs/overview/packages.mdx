@@ -68,7 +68,7 @@ Internal transitive dependencies are not part of the public integration surface.
 - **Private-address registry** — maps public Stellar accounts to private payment addresses.
 - **Soroban RPC** — submission and confirmation.
 - **`createStellarPrivacyClient()`** — main browser entrypoint.
-- **`requiredSubmissionMethod(prepared)`** — Direct Submission vs Protocol Relay for a prepared operation (positive public deposits stay direct; a zero public deposit uses relay). Escrow sends require relay and a zero public deposit; a positive public deposit is refused rather than downgraded.
+- **`requiredSubmissionMethod(prepared)`** — Direct Submission vs Protocol Relay for a prepared operation (positive public deposits stay direct; a zero public deposit uses relay). Escrow sends require relay and a zero public deposit; a positive public deposit is refused rather than downgraded. Escrow sweeps use Direct Submission so the claimant wallet signs the envelope.
 - **`buildBlindedRecipientTagChallengeMessage(fields)`** — wallet-signed challenge string used to issue blinded recipient tags so a recipient can discover escrow notes after they register. See [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient#discover-notes-sent-before-registration).
 
 **Address model (Stellar only):**

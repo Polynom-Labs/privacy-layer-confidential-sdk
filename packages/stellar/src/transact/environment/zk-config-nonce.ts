@@ -1,6 +1,8 @@
 import type { StellarTransactEnvironment } from './types.js';
 
-const DEFAULT_ZK_CONFIG_NONCE = 0n;
+export const STANDARD_ZK_CONFIG_NONCE = 0n;
+export const COMMITMENT_V2_ZK_NONCE = 2n;
+export const DEFAULT_ZK_CONFIG_NONCE = COMMITMENT_V2_ZK_NONCE;
 
 export function resolveZkConfigNonce(
   transactEnvironment: StellarTransactEnvironment,

@@ -15,7 +15,10 @@ import {
 } from '../../proofs/confidential/helpers.js';
 import { ed25519PublicKeyHexFromStellarAccount } from '../../stellar/account.js';
 import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-key-scalar-from-recipient-hex.js';
-import { withTokenAddressPublicInputs } from '../../proofs/transaction-input.js';
+import {
+  publicWithdrawAddressLimbs,
+  withTokenAddressPublicInputs,
+} from '../../proofs/transaction-input.js';
 import { buildPoolTransactionAuditParameters } from '../../audit/parameters.js';
 import type { TransactionAuditParams } from '@auditable/privacy-pool-zk-sdk';
 
@@ -77,6 +80,7 @@ export function buildWithdrawPublicInput(parameters: {
   destinationStellarAddress: string;
   privKeyScalarHex: string;
   tokenAddress: string;
+  publicWithdrawalAmount: string;
 }): ReturnType<typeof withTokenAddressPublicInputs> {
   const { hi, lo, privKeyScalar } = destinationWithdrawFrAndScalar({
     destinationStellarAddress: parameters.destinationStellarAddress,
@@ -85,8 +89,11 @@ export function buildWithdrawPublicInput(parameters: {
   return withTokenAddressPublicInputs(
     {
       stateRoot: parameters.stateRoot,
-      withdrawAddressHi: hi,
-      withdrawAddressLo: lo,
+      ...publicWithdrawAddressLimbs({
+        publicWithdrawalAmount: parameters.publicWithdrawalAmount,
+        destinationHi: hi,
+        destinationLo: lo,
+      }),
       privKeyScalar,
     },
     parameters.tokenAddress,
@@ -148,12 +155,14 @@ function buildDualWithdrawPublicInput(parameters: {
   privKeyScalarHex: string;
   tokenAddress: string;
   stateRoot: string;
+  publicWithdrawalAmount: string;
 }): ReturnType<typeof withTokenAddressPublicInputs> {
   return buildWithdrawPublicInput({
     stateRoot: parameters.stateRoot,
     destinationStellarAddress: parameters.destinationStellarAddress,
     privKeyScalarHex: parameters.privKeyScalarHex,
     tokenAddress: parameters.tokenAddress,
+    publicWithdrawalAmount: parameters.publicWithdrawalAmount,
   });
 }
 
@@ -197,6 +206,7 @@ export async function prepareDualWithdrawProofInputs(
     privKeyScalarHex: parameters.privKeyScalarHex,
     tokenAddress: parameters.tokenAddress,
     stateRoot: legA.witness.stateRoot,
+    publicWithdrawalAmount: parameters.withdrawAmountStroops.toString(),
   });
   const audit = buildPoolTransactionAuditParameters({
     applicationId: parameters.applicationId,

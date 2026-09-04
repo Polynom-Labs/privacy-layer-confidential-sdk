@@ -74,6 +74,17 @@ describe('submitPoolTransact five-argument transact', () => {
     const args = await captureTransactArgs();
     expect(args).toBeDefined();
     expect(Object.hasOwn(args ?? {}, 'escrow_recipient')).toBe(false);
+    expect(Object.hasOwn(args ?? {}, 'onboarding')).toBe(false);
     expect(args?.from).toBe('GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF');
+    expect(args).toEqual(
+      expect.objectContaining({
+        nonce: 0n,
+        proof_bytes: expect.any(Buffer),
+        pub_signals_bytes: expect.any(Buffer),
+        kyt_authorization: expect.objectContaining({
+          expiration_ledger: 1,
+        }),
+      }),
+    );
   });
 });

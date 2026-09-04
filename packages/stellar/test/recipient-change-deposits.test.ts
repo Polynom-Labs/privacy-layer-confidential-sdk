@@ -158,7 +158,6 @@ describe('escrow transfer change-note witness', () => {
   it('keeps escrow-create public limbs at zero so the recipient stays private', async () => {
     installRecordingPoolService();
     const built = await buildSenderTransferDepositsAndPublicInput({
-      senderGAddress: 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
       senderPrivKeyScalarHex:
         '304c151b0d104df797d473cc6ee1e85769d615744d0ff7eb1bfb8d10473fc314',
       recipientPrivateAddressStpl1: RECIPIENT_STPL1,
@@ -178,6 +177,8 @@ describe('escrow transfer change-note witness', () => {
     expect(built.publicInput.escrowRecipientLo).toBe('0');
     expect(built.publicInput.sweepOutputOwnerPubX).toBe('0');
     expect(built.publicInput.sweepOutputOwnerPubY).toBe('0');
+    expect(built.publicInput.withdrawAddressHi).toBe('0');
+    expect(built.publicInput.withdrawAddressLo).toBe('0');
     expect(recipientDeposit.recipientStellar).toEqual([JOHN_HI, JOHN_LO]);
     expect(recipientDeposit.escrowNonce).toBe('99');
     expect(changeDeposit.recipientStellar).toBeUndefined();
@@ -187,7 +188,6 @@ describe('escrow transfer change-note witness', () => {
   it('stamps claimant limbs on the sweep output so the live output bind can pass', async () => {
     installRecordingPoolService();
     const built = await buildSenderTransferDepositsAndPublicInput({
-      senderGAddress: 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
       senderPrivKeyScalarHex:
         '304c151b0d104df797d473cc6ee1e85769d615744d0ff7eb1bfb8d10473fc314',
       recipientPrivateAddressStpl1: JOHN_REGISTERED_STPL1,
@@ -207,6 +207,8 @@ describe('escrow transfer change-note witness', () => {
     }
     expect(built.publicInput.escrowRecipientHi).toBe(JOHN_HI);
     expect(built.publicInput.escrowRecipientLo).toBe(JOHN_LO);
+    expect(built.publicInput.withdrawAddressHi).toBe('0');
+    expect(built.publicInput.withdrawAddressLo).toBe('0');
     expect(built.publicInput.sweepOutputOwnerPubX).toBe(
       BigInt(`0x${'11'.repeat(32)}`).toString(),
     );
@@ -220,7 +222,6 @@ describe('escrow transfer change-note witness', () => {
   it('keeps registered-transfer public escrow limbs at 0', async () => {
     installRecordingPoolService();
     const built = await buildSenderTransferDepositsAndPublicInput({
-      senderGAddress: 'GAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWHF',
       senderPrivKeyScalarHex:
         '304c151b0d104df797d473cc6ee1e85769d615744d0ff7eb1bfb8d10473fc314',
       recipientPrivateAddressStpl1: RECIPIENT_STPL1,
@@ -232,6 +233,8 @@ describe('escrow transfer change-note witness', () => {
     });
     expect(built.publicInput.escrowRecipientHi).toBe('0');
     expect(built.publicInput.escrowRecipientLo).toBe('0');
+    expect(built.publicInput.withdrawAddressHi).toBe('0');
+    expect(built.publicInput.withdrawAddressLo).toBe('0');
     const changeDeposit = built.deposits[1];
     if (changeDeposit === 'dummy') {
       throw new Error('expected a live change deposit');

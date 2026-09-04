@@ -1,5 +1,6 @@
 import type { StellarPreparedOperation } from '../../types.js';
-import { RELAY_SIGNAL_INDEX_PUBLIC_DEPOSIT } from './constants.js';
+import { DEFAULT_ZK_CONFIG_NONCE } from '../environment/zk-config-nonce.js';
+import { relayLayoutProfileForNonce } from './layout-profile.js';
 import { sliceSupportedPublicSignalFields } from './signals.js';
 
 const ZERO_PUBLIC_DEPOSIT = 0n;
@@ -41,18 +42,20 @@ export function isEscrowPreparedOperation(prepared: StellarPreparedOperation): b
 
 function publicDepositAmountFromPrepared(
   prepared: StellarPreparedOperation,
+  zkConfigNonce: bigint,
 ): bigint | undefined {
   const publicHex = prepared.transactArtifacts?.publicHex;
   if (!publicHex) {
     return undefined;
   }
-  const fields = sliceSupportedPublicSignalFields(publicHex);
+  const layout = relayLayoutProfileForNonce(zkConfigNonce);
+  const fields = sliceSupportedPublicSignalFields(publicHex, zkConfigNonce);
   const field = fields.find(
-    (_unused, offset) => offset === RELAY_SIGNAL_INDEX_PUBLIC_DEPOSIT,
+    (_unused, offset) => offset === layout.indices.publicDeposit,
   );
   if (!field) {
     throw new Error(
-      `Missing packed public signal at index ${String(RELAY_SIGNAL_INDEX_PUBLIC_DEPOSIT)}.`,
+      `Missing packed public signal at index ${String(layout.indices.publicDeposit)}.`,
     );
   }
   return BigInt(`0x${field.toString('hex')}`);
@@ -60,8 +63,9 @@ function publicDepositAmountFromPrepared(
 
 export function evaluateRequiredSubmissionMethod(
   prepared: StellarPreparedOperation,
+  zkConfigNonce: bigint = DEFAULT_ZK_CONFIG_NONCE,
 ): RequiredSubmissionMethodResult {
-  const publicDepositAmount = publicDepositAmountFromPrepared(prepared);
+  const publicDepositAmount = publicDepositAmountFromPrepared(prepared, zkConfigNonce);
   if (isEscrowPreparedOperation(prepared)) {
     if (
       publicDepositAmount !== undefined &&
@@ -69,7 +73,10 @@ export function evaluateRequiredSubmissionMethod(
     ) {
       return { refused: ESCROW_SUBMISSION_REFUSAL.positivePublicDeposit };
     }
-    return { method: SUBMISSION_METHOD.relay };
+    if (prepared.transactArtifacts?.escrowSend === true) {
+      return { method: SUBMISSION_METHOD.relay };
+    }
+    return { method: SUBMISSION_METHOD.direct };
   }
   if (publicDepositAmount === undefined) {
     throw new Error('Prepared operation is missing transact artifacts.');
@@ -84,8 +91,9 @@ export function evaluateRequiredSubmissionMethod(
 
 export function requiredSubmissionMethod(
   prepared: StellarPreparedOperation,
+  zkConfigNonce: bigint = DEFAULT_ZK_CONFIG_NONCE,
 ): SubmissionMethod {
-  const result = evaluateRequiredSubmissionMethod(prepared);
+  const result = evaluateRequiredSubmissionMethod(prepared, zkConfigNonce);
   if ('refused' in result) {
     throw new EscrowSubmissionRefusedError(result.refused);
   }

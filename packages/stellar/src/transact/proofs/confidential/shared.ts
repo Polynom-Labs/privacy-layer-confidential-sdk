@@ -1,7 +1,7 @@
 import type { CoinData, DepositSlot } from '@auditable/privacy-pool-zk-sdk';
 import { buildRecipientAndOptionalChangeDeposits } from './recipient-change-deposits.js';
 import { withTokenAddressPublicInputs } from '../../proofs/transaction-input.js';
-import { senderWithdrawFrAndScalar } from '../../proofs/confidential/helpers.js';
+import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-key-scalar-from-recipient-hex.js';
 import { recipientPublicKeysDecimalFromPrivateAddress } from '../../private-address/codec.js';
 import type {
   TransferEscrowClaimantLimbs,
@@ -103,8 +103,6 @@ async function buildTransferDepositsAndPublicInput(parameters: {
   selfPrivateAddressStpl1ForChange: string | undefined;
   tokenAddress: string;
   stateRoot: string;
-  withdrawAddressHi: string;
-  withdrawAddressLo: string;
   privKeyScalar: string;
   escrowSend?: TransferEscrowSend;
   escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
@@ -129,8 +127,6 @@ async function buildTransferDepositsAndPublicInput(parameters: {
   const publicInput = withTokenAddressPublicInputs(
     {
       stateRoot: parameters.stateRoot,
-      withdrawAddressHi: parameters.withdrawAddressHi,
-      withdrawAddressLo: parameters.withdrawAddressLo,
       privKeyScalar: parameters.privKeyScalar,
       ...publicEscrowRecipientLimbs(parameters),
       ...sweepOutputOwnerFields(parameters),
@@ -146,7 +142,6 @@ async function buildTransferDepositsAndPublicInput(parameters: {
 }
 
 export async function buildSenderTransferDepositsAndPublicInput(parameters: {
-  senderGAddress: string;
   senderPrivKeyScalarHex: string;
   recipientPrivateAddressStpl1: string;
   transferStroops: bigint;
@@ -157,10 +152,6 @@ export async function buildSenderTransferDepositsAndPublicInput(parameters: {
   escrowSend?: TransferEscrowSend;
   escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
 }): ReturnType<typeof buildTransferDepositsAndPublicInput> {
-  const { hi, lo, privKeyScalar } = senderWithdrawFrAndScalar({
-    senderGAddress: parameters.senderGAddress,
-    senderPrivKeyScalarHex: parameters.senderPrivKeyScalarHex,
-  });
   return buildTransferDepositsAndPublicInput({
     recipientPrivateAddressStpl1: parameters.recipientPrivateAddressStpl1,
     transferStroops: parameters.transferStroops,
@@ -168,9 +159,9 @@ export async function buildSenderTransferDepositsAndPublicInput(parameters: {
     selfPrivateAddressStpl1ForChange: parameters.selfPrivateAddressStpl1ForChange,
     tokenAddress: parameters.tokenAddress,
     stateRoot: parameters.stateRoot,
-    withdrawAddressHi: hi,
-    withdrawAddressLo: lo,
-    privKeyScalar,
+    privKeyScalar: privKeyScalarDecimalFromRecipientScalarHex(
+      parameters.senderPrivKeyScalarHex,
+    ),
     ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
     ...(parameters.escrowClaimantLimbs
       ? { escrowClaimantLimbs: parameters.escrowClaimantLimbs }

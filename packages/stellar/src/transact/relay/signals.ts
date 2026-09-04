@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer';
+import { DEFAULT_ZK_CONFIG_NONCE } from '../environment/zk-config-nonce.js';
 import {
   RELAY_TRANSACT_FIELD_BYTES,
   RELAY_TRANSACT_SIGNAL_PREFIX_BYTES,
@@ -20,7 +21,7 @@ function hasSupportedLengthPrefix(bytes: Buffer, signalCount: number): boolean {
 
 export function assertSupportedPublicSignals(
   publicSignals: string,
-  zkConfigNonce: bigint = 0n,
+  zkConfigNonce: bigint = DEFAULT_ZK_CONFIG_NONCE,
 ): void {
   const profile = relayLayoutProfileForNonce(zkConfigNonce);
   const bytes = decodePublicSignalBytes(publicSignals);
@@ -38,7 +39,7 @@ export function assertSupportedPublicSignals(
 
 export function sliceSupportedPublicSignalFields(
   publicSignals: string,
-  zkConfigNonce: bigint = 0n,
+  zkConfigNonce: bigint = DEFAULT_ZK_CONFIG_NONCE,
 ): Buffer[] {
   assertSupportedPublicSignals(publicSignals, zkConfigNonce);
   const profile = relayLayoutProfileForNonce(zkConfigNonce);
