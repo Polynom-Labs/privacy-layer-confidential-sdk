@@ -61,10 +61,12 @@ export function parseAuditPublicKeyFromEnvHex(raw: string): AuditPublicKey {
 export function buildPoolTransactionAuditParameters(input: {
   applicationId: string;
   auditPublicKey?: AuditPublicKey;
+  nAuditSlots?: number;
 }): TransactionAuditParams {
   return resolveTransactionAuditParams(
     input.applicationId,
     input.auditPublicKey ?? DEMO_AUDIT_PUBLIC_KEY,
+    input.nAuditSlots,
   );
 }
 

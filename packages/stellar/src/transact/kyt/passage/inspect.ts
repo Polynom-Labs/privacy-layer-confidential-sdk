@@ -1,4 +1,7 @@
-import type { InspectKytPassageApproved } from '@auditable/privacy-pool-zk-sdk';
+import {
+  layoutForKnownNonce,
+  type InspectKytPassageApproved,
+} from '@auditable/privacy-pool-zk-sdk';
 import { resolvePoolApplicationId } from '../../audit/parameters.js';
 import type { KytApplicationIdHints } from '../../pool/proof-types.js';
 import { KytInspectError, parseKytReasonCode } from '../inspect-error.js';
@@ -6,6 +9,7 @@ import type { StellarTransactEnvironment } from '../../environment/types.js';
 import { fetchCurrentLedger } from './poll.js';
 import { registerKytPassage } from './submit.js';
 import { resolveZkConfigNonce } from '../../environment/zk-config-nonce.js';
+import { uniformApplicationIdHints } from '../../zk/slots.js';
 
 type KytInspectResponse =
   | InspectKytPassageApproved
@@ -38,8 +42,9 @@ export interface RequestKytPassageForPoolInteractionInput {
 
 function buildApplicationIdHints(
   applicationId: string,
-): [string, string, string, string] {
-  return [applicationId, applicationId, applicationId, applicationId];
+  nAuditSlots: number,
+): KytApplicationIdHints {
+  return uniformApplicationIdHints(applicationId, nAuditSlots);
 }
 
 function buildNonce(): string {
@@ -82,16 +87,12 @@ function inspectRequestHeaders(inspectAuthorization?: string): Record<string, st
   };
 }
 
-export async function requestKytPassageForPoolInteraction(
+async function postKytInspect(
   input: RequestKytPassageForPoolInteractionInput,
-): Promise<InspectKytPassageApproved> {
-  const applicationId = resolvePoolApplicationId(
-    input.transactEnvironment.network.applicationId,
-  );
-  const applicationIdsPlaintext =
-    input.applicationIdsPlaintext ?? buildApplicationIdHints(applicationId);
-  const kytRegistry = input.transactEnvironment.kyt.kytPassageRegistryContract;
-  const currentLedger = await fetchCurrentLedger(input.sorobanRpcUrl);
+  applicationIdsPlaintext: KytApplicationIdHints,
+  zkConfigNonce: bigint,
+  currentLedger: number,
+): Promise<KytInspectResponse> {
   const response = await fetch(
     `${input.transactEnvironment.kyt.apiBaseUrl}/kyt/passages/inspect`,
     {
@@ -103,20 +104,42 @@ export async function requestKytPassageForPoolInteraction(
         {
           owner: input.owner,
           poolContract: input.poolContract,
-          kytRegistry,
+          kytRegistry: input.transactEnvironment.kyt.kytPassageRegistryContract,
           proofBytes: input.proofHex,
           publicSignalsBytes: input.publicHex,
           applicationIdsPlaintext,
           decryptedAuditSlots: input.decryptedAuditSlots,
           nonce: buildNonce(),
-          zkConfigNonce: resolveZkConfigNonce(input.transactEnvironment),
+          zkConfigNonce,
           currentLedger,
         },
         kytJsonReplacer,
       ),
     },
   );
-  const body = await parseInspectResponse(response);
+  return parseInspectResponse(response);
+}
+
+export async function requestKytPassageForPoolInteraction(
+  input: RequestKytPassageForPoolInteractionInput,
+): Promise<InspectKytPassageApproved> {
+  const applicationId = resolvePoolApplicationId(
+    input.transactEnvironment.network.applicationId,
+  );
+  const zkConfigNonce = resolveZkConfigNonce(input.transactEnvironment);
+  const applicationIdsPlaintext =
+    input.applicationIdsPlaintext ??
+    buildApplicationIdHints(
+      applicationId,
+      layoutForKnownNonce(zkConfigNonce).nAuditSlots,
+    );
+  const currentLedger = await fetchCurrentLedger(input.sorobanRpcUrl);
+  const body = await postKytInspect(
+    input,
+    applicationIdsPlaintext,
+    zkConfigNonce,
+    currentLedger,
+  );
   if (body.status !== 'approved') {
     throwKytInspectRejected(body);
   }

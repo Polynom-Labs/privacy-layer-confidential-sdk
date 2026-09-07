@@ -5,6 +5,12 @@ import type {
   StateFile,
 } from '@auditable/privacy-pool-zk-sdk';
 import { buildPublicWithdrawLegs } from '../../proofs/transaction-input.js';
+import {
+  buildApplicationIdHints,
+  padDepositSlotsToLayout,
+  padPublicLegsToLayout,
+  padWithdrawSlotsToLayout,
+} from '../../zk/slots.js';
 import { MIN_CONFIDENTIAL_TRANSFER_STROOPS } from '../../proofs/confidential/helpers.js';
 import { buildPoolTransactionAuditParameters } from '../../audit/parameters.js';
 import {
@@ -44,12 +50,15 @@ async function proveSingleWithdrawTransaction(parameters: {
     parameters.publicInput as unknown as Parameters<
       typeof parameters.sdk.proveTransaction
     >[0],
-    buildPublicWithdrawLegs(
-      parameters.tokenAddress,
-      parameters.withdrawAmountStroops.toString(),
+    padPublicLegsToLayout(
+      parameters.sdk,
+      buildPublicWithdrawLegs(
+        parameters.tokenAddress,
+        parameters.withdrawAmountStroops.toString(),
+      ),
     ),
-    [parameters.primaryWithdraw, 'dummy'],
-    parameters.deposits,
+    padWithdrawSlotsToLayout(parameters.sdk, [parameters.primaryWithdraw]),
+    padDepositSlotsToLayout(parameters.sdk, parameters.deposits),
     parameters.audit,
   );
 }
@@ -80,7 +89,7 @@ function buildPrimaryWithdrawForCoin(parameters: {
   return { witness, primaryWithdraw };
 }
 
-async function prepareSingleWithdrawProofInputs(parameters: {
+type SingleWithdrawProofInputParams = {
   sdk: PrivacyPoolSDK;
   applicationId: string;
   buildAlignedDepositSlot: AlignedDepositSlotBuilder;
@@ -93,7 +102,11 @@ async function prepareSingleWithdrawProofInputs(parameters: {
   changePrivateAddressStpl1: string | undefined;
   tokenAddress: string;
   auditPublicKey?: [string, string];
-}) {
+};
+
+async function prepareSingleWithdrawProofInputs(
+  parameters: SingleWithdrawProofInputParams,
+) {
   const changeStroops = validateSingleWithdrawAmounts(
     parameters.withdrawAmountStroops,
     BigInt(parameters.coin.value),
@@ -118,16 +131,18 @@ async function prepareSingleWithdrawProofInputs(parameters: {
     tokenAddress: parameters.tokenAddress,
     publicWithdrawalAmount: parameters.withdrawAmountStroops.toString(),
   });
-  const audit = buildPoolTransactionAuditParameters({
-    applicationId: parameters.applicationId,
-    ...(parameters.auditPublicKey ? { auditPublicKey: parameters.auditPublicKey } : {}),
-  });
   return {
     primaryWithdraw,
     deposits,
     changeCoin,
     publicInput,
-    audit,
+    audit: buildPoolTransactionAuditParameters({
+      applicationId: parameters.applicationId,
+      nAuditSlots: parameters.sdk.getLayout().nAuditSlots,
+      ...(parameters.auditPublicKey
+        ? { auditPublicKey: parameters.auditPublicKey }
+        : {}),
+    }),
   };
 }
 
@@ -163,12 +178,11 @@ export async function proveWithdrawTransact(parameters: {
   });
   return {
     ...proof,
-    applicationIdsPlaintext: [
-      parameters.applicationId,
-      '0',
-      changeCoin ? parameters.applicationId : '0',
-      '0',
-    ],
+    applicationIdsPlaintext: buildApplicationIdHints({
+      sdk: parameters.sdk,
+      inputIds: [parameters.applicationId],
+      outputIds: [changeCoin ? parameters.applicationId : '0'],
+    }),
     ...(changeCoin ? { changeCoin } : {}),
   };
 }
@@ -185,22 +199,24 @@ export async function proveWithdrawTransactDual(
     await prepareDualWithdrawProofInputs(parameters);
   const proof = await parameters.sdk.proveTransaction(
     publicInput as unknown as Parameters<typeof parameters.sdk.proveTransaction>[0],
-    buildPublicWithdrawLegs(
-      parameters.tokenAddress,
-      parameters.withdrawAmountStroops.toString(),
+    padPublicLegsToLayout(
+      parameters.sdk,
+      buildPublicWithdrawLegs(
+        parameters.tokenAddress,
+        parameters.withdrawAmountStroops.toString(),
+      ),
     ),
-    withdrawLegs,
-    deposits,
+    padWithdrawSlotsToLayout(parameters.sdk, withdrawLegs),
+    padDepositSlotsToLayout(parameters.sdk, deposits),
     audit,
   );
   return {
     ...proof,
-    applicationIdsPlaintext: [
-      audit.applicationId,
-      audit.applicationId,
-      changeCoin ? audit.applicationId : '0',
-      '0',
-    ],
+    applicationIdsPlaintext: buildApplicationIdHints({
+      sdk: parameters.sdk,
+      inputIds: [audit.applicationId, audit.applicationId],
+      outputIds: [changeCoin ? audit.applicationId : '0'],
+    }),
     ...(changeCoin ? { changeCoin } : {}),
   };
 }

@@ -140,6 +140,12 @@ describe('relay signal-layout vectors', () => {
     expect(profile.indices.publicWithdrawal).toBe(vector.indices.publicWithdrawal);
   });
 
+  it('derives the nonce-6 259-signal 6x6 profile', () => {
+    const profile = relayLayoutProfileForNonce(6n);
+    expect(profile.signalCount).toBe(259);
+    expect(profile.indices.stateRoot).toBe(246);
+  });
+
   it('fails closed for an unknown ZK nonce', () => {
     expect(() => relayLayoutProfileForNonce(1n)).toThrow(/unknown zk config nonce/i);
   });

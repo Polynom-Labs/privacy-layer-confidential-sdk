@@ -50,9 +50,16 @@ export type {
 export {
   COMMITMENT_V2_ZK_NONCE,
   DEFAULT_ZK_CONFIG_NONCE,
+  SIX_BY_SIX_ZK_NONCE,
   STANDARD_ZK_CONFIG_NONCE,
   resolveZkConfigNonce,
 } from './environment/zk-config-nonce.js';
+export { BundledZkCircuit, DEFAULT_STELLAR_ZK_CIRCUITS } from './zk/circuit-config.js';
+export type {
+  StellarBundledZkCircuitDefinition,
+  StellarCustomZkCircuitDefinition,
+  StellarZkCircuitDefinition,
+} from './zk/circuit-config.js';
 export {
   generateRandomDepositScalarHex,
   generateTemporaryRecipientPrivateAddress,

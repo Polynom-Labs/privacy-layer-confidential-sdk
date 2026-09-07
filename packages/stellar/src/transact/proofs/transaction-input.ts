@@ -102,35 +102,54 @@ export function assetLegToTokenAddress(assetHi: string, assetLo: string): string
   return StrKey.encodeContract(payload);
 }
 
-export function buildZeroPublicLegs(): TransactionPublicLegParameters {
+export function buildZeroPublicLegs(
+  publicNInputs = 1,
+  publicNOutputs = 1,
+): TransactionPublicLegParameters {
   return {
-    publicWithdrawnAssets: [['0', '0']],
-    publicDepositedAssets: [['0', '0']],
-    publicDeposits: ['0'],
-    publicWithdrawals: ['0'],
+    publicWithdrawnAssets: Array.from(
+      { length: publicNOutputs },
+      () => ['0', '0'] as [string, string],
+    ),
+    publicDepositedAssets: Array.from(
+      { length: publicNInputs },
+      () => ['0', '0'] as [string, string],
+    ),
+    publicDeposits: Array.from({ length: publicNInputs }, () => '0'),
+    publicWithdrawals: Array.from({ length: publicNOutputs }, () => '0'),
   };
 }
 
 export function buildPublicDepositLegs(
   tokenAddress: string,
   amount: string,
+  publicNInputs = 1,
+  publicNOutputs = 1,
 ): TransactionPublicLegParameters {
-  const legs = buildZeroPublicLegs();
+  const legs = buildZeroPublicLegs(publicNInputs, publicNOutputs);
   return {
     ...legs,
-    publicDepositedAssets: [tokenAddressToAssetLeg(tokenAddress)],
-    publicDeposits: [amount],
+    publicDepositedAssets: [
+      tokenAddressToAssetLeg(tokenAddress),
+      ...legs.publicDepositedAssets.slice(1),
+    ],
+    publicDeposits: [amount, ...legs.publicDeposits.slice(1)],
   };
 }
 
 export function buildPublicWithdrawLegs(
   tokenAddress: string,
   amount: string,
+  publicNInputs = 1,
+  publicNOutputs = 1,
 ): TransactionPublicLegParameters {
-  const legs = buildZeroPublicLegs();
+  const legs = buildZeroPublicLegs(publicNInputs, publicNOutputs);
   return {
     ...legs,
-    publicWithdrawnAssets: [tokenAddressToAssetLeg(tokenAddress)],
-    publicWithdrawals: [amount],
+    publicWithdrawnAssets: [
+      tokenAddressToAssetLeg(tokenAddress),
+      ...legs.publicWithdrawnAssets.slice(1),
+    ],
+    publicWithdrawals: [amount, ...legs.publicWithdrawals.slice(1)],
   };
 }

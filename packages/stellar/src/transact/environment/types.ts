@@ -5,6 +5,7 @@ import type {
   PoolMerkleStatePort,
 } from '../merkle/state-port.js';
 import type { StellarSignTransaction } from '../../contracts/signing.js';
+import type { StellarZkCircuitDefinition } from '../zk/circuit-config.js';
 
 export interface TransferTemporaryRecipientKey {
   temporaryScalarHex: string;
@@ -47,6 +48,11 @@ export interface StellarTransactEnvironment {
    * layout and must be passed explicitly.
    */
   zkConfigNonce?: bigint;
+  /**
+   * Optional nonce-keyed circuit map. Defaults to the SDK bundled 2×2 (nonce 2)
+   * and 6×6 (nonce 6) schemes. URL fields are only for a custom/dev circuit.
+   */
+  zkCircuits?: Record<string, StellarZkCircuitDefinition>;
   auditPublicKey?: AuditPublicKey;
   kyt: StellarKytEnvironment;
   signTransaction?: StellarSignTransaction;

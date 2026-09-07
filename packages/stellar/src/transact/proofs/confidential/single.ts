@@ -2,6 +2,12 @@ import type { CoinData, StateFile } from '@auditable/privacy-pool-zk-sdk';
 import { getPrivacyPoolService } from '../../pool/singleton.js';
 import { buildZeroPublicLegs } from '../../proofs/transaction-input.js';
 import {
+  buildApplicationIdHints,
+  padDepositSlotsToLayout,
+  padPublicLegsToLayout,
+  padWithdrawSlotsToLayout,
+} from '../../zk/slots.js';
+import {
   MIN_CONFIDENTIAL_TRANSFER_STROOPS,
   requireChangeRecipientWhenPartial,
   withdrawWitnessForCoin,
@@ -64,19 +70,26 @@ function validateSingleCoinTransferAmounts(
 }
 
 function buildSingleTransferApplicationIds(
+  sdk: InitializedPrivacySdk,
   applicationId: string,
   changeCoin?: GeneratedOutputCoin,
 ): KytApplicationIdHints {
-  return [applicationId, '0', applicationId, changeCoin ? applicationId : '0'];
+  return buildApplicationIdHints({
+    sdk,
+    inputIds: [applicationId],
+    outputIds: [applicationId, changeCoin ? applicationId : '0'],
+  });
 }
 
 function buildTransferAuditParameters(parameters: {
   poolService: ReturnType<typeof getPrivacyPoolService>;
   applicationId: string;
+  nAuditSlots: number;
 }) {
   const auditPublicKey = parameters.poolService.getAuditPublicKey();
   return buildPoolTransactionAuditParameters({
     applicationId: parameters.applicationId,
+    nAuditSlots: parameters.nAuditSlots,
     ...(auditPublicKey ? { auditPublicKey } : {}),
   });
 }
@@ -92,9 +105,9 @@ async function proveTransaction(parameters: {
     parameters.publicInput as unknown as Parameters<
       typeof parameters.sdk.proveTransaction
     >[0],
-    buildZeroPublicLegs(),
-    [parameters.withdrawObject, 'dummy'],
-    parameters.deposits,
+    padPublicLegsToLayout(parameters.sdk, buildZeroPublicLegs()),
+    padWithdrawSlotsToLayout(parameters.sdk, [parameters.withdrawObject]),
+    padDepositSlotsToLayout(parameters.sdk, parameters.deposits),
     parameters.audit,
   );
 }
@@ -181,7 +194,11 @@ export async function prepareConfidentialTransferProof(
       input: parameters,
       noteStroops,
     });
-  const audit = buildTransferAuditParameters({ poolService, applicationId });
+  const audit = buildTransferAuditParameters({
+    poolService,
+    applicationId,
+    nAuditSlots: sdk.getLayout().nAuditSlots,
+  });
   const proof = await proveTransaction({
     sdk,
     publicInput,
@@ -192,6 +209,7 @@ export async function prepareConfidentialTransferProof(
   return {
     ...proof,
     applicationIdsPlaintext: buildSingleTransferApplicationIds(
+      sdk,
       applicationId,
       changeCoin,
     ),

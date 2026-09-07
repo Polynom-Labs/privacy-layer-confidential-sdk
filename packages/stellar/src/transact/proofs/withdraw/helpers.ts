@@ -106,11 +106,11 @@ export async function resolveWithdrawChangeDeposits(parameters: {
   buildAlignedDepositSlot: AlignedDepositSlotBuilder;
   tokenAddress: string;
 }): Promise<{
-  deposits: [DepositSlot, DepositSlot];
+  deposits: DepositSlot[];
   changeCoin?: WithdrawChangeCoin;
 }> {
   if (parameters.changeStroops <= ZERO_STROOPS) {
-    return { deposits: ['dummy', 'dummy'] };
+    return { deposits: [] };
   }
   const stpl1 = parameters.changePrivateAddressStpl1?.trim() ?? '';
   if (!stpl1) {
@@ -124,7 +124,7 @@ export async function resolveWithdrawChangeDeposits(parameters: {
     tokenAddress: parameters.tokenAddress,
   });
   return {
-    deposits: [slot.deposit, 'dummy'],
+    deposits: [slot.deposit],
     changeCoin: {
       commitment_hex: slot.commitment_hex,
       coin: slot.coin,
@@ -170,7 +170,7 @@ type DualWithdrawProofInputs = {
   publicInput: ReturnType<typeof withTokenAddressPublicInputs>;
   audit: TransactionAuditParams;
   withdrawLegs: [WithdrawObject, WithdrawObject];
-  deposits: [DepositSlot, DepositSlot];
+  deposits: DepositSlot[];
   changeCoin?: WithdrawChangeCoin;
 };
 
@@ -210,6 +210,7 @@ export async function prepareDualWithdrawProofInputs(
   });
   const audit = buildPoolTransactionAuditParameters({
     applicationId: parameters.applicationId,
+    nAuditSlots: parameters.sdk.getLayout().nAuditSlots,
     ...(parameters.auditPublicKey ? { auditPublicKey: parameters.auditPublicKey } : {}),
   });
   return {

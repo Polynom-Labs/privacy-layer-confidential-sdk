@@ -50,8 +50,6 @@ export async function createTestClient(
       state: stateAdapter,
       assets: {
         sdkWasm: new ArrayBuffer(8),
-        circuitWasm: new ArrayBuffer(8),
-        provingKey: new ArrayBuffer(8),
       },
       transactEngine: overrides.engine ?? createFakeTransactEngine(),
       ...(overrides.policy ? { policy: overrides.policy } : {}),

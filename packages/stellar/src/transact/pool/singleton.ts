@@ -1,15 +1,20 @@
 import type { StellarBrowserAssets } from '../../types.js';
 import { PrivacyPoolService } from '../pool/service.js';
+import type { StellarZkCircuitDefinition } from '../zk/circuit-config.js';
 
 export function createPrivacyPoolService(input?: {
   assets?: StellarBrowserAssets;
   applicationId?: string;
   auditPublicKey?: [string, string];
+  zkCircuits?: Record<string, StellarZkCircuitDefinition>;
+  zkConfigNonce?: bigint;
 }): PrivacyPoolService {
   return new PrivacyPoolService(
     input?.assets,
     input?.applicationId,
     input?.auditPublicKey,
+    input?.zkCircuits,
+    input?.zkConfigNonce,
   );
 }
 

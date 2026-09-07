@@ -13,7 +13,7 @@ const FIELD_BYTES = 32;
 const SUPPORTED_SIGNAL_COUNT = 95;
 const PUBLIC_DEPOSIT_INDEX = 93;
 const PROOF_BYTES = 'aabbccddeeff';
-const APPLICATION_ID_HINTS: [string, string, string, string] = ['101', '101', '0', '0'];
+const APPLICATION_ID_HINTS: string[] = ['101', '101', '0', '0'];
 
 const PUBLIC_DISCLOSURE = {
   senderAddress: 'public' as const,

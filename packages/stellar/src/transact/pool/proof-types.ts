@@ -8,7 +8,7 @@ export type AlignedDepositSlot = {
   precommitementHex: string;
 };
 
-export type KytApplicationIdHints = [string, string, string, string];
+export type KytApplicationIdHints = string[];
 
 export type ProofResult = {
   proof_hex: string;

@@ -2,6 +2,12 @@ import type { CoinData, StateFile } from '@auditable/privacy-pool-zk-sdk';
 import { getPrivacyPoolService } from '../../pool/singleton.js';
 import { buildZeroPublicLegs } from '../../proofs/transaction-input.js';
 import {
+  buildApplicationIdHints,
+  padDepositSlotsToLayout,
+  padPublicLegsToLayout,
+  padWithdrawSlotsToLayout,
+} from '../../zk/slots.js';
+import {
   changeStroopsAfterDualTransfer,
   dualWithdrawLegsWithSharedRoot,
   requireChangeRecipientWhenPartial,
@@ -73,15 +79,17 @@ function stampDualWithdrawLegs(
 }
 
 function buildDualTransferApplicationIds(
+  sdk: Awaited<
+    ReturnType<ReturnType<typeof getPrivacyPoolService>['getInitializedSdk']>
+  >,
   applicationId: string,
   changeCoin?: GeneratedOutputCoin,
 ): KytApplicationIdHints {
-  return [
-    applicationId,
-    applicationId,
-    applicationId,
-    changeCoin ? applicationId : '0',
-  ];
+  return buildApplicationIdHints({
+    sdk,
+    inputIds: [applicationId, applicationId],
+    outputIds: [applicationId, changeCoin ? applicationId : '0'],
+  });
 }
 
 async function proveDualConfidentialTransfer(parameters: {
@@ -101,15 +109,19 @@ async function proveDualConfidentialTransfer(parameters: {
 }) {
   const audit = buildPoolTransactionAuditParameters({
     applicationId: parameters.applicationId,
+    nAuditSlots: parameters.sdk.getLayout().nAuditSlots,
     ...(parameters.auditPublicKey ? { auditPublicKey: parameters.auditPublicKey } : {}),
   });
   return parameters.sdk.proveTransaction(
     parameters.publicInput as unknown as Parameters<
       typeof parameters.sdk.proveTransaction
     >[0],
-    buildZeroPublicLegs(),
-    [parameters.legA.withdrawObject, parameters.legB.withdrawObject],
-    parameters.deposits,
+    padPublicLegsToLayout(parameters.sdk, buildZeroPublicLegs()),
+    padWithdrawSlotsToLayout(parameters.sdk, [
+      parameters.legA.withdrawObject,
+      parameters.legB.withdrawObject,
+    ]),
+    padDepositSlotsToLayout(parameters.sdk, parameters.deposits),
     audit,
   );
 }
@@ -190,7 +202,11 @@ export async function prepareConfidentialTransferProofDual(
       }));
   return {
     ...proof,
-    applicationIdsPlaintext: buildDualTransferApplicationIds(applicationId, changeCoin),
+    applicationIdsPlaintext: buildDualTransferApplicationIds(
+      sdk,
+      applicationId,
+      changeCoin,
+    ),
     recipientCoin: generatedOutputCoinFromSlot(recipientSlot),
     ...(changeCoin ? { changeCoin } : {}),
   };

@@ -12,16 +12,33 @@ import type {
   StellarTransactEngine,
 } from '../../types.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
+import { resolveZkConfigNonce } from '../environment/zk-config-nonce.js';
+import { materializeSelectedZkCircuit } from '../zk/circuit-config.js';
+
+async function privacyPoolInitOptions(
+  assets: StellarBrowserAssets,
+  transactEnvironment?: StellarTransactEnvironment,
+): Promise<Parameters<typeof PrivacyPoolSDK.init>[0]> {
+  if (!transactEnvironment) {
+    return { wasmBinary: assets.sdkWasm };
+  }
+  const zkConfigNonce = resolveZkConfigNonce(transactEnvironment);
+  const zkCircuits = await materializeSelectedZkCircuit(
+    transactEnvironment.zkCircuits,
+    zkConfigNonce,
+  );
+  return {
+    wasmBinary: assets.sdkWasm,
+    zkCircuits,
+    zkConfigNonce,
+  };
+}
 
 export async function createDefaultTransactEngine(
   assets: StellarBrowserAssets,
   transactEnvironment?: StellarTransactEnvironment,
 ): Promise<StellarTransactEngine> {
-  await PrivacyPoolSDK.init({
-    wasmBinary: assets.sdkWasm,
-    circuitWasm: assets.circuitWasm,
-    zkey: assets.provingKey,
-  });
+  await PrivacyPoolSDK.init(await privacyPoolInitOptions(assets, transactEnvironment));
 
   if (transactEnvironment) {
     configurePrivacyPoolService(
@@ -31,6 +48,12 @@ export async function createDefaultTransactEngine(
         ...(transactEnvironment.auditPublicKey
           ? { auditPublicKey: transactEnvironment.auditPublicKey }
           : {}),
+        ...(transactEnvironment.zkCircuits
+          ? { zkCircuits: transactEnvironment.zkCircuits }
+          : {}),
+        ...(transactEnvironment.zkConfigNonce === undefined
+          ? {}
+          : { zkConfigNonce: transactEnvironment.zkConfigNonce }),
       }),
     );
     return createBrowserStellarTransactEngine({

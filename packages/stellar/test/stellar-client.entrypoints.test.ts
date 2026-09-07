@@ -38,8 +38,6 @@ describe('entrypoints', () => {
     const { loadNodeAssets } = await import('../src/assets/load-node.js');
     const assets = await loadNodeAssets({
       sdkWasmPath: new URL('../test/fixtures/tiny.wasm', import.meta.url).pathname,
-      circuitWasmPath: new URL('../test/fixtures/tiny.wasm', import.meta.url).pathname,
-      provingKeyPath: new URL('../test/fixtures/tiny.zkey', import.meta.url).pathname,
     });
     expect(assets.sdkWasm.byteLength).toBeGreaterThan(0);
   });

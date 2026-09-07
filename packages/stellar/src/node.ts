@@ -34,7 +34,7 @@ export async function createStellarPrivacyClientFromNodeConfig(
       return input.transactEngine;
     }
     const browserAssets = await loadNodeAssets(input.assets);
-    return createDefaultTransactEngine(browserAssets);
+    return createDefaultTransactEngine(browserAssets, input.transactEnvironment);
   });
 
   if (!resolved.ok) {

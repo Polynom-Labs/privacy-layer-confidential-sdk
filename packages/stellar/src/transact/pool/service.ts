@@ -3,8 +3,9 @@ import {
   decodeDecodedEphemeralKey,
   randomFrDecimal253,
   scalarHexToFrDecimal,
+  type CoinData,
+  type StateFile,
 } from '@auditable/privacy-pool-zk-sdk';
-import type { CoinData, StateFile } from '@auditable/privacy-pool-zk-sdk';
 import { merkleRootBufferToFrDecimal } from '../merkle/field-decimal.js';
 import {
   privateAddressSdk,
@@ -25,10 +26,19 @@ import {
   resolvePoolApplicationId,
 } from '../audit/parameters.js';
 import type { StellarBrowserAssets } from '../../types.js';
-import { PrivacyPoolSDK as PrivacyPoolSdkClass } from '@auditable/privacy-pool-zk-sdk';
+import {
+  materializeSelectedZkCircuit,
+  type StellarZkCircuitDefinition,
+} from '../zk/circuit-config.js';
+import { DEFAULT_ZK_CONFIG_NONCE } from '../environment/zk-config-nonce.js';
+import {
+  buildApplicationIdHints,
+  padDepositSlotsToLayout,
+  padPublicLegsToLayout,
+  padWithdrawSlotsToLayout,
+} from '../zk/slots.js';
 import type {
   AlignedDepositSlot,
-  KytApplicationIdHints,
   ProofResult,
   ProofWithChange,
 } from '../pool/proof-types.js';
@@ -42,6 +52,8 @@ export class PrivacyPoolService {
     private readonly assets?: StellarBrowserAssets,
     private readonly applicationId?: string,
     private readonly auditPublicKey?: [string, string],
+    private readonly zkCircuits?: Record<string, StellarZkCircuitDefinition>,
+    private readonly zkConfigNonce?: bigint,
   ) {}
 
   private async ensureInit(): Promise<void> {
@@ -57,10 +69,15 @@ export class PrivacyPoolService {
           'PrivacyPoolService requires browser ZK assets before initialization.',
         );
       }
-      this.sdk = await PrivacyPoolSdkClass.init({
+      const zkConfigNonce = this.zkConfigNonce ?? DEFAULT_ZK_CONFIG_NONCE;
+      const zkCircuits = await materializeSelectedZkCircuit(
+        this.zkCircuits,
+        zkConfigNonce,
+      );
+      this.sdk = await PrivacyPoolSDK.init({
         wasmBinary: this.assets.sdkWasm,
-        circuitWasm: this.assets.circuitWasm,
-        zkey: this.assets.provingKey,
+        zkCircuits,
+        zkConfigNonce,
       });
     })();
     return this.initPromise;
@@ -86,11 +103,8 @@ export class PrivacyPoolService {
     signature: string,
     domain: SpendScalarDomain,
   ): Promise<string> {
-    await this.ensureInit();
-    if (!this.sdk) {
-      throw new Error('SDK not initialized');
-    }
-    return privateAddressSdk(this.sdk).generatePrivateAddressFromStellarSignature(
+    const sdk = await this.getInitializedSdk();
+    return privateAddressSdk(sdk).generatePrivateAddressFromStellarSignature(
       signature,
       domain,
     );
@@ -100,12 +114,9 @@ export class PrivacyPoolService {
     recipientScalarHex: string,
     ephemeralKeyEncoded: string,
   ): Promise<string> {
-    await this.ensureInit();
-    if (!this.sdk) {
-      throw new Error('SDK not initialized');
-    }
+    const sdk = await this.getInitializedSdk();
     const ephemeralKey = decodeDecodedEphemeralKey(ephemeralKeyEncoded);
-    const shared = this.sdk.sharedSecretFromRecipientPreimage({
+    const shared = sdk.sharedSecretFromRecipientPreimage({
       recipientScalar: recipientScalarHex,
       ephemeralKey,
     });
@@ -149,6 +160,7 @@ export class PrivacyPoolService {
     const applicationId = this.getApplicationId();
     const audit = buildPoolTransactionAuditParameters({
       applicationId,
+      nAuditSlots: sdk.getLayout().nAuditSlots,
       ...(this.auditPublicKey ? { auditPublicKey: this.auditPublicKey } : {}),
     });
     const deposit = {
@@ -168,17 +180,19 @@ export class PrivacyPoolService {
     );
     const proof = await sdk.proveTransaction(
       publicInput as unknown as Parameters<typeof sdk.proveTransaction>[0],
-      buildPublicDepositLegs(parameters.tokenAddress, parameters.coin.value),
-      ['dummy', 'dummy'],
-      [deposit, 'dummy'],
+      padPublicLegsToLayout(
+        sdk,
+        buildPublicDepositLegs(parameters.tokenAddress, parameters.coin.value),
+      ),
+      padWithdrawSlotsToLayout(sdk, []),
+      padDepositSlotsToLayout(sdk, [deposit]),
       audit,
     );
-    const applicationIdsPlaintext: KytApplicationIdHints = [
-      '0',
-      '0',
-      applicationId,
-      '0',
-    ];
+    const applicationIdsPlaintext = buildApplicationIdHints({
+      sdk,
+      inputIds: [],
+      outputIds: [applicationId],
+    });
     return { ...proof, applicationIdsPlaintext };
   }
 
@@ -199,12 +213,9 @@ export class PrivacyPoolService {
     changePrivateAddressStpl1: string | undefined;
     tokenAddress: string;
   }): Promise<ProofWithChange> {
-    await this.ensureInit();
-    if (!this.sdk) {
-      throw new Error('SDK not initialized');
-    }
+    const sdk = await this.getInitializedSdk();
     return proveWithdrawTransact({
-      sdk: this.sdk,
+      sdk,
       applicationId: this.getApplicationId(),
       buildAlignedDepositSlot: (input) => this.buildAlignedDepositSlot(input),
       ...(this.auditPublicKey ? { auditPublicKey: this.auditPublicKey } : {}),
@@ -223,12 +234,9 @@ export class PrivacyPoolService {
     changePrivateAddressStpl1: string | undefined;
     tokenAddress: string;
   }): Promise<ProofWithChange> {
-    await this.ensureInit();
-    if (!this.sdk) {
-      throw new Error('SDK not initialized');
-    }
+    const sdk = await this.getInitializedSdk();
     return proveWithdrawTransactDual({
-      sdk: this.sdk,
+      sdk,
       applicationId: this.getApplicationId(),
       buildAlignedDepositSlot: (input) => this.buildAlignedDepositSlot(input),
       ...(this.auditPublicKey ? { auditPublicKey: this.auditPublicKey } : {}),

@@ -95,8 +95,6 @@ export interface StellarNetworkConfig {
 
 export interface StellarBrowserAssets {
   sdkWasm: ArrayBuffer;
-  circuitWasm: ArrayBuffer;
-  provingKey: ArrayBuffer;
 }
 
 export interface StellarWalletAdapter {
