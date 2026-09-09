@@ -2,16 +2,19 @@ import { Buffer } from 'buffer';
 import { describe, expect, it } from 'vitest';
 import type { OperationKind } from '@arcanetech/privacy-sdk-core';
 import type { StellarPreparedOperation } from '../src/types.js';
+import { BINDING_ZK_NONCE } from '../src/transact/environment/zk-config-nonce.js';
 import {
   ESCROW_SUBMISSION_REFUSAL,
   EscrowSubmissionRefusedError,
   SUBMISSION_METHOD,
   requiredSubmissionMethod,
 } from '../src/transact/index.js';
+import { relayLayoutProfileForNonce } from '../src/transact/relay/layout-profile.js';
 
 const FIELD_BYTES = 32;
-const SUPPORTED_SIGNAL_COUNT = 95;
-const PUBLIC_DEPOSIT_INDEX = 93;
+const BINDING_LAYOUT = relayLayoutProfileForNonce(BINDING_ZK_NONCE);
+const SUPPORTED_SIGNAL_COUNT = BINDING_LAYOUT.signalCount;
+const PUBLIC_DEPOSIT_INDEX = BINDING_LAYOUT.indices.publicDeposit;
 const PROOF_BYTES = 'aabbccddeeff';
 const APPLICATION_ID_HINTS: string[] = ['101', '101', '0', '0'];
 

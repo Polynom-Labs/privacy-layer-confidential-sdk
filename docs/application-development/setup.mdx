@@ -48,7 +48,7 @@ export const wallet: StellarWalletAdapter = {
 
 ## Client bootstrap
 
-Load browser circuit assets, pass network configuration, and create the client once at startup.
+Load the bundled SDK WASM, pass network configuration, and create the client once at startup. Commitment V2 (nonce `2`) is the default; the SDK already includes bundled 2×2 and 6×6 circuit schemes. Pass `zkConfigNonce` only to select a non-default scheme. Custom circuit URLs are for development only.
 
 ```ts
 import {

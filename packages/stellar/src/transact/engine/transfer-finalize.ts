@@ -6,6 +6,7 @@ import { nullifierCheckSpendScalarHex } from '../escrow/require-escrow-spend-sca
 import { buildTransferProofAtExecute } from './transfer-proof-at-execute.js';
 import type { buildSpendProofContextAtExecute } from './spend-proof-context.js';
 import type { prepareConfidentialTransferProof } from '../proofs/confidential/single.js';
+import { ciphertextArtifactsFromProof } from '../pool/proof-types.js';
 
 function stampEscrowOutputRecords(input: {
   prepared: StellarPreparedOperation;
@@ -132,6 +133,7 @@ function buildTransferFinalizeArtifacts(input: {
   return {
     proofHex: input.proof.proof_hex,
     publicHex: input.proof.public_hex,
+    ...ciphertextArtifactsFromProof(input.proof),
     applicationIdsPlaintext: input.proof.applicationIdsPlaintext,
     tokenAddress: input.context.tokenAddress,
     walletPublicKey: input.context.walletPublicKey,

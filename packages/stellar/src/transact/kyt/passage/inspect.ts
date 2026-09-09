@@ -1,5 +1,6 @@
 import {
   layoutForKnownNonce,
+  zeroBindingTagsInPublicSignals,
   type InspectKytPassageApproved,
 } from '@auditable/privacy-pool-zk-sdk';
 import { resolvePoolApplicationId } from '../../audit/parameters.js';
@@ -33,6 +34,8 @@ export interface RequestKytPassageForPoolInteractionInput {
   poolContract: string;
   proofHex: string;
   publicHex: string;
+  ciphertextHex?: string;
+  outputNoteEphemeralScalars?: string[];
   decryptedAuditSlots?: DecryptedKytAuditSlot[];
   applicationIdsPlaintext?: KytApplicationIdHints;
   networkPassphrase: string;
@@ -106,12 +109,19 @@ async function postKytInspect(
           poolContract: input.poolContract,
           kytRegistry: input.transactEnvironment.kyt.kytPassageRegistryContract,
           proofBytes: input.proofHex,
-          publicSignalsBytes: input.publicHex,
+          publicSignalsBytes: zeroBindingTagsInPublicSignals(
+            input.publicHex,
+            zkConfigNonce,
+          ).toString('hex'),
           applicationIdsPlaintext,
           decryptedAuditSlots: input.decryptedAuditSlots,
           nonce: buildNonce(),
           zkConfigNonce,
           currentLedger,
+          ...(input.ciphertextHex ? { ciphertextBytes: input.ciphertextHex } : {}),
+          ...(input.outputNoteEphemeralScalars
+            ? { outputNoteEphemeralScalars: input.outputNoteEphemeralScalars }
+            : {}),
         },
         kytJsonReplacer,
       ),

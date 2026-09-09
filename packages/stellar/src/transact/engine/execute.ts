@@ -5,7 +5,10 @@ import type {
   StellarPreparedOperation,
 } from '../../types.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
-import type { ProofWithChange } from '../pool/proof-types.js';
+import {
+  ciphertextArtifactsFromProof,
+  type ProofWithChange,
+} from '../pool/proof-types.js';
 import type { PrivacyPoolService } from '../pool/service.js';
 import { serializeEphemeralKeyString } from '../encoding/ephemeral-key.js';
 import {
@@ -39,6 +42,7 @@ function buildWithdrawFinalizeArtifacts(
   return {
     proofHex: proof.proof_hex,
     publicHex: proof.public_hex,
+    ...ciphertextArtifactsFromProof(proof),
     applicationIdsPlaintext: proof.applicationIdsPlaintext,
     tokenAddress: context.tokenAddress,
     walletPublicKey: context.walletPublicKey,

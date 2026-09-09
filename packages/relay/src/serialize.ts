@@ -8,7 +8,9 @@ export type RelayPackageSerializable = {
   zkConfigNonce: { toString(): string } | string | number;
   proofBytes: string;
   publicSignals: string;
-  applicationIdHints: [string, string, string, string];
+  applicationIdHints: string[];
+  ciphertextBytes?: string;
+  outputNoteEphemeralScalars?: string[];
   escrowAuthorization?: string;
   keyVersionHints?: Array<number | undefined | null>;
 };
@@ -32,8 +34,14 @@ export function serializeRelayPackage(
     zkConfigNonce: nonceToString(source.zkConfigNonce),
     proofBytes: source.proofBytes,
     publicSignals: source.publicSignals,
-    applicationIdHints: source.applicationIdHints,
+    applicationIdHints: [...source.applicationIdHints],
   };
+  if (source.ciphertextBytes !== undefined) {
+    body.ciphertextBytes = source.ciphertextBytes;
+  }
+  if (source.outputNoteEphemeralScalars !== undefined) {
+    body.outputNoteEphemeralScalars = [...source.outputNoteEphemeralScalars];
+  }
   if (source.escrowAuthorization !== undefined) {
     body.escrowAuthorization = source.escrowAuthorization;
   }
@@ -60,16 +68,20 @@ function readHints(value: unknown): Array<number | undefined> | undefined {
   return value.map((entry) => (typeof entry === 'number' ? entry : undefined));
 }
 
-function readApplicationIdHints(
-  value: unknown,
-): RelayPackageJson['applicationIdHints'] | undefined {
-  if (!Array.isArray(value) || value.length !== 4) {
+function readStringArray(value: unknown): string[] | undefined {
+  if (!Array.isArray(value) || value.length === 0) {
     return undefined;
   }
   if (!value.every((entry) => typeof entry === 'string')) {
     return undefined;
   }
-  return value as RelayPackageJson['applicationIdHints'];
+  return value;
+}
+
+function readApplicationIdHints(
+  value: unknown,
+): RelayPackageJson['applicationIdHints'] | undefined {
+  return readStringArray(value);
 }
 
 function readWireRecord(payload: unknown): Record<string, unknown> | undefined {
@@ -109,6 +121,13 @@ export function deserializeRelayPackage(
     publicSignals: record.publicSignals,
     applicationIdHints,
   };
+  if (typeof record.ciphertextBytes === 'string') {
+    body.ciphertextBytes = record.ciphertextBytes;
+  }
+  const outputNoteEphemeralScalars = readStringArray(record.outputNoteEphemeralScalars);
+  if (outputNoteEphemeralScalars) {
+    body.outputNoteEphemeralScalars = outputNoteEphemeralScalars;
+  }
   if (typeof record.escrowAuthorization === 'string') {
     body.escrowAuthorization = record.escrowAuthorization;
   }

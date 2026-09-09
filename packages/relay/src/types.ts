@@ -37,7 +37,9 @@ export type RelayPackageJson = {
   zkConfigNonce: string;
   proofBytes: string;
   publicSignals: string;
-  applicationIdHints: [string, string, string, string];
+  applicationIdHints: string[];
+  ciphertextBytes?: string;
+  outputNoteEphemeralScalars?: string[];
   escrowAuthorization?: string;
   keyVersionHints?: Array<number | undefined>;
 };

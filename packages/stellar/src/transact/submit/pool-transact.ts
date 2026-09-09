@@ -13,6 +13,7 @@ export async function submitPoolTransact(parameters: {
   nonce: bigint;
   proofHex: string;
   publicHex: string;
+  ciphertextHex?: string;
   approval: InspectKytPassageApproved;
   networkPassphrase: string;
   sorobanRpcUrl: string;
@@ -31,6 +32,10 @@ export async function submitPoolTransact(parameters: {
     nonce: parameters.nonce,
     proof_bytes: Buffer.from(parameters.proofHex.replace(/^0x/iu, ''), 'hex'),
     pub_signals_bytes: Buffer.from(parameters.publicHex.replace(/^0x/iu, ''), 'hex'),
+    ciphertext_bytes: Buffer.from(
+      (parameters.ciphertextHex ?? '').replace(/^0x/iu, ''),
+      'hex',
+    ),
     kyt_authorization: {
       expiration_ledger: parameters.approval.expiresAtLedger,
       signature: approvalSignatureToBytes(parameters.approval.signature),

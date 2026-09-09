@@ -99,6 +99,7 @@ export async function reconstructEscrowNote(input: {
       commitment: hexToDecimal(decrypted.commitmentHex),
       asset_hi: decrypted.assetHi,
       asset_lo: decrypted.assetLo,
+      application_id: decrypted.applicationId,
     },
     scalarHex: derived.scalarHex,
     privateAddressStpl1: derived.privateAddressStpl1,

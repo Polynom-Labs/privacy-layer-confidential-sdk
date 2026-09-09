@@ -136,7 +136,7 @@ describe('escrow transfer change-note witness', () => {
     expect(changeCall?.recipientLo).toBeUndefined();
   });
 
-  it('leaves padding at value 0 so the escrow bind stays disabled', async () => {
+  it('pads the unused output with a dummy slot so KYT hints stay application-id 0', async () => {
     installRecordingPoolService();
     const built = await buildRecipientAndOptionalChangeDeposits({
       recipientPrivateAddressStpl1: RECIPIENT_STPL1,
@@ -147,12 +147,9 @@ describe('escrow transfer change-note witness', () => {
       escrowSend: ESCROW_SEND,
     });
 
-    const padding = built.deposits[1];
-    if (padding === 'dummy') {
-      throw new Error('expected a padding deposit');
-    }
-    expect(padding.value).toBe('0');
+    expect(built.deposits[1]).toBe('dummy');
     expect(built.changeCoin).toBeUndefined();
+    expect(depositCalls.filter((call) => call.amountStroops === 0n)).toHaveLength(0);
   });
 
   it('keeps escrow-create public limbs at zero so the recipient stays private', async () => {

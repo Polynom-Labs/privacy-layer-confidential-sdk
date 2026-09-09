@@ -45,6 +45,8 @@ type PrepareConfidentialTransferProofDualParameters = {
 type PrepareConfidentialTransferProofDualResult = {
   proof_hex: string;
   public_hex: string;
+  ciphertext_hex?: string;
+  output_note_ephemeral_scalars?: string[];
   applicationIdsPlaintext: KytApplicationIdHints;
   recipientCoin: GeneratedOutputCoin;
   changeCoin?: GeneratedOutputCoin;

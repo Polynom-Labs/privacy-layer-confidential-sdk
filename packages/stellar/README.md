@@ -31,8 +31,6 @@ const clientOrRejected = await createStellarPrivacyClient({
   storage,
   assets: {
     sdkWasm,
-    circuitWasm,
-    provingKey,
   },
 });
 
@@ -57,15 +55,13 @@ const clientOrRejected = await createStellarPrivacyClientFromNodeConfig({
   storage,
   assets: {
     sdkWasmPath: './assets/client_sdk_wasm_bg.wasm',
-    circuitWasmPath: './assets/main.wasm',
-    provingKeyPath: './assets/main_final.zkey',
   },
 });
 ```
 
 ## Required Assets
 
-The Stellar preset expects caller-provided circuit and proving artifacts. Do not regenerate `ptau` or Groth16 zkey files inside this repository.
+The Stellar preset loads bundled circuit schemes (2×2 Commitment V2 by default, and 6×6) from the SDK. Pass `sdkWasm` (browser) or `sdkWasmPath` (Node). Custom circuit URLs are only for development. Do not regenerate `ptau` or Groth16 zkey files inside this repository.
 
 ## Related Docs
 

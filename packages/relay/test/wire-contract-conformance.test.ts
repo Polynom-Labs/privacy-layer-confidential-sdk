@@ -94,6 +94,37 @@ describe('relay wire-contract vectors', () => {
     ).toBe(false);
   });
 
+  it('round-trips ciphertext bytes and output-note scalars for binding packages', () => {
+    const source = {
+      ...vector.serialize.source,
+      applicationIdHints: [
+        ...vector.serialize.source.applicationIdHints,
+        '0',
+        '0',
+        '0',
+        '0',
+        '0',
+        '0',
+        '0',
+        '0',
+      ],
+      ciphertextBytes: 'aa'.repeat(32),
+      outputNoteEphemeralScalars: ['1', '2', '3', '4', '5', '6'],
+      keyVersionHints: vector.serialize.source.keyVersionHints.map((value) =>
+        typeof value === 'number' ? value : undefined,
+      ),
+    };
+    const serialized = serializeRelayPackage(source);
+    expect(serialized.ciphertextBytes).toBe(source.ciphertextBytes);
+    expect(serialized.outputNoteEphemeralScalars).toEqual(
+      source.outputNoteEphemeralScalars,
+    );
+    expect(serialized.applicationIdHints).toEqual(source.applicationIdHints);
+    expect(jsonSafeClone(deserializeRelayPackage(serialized))).toEqual(
+      jsonSafeClone(serialized),
+    );
+  });
+
   it('serializes a package to the vector wire body without reading signal bytes', () => {
     const serialized = serializeRelayPackage({
       ...vector.serialize.source,

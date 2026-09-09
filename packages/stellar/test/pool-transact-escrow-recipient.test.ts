@@ -69,7 +69,7 @@ async function captureTransactArgs() {
   return captured;
 }
 
-describe('submitPoolTransact five-argument transact', () => {
+describe('submitPoolTransact six-argument transact', () => {
   it('invokes transact without an independent escrow_recipient argument', async () => {
     const args = await captureTransactArgs();
     expect(args).toBeDefined();
@@ -81,6 +81,7 @@ describe('submitPoolTransact five-argument transact', () => {
         nonce: 0n,
         proof_bytes: expect.any(Buffer),
         pub_signals_bytes: expect.any(Buffer),
+        ciphertext_bytes: expect.any(Buffer),
         kyt_authorization: expect.objectContaining({
           expiration_ledger: 1,
         }),

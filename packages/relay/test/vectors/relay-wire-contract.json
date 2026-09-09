@@ -84,6 +84,11 @@
         "0",
         "0"
       ],
+      "ciphertextBytes": "aa",
+      "outputNoteEphemeralScalars": [
+        "1",
+        "2"
+      ],
       "escrowAuthorization": "AAAAAGVsc2Vjcm93LWF1dGgtZW50cnk=",
       "keyVersionHints": [
         1,
@@ -103,6 +108,11 @@
         "101",
         "0",
         "0"
+      ],
+      "ciphertextBytes": "aa",
+      "outputNoteEphemeralScalars": [
+        "1",
+        "2"
       ],
       "escrowAuthorization": "AAAAAGVsc2Vjcm93LWF1dGgtZW50cnk=",
       "keyVersionHints": [

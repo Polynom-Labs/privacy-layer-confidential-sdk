@@ -56,8 +56,6 @@ const clientOrRejected = await createStellarPrivacyClient({
     sdkWasm: await fetch('/assets/client_sdk_wasm_bg.wasm').then((r) =>
       r.arrayBuffer(),
     ),
-    circuitWasm: await fetch('/assets/main.wasm').then((r) => r.arrayBuffer()),
-    provingKey: await fetch('/assets/main_final.zkey').then((r) => r.arrayBuffer()),
   },
 });
 

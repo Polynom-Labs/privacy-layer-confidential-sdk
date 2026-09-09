@@ -8,6 +8,23 @@ import { requestKytPassageForPoolInteraction } from '../kyt/passage-inspect.js';
 import { submitPoolTransact } from '../submit/pool-transact.js';
 import { resolveZkConfigNonce } from '../environment/zk-config-nonce.js';
 
+function optionalInspectCiphertext(
+  artifacts: NonNullable<StellarPreparedOperation['transactArtifacts']>,
+): Pick<
+  NonNullable<StellarPreparedOperation['transactArtifacts']>,
+  'ciphertextHex' | 'outputNoteEphemeralScalars' | 'applicationIdsPlaintext'
+> {
+  return {
+    ...(artifacts.ciphertextHex ? { ciphertextHex: artifacts.ciphertextHex } : {}),
+    ...(artifacts.outputNoteEphemeralScalars
+      ? { outputNoteEphemeralScalars: artifacts.outputNoteEphemeralScalars }
+      : {}),
+    ...(artifacts.applicationIdsPlaintext
+      ? { applicationIdsPlaintext: artifacts.applicationIdsPlaintext }
+      : {}),
+  };
+}
+
 async function submitPreparedDeposit(
   prepared: StellarPreparedOperation,
   environment: StellarTransactEnvironment,
@@ -34,9 +51,7 @@ async function submitPreparedDeposit(
     poolContract: environment.network.poolContract,
     proofHex: artifacts.proofHex,
     publicHex: artifacts.publicHex,
-    ...(artifacts.applicationIdsPlaintext
-      ? { applicationIdsPlaintext: artifacts.applicationIdsPlaintext }
-      : {}),
+    ...optionalInspectCiphertext(artifacts),
     networkPassphrase: environment.network.networkPassphrase,
     sorobanRpcUrl: environment.network.rpcUrl,
     transactEnvironment: environment,
@@ -48,6 +63,7 @@ async function submitPreparedDeposit(
     nonce: resolveZkConfigNonce(environment),
     proofHex: artifacts.proofHex,
     publicHex: artifacts.publicHex,
+    ...(artifacts.ciphertextHex ? { ciphertextHex: artifacts.ciphertextHex } : {}),
     approval,
     networkPassphrase: environment.network.networkPassphrase,
     sorobanRpcUrl: environment.network.rpcUrl,
@@ -68,9 +84,7 @@ async function submitPreparedPoolTransact(
     walletPublicKey: artifacts.walletPublicKey,
     proofHex: artifacts.proofHex,
     publicHex: artifacts.publicHex,
-    ...(artifacts.applicationIdsPlaintext
-      ? { applicationIdsPlaintext: artifacts.applicationIdsPlaintext }
-      : {}),
+    ...optionalInspectCiphertext(artifacts),
     networkPassphrase: environment.network.networkPassphrase,
     sorobanRpcUrl: environment.network.rpcUrl,
     transactEnvironment: environment,

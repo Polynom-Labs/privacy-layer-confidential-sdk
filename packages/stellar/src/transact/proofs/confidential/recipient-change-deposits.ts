@@ -30,17 +30,8 @@ function escrowOutputFields(input: EscrowSlotInput) {
   };
 }
 
-async function buildPaddingDepositPair(
-  recipientPrivateAddressStpl1: string,
-  tokenAddress: string,
-  recipientDeposit: DepositSlot,
-): Promise<[DepositSlot, DepositSlot]> {
-  const paddingSlot = await getPrivacyPoolService().buildAlignedDepositSlot({
-    privateAddressStpl1: recipientPrivateAddressStpl1,
-    amountStroops: ZERO_STROOPS,
-    tokenAddress,
-  });
-  return [recipientDeposit, paddingSlot.deposit];
+function paddingDepositPair(recipientDeposit: DepositSlot): [DepositSlot, DepositSlot] {
+  return [recipientDeposit, 'dummy'];
 }
 
 async function buildChangeDepositPair(parameters: {
@@ -94,11 +85,7 @@ export async function buildRecipientAndOptionalChangeDeposits(parameters: {
   if (parameters.changeStroops <= ZERO_STROOPS) {
     return {
       recipientSlot,
-      deposits: await buildPaddingDepositPair(
-        recipientPrivateAddress,
-        parameters.tokenAddress,
-        recipientSlot.deposit,
-      ),
+      deposits: paddingDepositPair(recipientSlot.deposit),
     };
   }
   const changeResult = await buildChangeDepositPair({

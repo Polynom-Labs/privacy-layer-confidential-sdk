@@ -25,11 +25,24 @@ const RECORD_NONROOT_AUTH = 'record_allow_nonroot' as const;
 type SweepArtifacts = {
   proofHex: string;
   publicHex: string;
+  ciphertextHex?: string;
+  outputNoteEphemeralScalars?: string[];
   escrowRecipient: string;
 };
 
 function hexToBytes(hex: string): Buffer {
   return Buffer.from(hex.replace(/^0x/iu, ''), 'hex');
+}
+
+function optionalSweepCiphertext(
+  artifacts: StellarPreparedOperation['transactArtifacts'],
+): Pick<SweepArtifacts, 'ciphertextHex' | 'outputNoteEphemeralScalars'> {
+  return {
+    ...(artifacts?.ciphertextHex ? { ciphertextHex: artifacts.ciphertextHex } : {}),
+    ...(artifacts?.outputNoteEphemeralScalars
+      ? { outputNoteEphemeralScalars: artifacts.outputNoteEphemeralScalars }
+      : {}),
+  };
 }
 
 function requireSweepArtifacts(prepared: StellarPreparedOperation): SweepArtifacts {
@@ -40,7 +53,12 @@ function requireSweepArtifacts(prepared: StellarPreparedOperation): SweepArtifac
   if (!proofHex || !publicHex || !escrowRecipient) {
     throw new Error('Prepared sweep is missing proof, public signals, or claimant.');
   }
-  return { proofHex, publicHex, escrowRecipient };
+  return {
+    proofHex,
+    publicHex,
+    escrowRecipient,
+    ...optionalSweepCiphertext(artifacts),
+  };
 }
 
 function requireRelayerPublicKey(value: string): string {
@@ -63,6 +81,12 @@ async function inspectRelayerSweepKyt(input: {
     poolContract: environment.network.poolContract,
     proofHex: input.artifacts.proofHex,
     publicHex: input.artifacts.publicHex,
+    ...(input.artifacts.ciphertextHex
+      ? { ciphertextHex: input.artifacts.ciphertextHex }
+      : {}),
+    ...(input.artifacts.outputNoteEphemeralScalars
+      ? { outputNoteEphemeralScalars: input.artifacts.outputNoteEphemeralScalars }
+      : {}),
     ...(input.prepared.transactArtifacts?.applicationIdsPlaintext
       ? {
           applicationIdsPlaintext:
@@ -90,6 +114,7 @@ async function simulateSweepAuthEntries(input: {
     nativeToScVal(resolveZkConfigNonce(environment), { type: 'u64' }),
     nativeToScVal(hexToBytes(input.artifacts.proofHex), { type: 'bytes' }),
     nativeToScVal(hexToBytes(input.artifacts.publicHex), { type: 'bytes' }),
+    nativeToScVal(hexToBytes(input.artifacts.ciphertextHex ?? ''), { type: 'bytes' }),
     kytAuthorizationScValue({
       expirationLedger: input.approval.expiresAtLedger,
       signature: approvalSignatureToBytes(input.approval.signature),

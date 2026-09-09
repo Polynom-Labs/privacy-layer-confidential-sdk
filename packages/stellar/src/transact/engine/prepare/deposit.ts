@@ -2,6 +2,7 @@ import type { StellarPreparedOperation } from '../../../types.js';
 import { readPoolClientFactory } from '../../../contracts/contract-context.js';
 import type { StellarTransactEnvironment } from '../../environment/types.js';
 import type { PrivacyPoolService } from '../../pool/service.js';
+import { ciphertextArtifactsFromProof } from '../../pool/proof-types.js';
 import { buildPrivateRecordFromDeposit } from '../../private-address/record-coin.js';
 import {
   enrichPreparedOperation,
@@ -70,6 +71,7 @@ export async function prepareDepositOperation(
   return enrichPreparedOperation(prepared, [outputRecord], {
     proofHex: depositProof.proof.proof_hex,
     publicHex: depositProof.proof.public_hex,
+    ...ciphertextArtifactsFromProof(depositProof.proof),
     applicationIdsPlaintext: depositProof.proof.applicationIdsPlaintext,
     tokenAddress,
     depositScalarHex: depositProof.depositScalarHex,

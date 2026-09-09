@@ -111,7 +111,7 @@ const client = created;
 ```
 
 <Tip>
-  `loadDefaultStellarBrowserAssets()` returns bundled runtime assets required by the Stellar preset. `transactEnvironment` ties together network contracts, optional KYT, and your app's transaction signing hook.
+  `loadDefaultStellarBrowserAssets()` loads the bundled SDK WASM. Circuit proving artifacts are resolved internally from the selected `zkConfigNonce` (Commitment V2 by default). `transactEnvironment` ties together network contracts, optional KYT, and your app's transaction signing hook.
 </Tip>
 
 ## Step 4 — Seed minimal fixture state

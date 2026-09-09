@@ -60,6 +60,8 @@ export interface StellarSubmissionPayload {
 export interface StellarTransactArtifacts {
   proofHex?: string;
   publicHex?: string;
+  ciphertextHex?: string;
+  outputNoteEphemeralScalars?: string[];
   applicationIdsPlaintext?: KytApplicationIdHints;
   tokenAddress?: string;
   depositScalarHex?: string;

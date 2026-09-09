@@ -174,6 +174,7 @@ describe('reconstructEscrowNote', () => {
       }),
     });
     expect(reconstructed.coin.value).toBe('100');
+    expect(reconstructed.coin.application_id).toBe('0');
     expect(reconstructed.scalarHex).toBe(DERIVED_ESCROW_FIXTURE.scalarHex);
   });
 });

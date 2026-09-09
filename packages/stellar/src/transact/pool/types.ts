@@ -18,6 +18,7 @@ export type PoolTransactClient = {
     nonce: bigint;
     proof_bytes: Buffer;
     pub_signals_bytes: Buffer;
+    ciphertext_bytes: Buffer;
     kyt_authorization: {
       expiration_ledger: number;
       signature: Buffer;

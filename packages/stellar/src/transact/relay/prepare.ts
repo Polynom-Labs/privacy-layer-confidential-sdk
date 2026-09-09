@@ -23,6 +23,12 @@ export function prepareRelayTransactPackage(
     publicSignals: normalizeHex(input.publicSignals),
     applicationIdHints: input.applicationIdHints,
   };
+  if (input.ciphertextBytes) {
+    prepared.ciphertextBytes = normalizeHex(input.ciphertextBytes);
+  }
+  if (input.outputNoteEphemeralScalars) {
+    prepared.outputNoteEphemeralScalars = [...input.outputNoteEphemeralScalars];
+  }
   if (input.escrowAuthorization) {
     prepared.escrowAuthorization = input.escrowAuthorization;
   }

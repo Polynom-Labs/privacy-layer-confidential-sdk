@@ -10,6 +10,8 @@ export interface SubmitSorobanConfidentialTransferInput {
   walletPublicKey: string;
   proofHex: string;
   publicHex: string;
+  ciphertextHex?: string;
+  outputNoteEphemeralScalars?: string[];
   applicationIdsPlaintext?: KytApplicationIdHints;
   networkPassphrase: string;
   sorobanRpcUrl: string;
@@ -30,6 +32,10 @@ export async function submitSorobanConfidentialTransfer(
     poolContract: input.contractId,
     proofHex: input.proofHex,
     publicHex: input.publicHex,
+    ...(input.ciphertextHex ? { ciphertextHex: input.ciphertextHex } : {}),
+    ...(input.outputNoteEphemeralScalars
+      ? { outputNoteEphemeralScalars: input.outputNoteEphemeralScalars }
+      : {}),
     ...(input.applicationIdsPlaintext
       ? { applicationIdsPlaintext: input.applicationIdsPlaintext }
       : {}),
@@ -44,6 +50,7 @@ export async function submitSorobanConfidentialTransfer(
     nonce: resolveZkConfigNonce(input.transactEnvironment),
     proofHex: input.proofHex,
     publicHex: input.publicHex,
+    ...(input.ciphertextHex ? { ciphertextHex: input.ciphertextHex } : {}),
     approval,
     networkPassphrase: input.networkPassphrase,
     sorobanRpcUrl: input.sorobanRpcUrl,

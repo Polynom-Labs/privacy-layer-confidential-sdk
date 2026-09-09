@@ -6,8 +6,8 @@ import {
   type ZkCircuitLayoutFields,
 } from '@auditable/privacy-pool-zk-sdk';
 import {
-  COMMITMENT_V2_ZK_NONCE,
-  SIX_BY_SIX_ZK_NONCE,
+  BINDING_ZK_NONCE,
+  SIX_BY_SIX_BINDING_ZK_NONCE,
 } from '../environment/zk-config-nonce.js';
 
 export { BundledZkCircuit } from '@auditable/privacy-pool-zk-sdk';
@@ -30,14 +30,14 @@ export const DEFAULT_STELLAR_ZK_CIRCUITS: Record<
   string,
   StellarBundledZkCircuitDefinition
 > = {
-  [COMMITMENT_V2_ZK_NONCE.toString()]: {
+  [BINDING_ZK_NONCE.toString()]: {
     nIns: 2,
     nOuts: 2,
     publicNInputs: 1,
     publicNOutputs: 1,
     circuit: BundledZkCircuit.TwoByTwo,
   },
-  [SIX_BY_SIX_ZK_NONCE.toString()]: {
+  [SIX_BY_SIX_BINDING_ZK_NONCE.toString()]: {
     nIns: 6,
     nOuts: 6,
     publicNInputs: 1,

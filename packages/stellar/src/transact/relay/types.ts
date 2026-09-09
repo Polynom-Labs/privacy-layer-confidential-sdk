@@ -16,6 +16,8 @@ export type RelayTransactPackageV1 = {
   zkConfigNonce: bigint;
   proofBytes: string;
   publicSignals: string;
+  ciphertextBytes?: string;
+  outputNoteEphemeralScalars?: string[];
   applicationIdHints: KytApplicationIdHints;
   escrowAuthorization?: string;
   keyVersionHints?: RelayKeyVersionHints;
@@ -25,6 +27,8 @@ export type PrepareRelayTransactPackageInput = {
   poolSelector: string;
   proofBytes: string;
   publicSignals: string;
+  ciphertextBytes?: string;
+  outputNoteEphemeralScalars?: string[];
   applicationIdHints: KytApplicationIdHints;
   zkConfigNonce?: bigint;
   escrowAuthorization?: string;

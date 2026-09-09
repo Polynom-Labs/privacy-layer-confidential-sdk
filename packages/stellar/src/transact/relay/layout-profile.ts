@@ -1,5 +1,7 @@
 import {
+  BINDING_ZK_NONCE,
   COMMITMENT_V2_ZK_NONCE,
+  SIX_BY_SIX_BINDING_ZK_NONCE,
   SIX_BY_SIX_ZK_NONCE,
   STANDARD_ZK_CONFIG_NONCE,
 } from '../environment/zk-config-nonce.js';
@@ -64,16 +66,19 @@ function profileFromShape(
   nonce: bigint,
   shape: ZkLayoutShape,
   publicInputPrefixLength: number,
+  ciphertextsInPublicSignals: boolean,
 ): RelayLayoutProfile {
   const auditOffset =
     shape.nIns + shape.nOuts + shape.nOuts * EPHEMERAL_COORDINATE_COUNT;
-  const outputNoteOffset =
-    auditOffset +
-    shape.nAuditSlots * EPHEMERAL_COORDINATE_COUNT +
-    shape.nAuditSlots * shape.noteAuditLen +
-    shape.nAuditSlots;
-  const publicOutputsLength =
-    outputNoteOffset + shape.nOuts * shape.noteOutputLen + shape.nOuts;
+  const outputNoteOffset = ciphertextsInPublicSignals
+    ? auditOffset +
+      shape.nAuditSlots * EPHEMERAL_COORDINATE_COUNT +
+      shape.nAuditSlots * shape.noteAuditLen +
+      shape.nAuditSlots
+    : auditOffset + shape.nAuditSlots * EPHEMERAL_COORDINATE_COUNT + shape.nAuditSlots;
+  const publicOutputsLength = ciphertextsInPublicSignals
+    ? outputNoteOffset + shape.nOuts * shape.noteOutputLen + shape.nOuts
+    : outputNoteOffset + shape.nOuts;
   const signalCount =
     publicOutputsLength +
     publicInputPrefixLength +
@@ -107,13 +112,24 @@ function profileFromShape(
 
 export function relayLayoutProfileForNonce(nonce: bigint): RelayLayoutProfile {
   if (nonce === STANDARD_ZK_CONFIG_NONCE) {
-    return profileFromShape(nonce, STANDARD_SHAPE, LEGACY_PUBLIC_INPUT_PREFIX_LEN);
+    return profileFromShape(
+      nonce,
+      STANDARD_SHAPE,
+      LEGACY_PUBLIC_INPUT_PREFIX_LEN,
+      true,
+    );
   }
   if (nonce === COMMITMENT_V2_ZK_NONCE) {
-    return profileFromShape(nonce, STANDARD_SHAPE, V2_PUBLIC_INPUT_PREFIX_LEN);
+    return profileFromShape(nonce, STANDARD_SHAPE, V2_PUBLIC_INPUT_PREFIX_LEN, true);
+  }
+  if (nonce === BINDING_ZK_NONCE) {
+    return profileFromShape(nonce, STANDARD_SHAPE, V2_PUBLIC_INPUT_PREFIX_LEN, false);
   }
   if (nonce === SIX_BY_SIX_ZK_NONCE) {
-    return profileFromShape(nonce, SIX_BY_SIX_SHAPE, V2_PUBLIC_INPUT_PREFIX_LEN);
+    return profileFromShape(nonce, SIX_BY_SIX_SHAPE, V2_PUBLIC_INPUT_PREFIX_LEN, true);
+  }
+  if (nonce === SIX_BY_SIX_BINDING_ZK_NONCE) {
+    return profileFromShape(nonce, SIX_BY_SIX_SHAPE, V2_PUBLIC_INPUT_PREFIX_LEN, false);
   }
   throw new Error(`Unknown ZK config nonce ${nonce.toString()}`);
 }
