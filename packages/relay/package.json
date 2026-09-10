@@ -1,6 +1,6 @@
 {
   "name": "@arcanetech/privacy-sdk-relay",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Chain-agnostic protocol relay runtime: admission, polling, retry, and fallback over caller-supplied ports",
   "type": "module",
   "main": "./dist/index.js",
