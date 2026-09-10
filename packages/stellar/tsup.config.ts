@@ -11,7 +11,7 @@ export default defineConfig([
     target: 'es2022',
     platform: 'browser',
     external: [
-      '@auditable/privacy-pool-zk-sdk',
+      '@arcanetech/stellar-privacy-pool-zk-sdk',
       '@stellar/stellar-sdk',
       'buffer',
       'contract',
@@ -26,7 +26,7 @@ export default defineConfig([
     sourcemap: true,
     target: 'es2022',
     platform: 'node',
-    external: ['@auditable/privacy-pool-zk-sdk', 'contract', 'registry'],
+    external: ['@arcanetech/stellar-privacy-pool-zk-sdk', 'contract', 'registry'],
   },
   {
     entry: ['src/testing/index.ts'],
@@ -55,7 +55,7 @@ export default defineConfig([
     target: 'es2022',
     platform: 'browser',
     external: [
-      '@auditable/privacy-pool-zk-sdk',
+      '@arcanetech/stellar-privacy-pool-zk-sdk',
       '@stellar/stellar-sdk',
       'buffer',
       'contract',

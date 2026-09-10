@@ -1,4 +1,4 @@
-import type { AuditPublicKey } from '@auditable/privacy-pool-zk-sdk';
+import type { AuditPublicKey } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import type { StellarAssetId, StellarNetworkConfig } from '../../types.js';
 import type {
   LeafEphemeralStatePort,
@@ -53,6 +53,12 @@ export interface StellarTransactEnvironment {
    * and 6×6 (nonce 6) schemes. URL fields are only for a custom/dev circuit.
    */
   zkCircuits?: Record<string, StellarZkCircuitDefinition>;
+  /**
+   * Directory or HTTP prefix for graph / r1cs / proving-key files.
+   * Defaults to the GitHub release for `@arcanetech/stellar-privacy-pool-zk-sdk`.
+   * Staging and local stands override this to serve files from disk.
+   */
+  zkArtifactBaseUrl?: string;
   auditPublicKey?: AuditPublicKey;
   kyt: StellarKytEnvironment;
   signTransaction?: StellarSignTransaction;

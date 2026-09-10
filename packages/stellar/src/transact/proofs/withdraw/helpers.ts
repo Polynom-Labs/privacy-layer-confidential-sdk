@@ -1,4 +1,4 @@
-import { ed25519PubkeyPayloadHexToWithdrawFrDecimals } from '@auditable/privacy-pool-zk-sdk';
+import { ed25519PubkeyPayloadHexToWithdrawFrDecimals } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import type {
   CoinData,
   DepositObject,
@@ -6,7 +6,7 @@ import type {
   PrivacyPoolSDK,
   StateFile,
   WithdrawObject,
-} from '@auditable/privacy-pool-zk-sdk';
+} from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import {
   dualWithdrawLegsWithSharedRoot,
   MIN_CONFIDENTIAL_TRANSFER_STROOPS,
@@ -20,7 +20,7 @@ import {
   withTokenAddressPublicInputs,
 } from '../../proofs/transaction-input.js';
 import { buildPoolTransactionAuditParameters } from '../../audit/parameters.js';
-import type { TransactionAuditParams } from '@auditable/privacy-pool-zk-sdk';
+import type { TransactionAuditParams } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 
 export type AlignedDepositSlotBuilder = (parameters: {
   privateAddressStpl1: string;

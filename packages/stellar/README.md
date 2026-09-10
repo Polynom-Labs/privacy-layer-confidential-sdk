@@ -11,7 +11,7 @@ This package provides:
 - `@arcanetech/privacy-sdk-stellar/testing` for fake transact engines in unit tests
 - Stellar wallet, storage, and policy adapter contracts
 - disclosure validation for currently supported Stellar routes
-- orchestration over `@auditable/privacy-pool-zk-sdk`
+- orchestration over `@arcanetech/stellar-privacy-pool-zk-sdk`
 - `requiredSubmissionMethod()` (`@arcanetech/privacy-sdk-stellar/transact`) — chooses Direct Submission vs Protocol Relay from a prepared operation; escrow sends require relay and refuse a positive public deposit; escrow sweeps use Direct Submission (wallet-signed)
 - `buildBlindedRecipientTagChallengeMessage()` (`@arcanetech/privacy-sdk-stellar/transact`) — builds the wallet-signed challenge used to issue blinded recipient tags so a recipient can discover escrow notes after they register
 - `fetchEscrowOutputNoteEvents({ transactEnvironment, txId, poolAddress })` — loads escrow output-note ciphertexts for a claim using the environment's network configuration
@@ -61,7 +61,7 @@ const clientOrRejected = await createStellarPrivacyClientFromNodeConfig({
 
 ## Required Assets
 
-The Stellar preset loads bundled circuit schemes (2×2 Commitment V2 by default, and 6×6) from the SDK. Pass `sdkWasm` (browser) or `sdkWasmPath` (Node). Custom circuit URLs are only for development. Do not regenerate `ptau` or Groth16 zkey files inside this repository.
+The Stellar preset loads proving artifacts from the GitHub release for `@arcanetech/stellar-privacy-pool-zk-sdk`. Pass `sdkWasm` (browser) or `sdkWasmPath` (Node). Override `transactEnvironment.zkArtifactBaseUrl` for local files. Custom circuit URLs are only for development. Do not regenerate `ptau` or Groth16 zkey files inside this repository.
 
 ## Related Docs
 

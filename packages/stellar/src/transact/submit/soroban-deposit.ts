@@ -1,4 +1,4 @@
-import type { CoinData } from '@auditable/privacy-pool-zk-sdk';
+import type { CoinData } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { readPoolClientFactory } from '../../contracts/contract-context.js';
 import type { PrivacyPoolService } from '../pool/service.js';
 import { requestKytPassageForPoolInteraction } from '../kyt/passage-inspect.js';

@@ -5,7 +5,7 @@ import {
   scalarHexToFrDecimal,
   type CoinData,
   type StateFile,
-} from '@auditable/privacy-pool-zk-sdk';
+} from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { merkleRootBufferToFrDecimal } from '../merkle/field-decimal.js';
 import {
   privateAddressSdk,
@@ -28,6 +28,7 @@ import {
 import type { StellarBrowserAssets } from '../../types.js';
 import {
   materializeSelectedZkCircuit,
+  optionalZkArtifactBaseUrl,
   type StellarZkCircuitDefinition,
 } from '../zk/circuit-config.js';
 import { DEFAULT_ZK_CONFIG_NONCE } from '../environment/zk-config-nonce.js';
@@ -54,6 +55,7 @@ export class PrivacyPoolService {
     private readonly auditPublicKey?: [string, string],
     private readonly zkCircuits?: Record<string, StellarZkCircuitDefinition>,
     private readonly zkConfigNonce?: bigint,
+    private readonly zkArtifactBaseUrl?: string,
   ) {}
 
   private async ensureInit(): Promise<void> {
@@ -78,6 +80,7 @@ export class PrivacyPoolService {
         wasmBinary: this.assets.sdkWasm,
         zkCircuits,
         zkConfigNonce,
+        ...optionalZkArtifactBaseUrl(this.zkArtifactBaseUrl),
       });
     })();
     return this.initPromise;

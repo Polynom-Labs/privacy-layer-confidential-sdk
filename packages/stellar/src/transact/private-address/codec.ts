@@ -3,14 +3,14 @@ import {
   decodeStealthAddress,
   encodeStealthAddress,
   recipientPublicKeysDecimalFromStealthAddress,
-} from '@auditable/privacy-pool-zk-sdk';
-import type { PrivacyPoolSDK, SpendScalarDomain } from '@auditable/privacy-pool-zk-sdk';
-export { DEFAULT_STEALTH_SIGN_NONCE as DEFAULT_PRIVATE_ADDRESS_SIGN_NONCE } from '@auditable/privacy-pool-zk-sdk';
+} from '@arcanetech/stellar-privacy-pool-zk-sdk';
+import type { PrivacyPoolSDK, SpendScalarDomain } from '@arcanetech/stellar-privacy-pool-zk-sdk';
+export { DEFAULT_STEALTH_SIGN_NONCE as DEFAULT_PRIVATE_ADDRESS_SIGN_NONCE } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 export {
   OWNER_BOUND_NOTE_SCHEMA_VERSION,
   spendScalarHexFromStellarSignature,
-} from '@auditable/privacy-pool-zk-sdk';
-export type { SpendScalarDomain } from '@auditable/privacy-pool-zk-sdk';
+} from '@arcanetech/stellar-privacy-pool-zk-sdk';
+export type { SpendScalarDomain } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 
 type DecodedPrivateAddress = { x: string; y: string };
 type PrivateAddressDecoder = (value: string) => DecodedPrivateAddress;

@@ -1,4 +1,4 @@
-import type { CoinData, DepositSlot } from '@auditable/privacy-pool-zk-sdk';
+import type { CoinData, DepositSlot } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { buildRecipientAndOptionalChangeDeposits } from './recipient-change-deposits.js';
 import { withTokenAddressPublicInputs } from '../../proofs/transaction-input.js';
 import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-key-scalar-from-recipient-hex.js';

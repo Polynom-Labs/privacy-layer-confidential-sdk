@@ -1,4 +1,4 @@
-import type { CoinData, StateFile } from '@auditable/privacy-pool-zk-sdk';
+import type { CoinData, StateFile } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { getPrivacyPoolService } from '../../pool/singleton.js';
 import { buildZeroPublicLegs } from '../../proofs/transaction-input.js';
 import {

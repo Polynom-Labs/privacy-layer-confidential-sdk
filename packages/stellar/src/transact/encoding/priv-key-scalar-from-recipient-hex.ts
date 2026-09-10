@@ -1,4 +1,4 @@
-import { canonicalBabyJubScalarFromInteger } from '@auditable/privacy-pool-zk-sdk';
+import { canonicalBabyJubScalarFromInteger } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 
 const SCALAR_HEX_CHAR_LENGTH = 64;
 const DECIMAL_RADIX = 10;

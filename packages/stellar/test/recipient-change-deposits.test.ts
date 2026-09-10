@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import type { CoinData, DepositObject } from '@auditable/privacy-pool-zk-sdk';
+import type { CoinData, DepositObject } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import {
   configurePrivacyPoolService,
   type PrivacyPoolService,

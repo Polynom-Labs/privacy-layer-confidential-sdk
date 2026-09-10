@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { ed25519PubkeyPayloadHexToWithdrawFrDecimals } from '@auditable/privacy-pool-zk-sdk';
+import { ed25519PubkeyPayloadHexToWithdrawFrDecimals } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { buildWithdrawPublicInput } from '../src/transact/proofs/withdraw/helpers.js';
 import { ed25519PublicKeyHexFromStellarAccount } from '../src/transact/stellar/account.js';
 import {

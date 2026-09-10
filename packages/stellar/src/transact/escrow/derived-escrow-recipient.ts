@@ -4,7 +4,7 @@ import {
   derivedEscrowKey,
   ed25519PubkeyPayloadHexToWithdrawFrDecimals,
   sampleDerivedEscrowKey,
-} from '@auditable/privacy-pool-zk-sdk';
+} from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { encodePrivateAddressFromHexCoordinates } from '../private-address/codec.js';
 
 const COORDINATE_HEX_LENGTH = 64;

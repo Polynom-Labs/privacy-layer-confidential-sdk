@@ -1,4 +1,4 @@
-import type { CoinData, DepositSlot } from '@auditable/privacy-pool-zk-sdk';
+import type { CoinData, DepositSlot } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { getPrivacyPoolService } from '../../pool/singleton.js';
 import { ZERO_STROOPS } from './helpers.js';
 import type { AlignedDepositSlot } from '../../pool/proof-types.js';

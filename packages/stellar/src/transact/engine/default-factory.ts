@@ -1,4 +1,4 @@
-import { PrivacyPoolSDK } from '@auditable/privacy-pool-zk-sdk';
+import { PrivacyPoolSDK } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import {
   configurePrivacyPoolService,
   createPrivacyPoolService,
@@ -13,7 +13,10 @@ import type {
 } from '../../types.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
 import { resolveZkConfigNonce } from '../environment/zk-config-nonce.js';
-import { materializeSelectedZkCircuit } from '../zk/circuit-config.js';
+import {
+  materializeSelectedZkCircuit,
+  optionalZkArtifactBaseUrl,
+} from '../zk/circuit-config.js';
 
 async function privacyPoolInitOptions(
   assets: StellarBrowserAssets,
@@ -31,6 +34,7 @@ async function privacyPoolInitOptions(
     wasmBinary: assets.sdkWasm,
     zkCircuits,
     zkConfigNonce,
+    ...optionalZkArtifactBaseUrl(transactEnvironment.zkArtifactBaseUrl),
   };
 }
 
@@ -54,6 +58,7 @@ export async function createDefaultTransactEngine(
         ...(transactEnvironment.zkConfigNonce === undefined
           ? {}
           : { zkConfigNonce: transactEnvironment.zkConfigNonce }),
+        ...optionalZkArtifactBaseUrl(transactEnvironment.zkArtifactBaseUrl),
       }),
     );
     return createBrowserStellarTransactEngine({

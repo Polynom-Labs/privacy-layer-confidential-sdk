@@ -3,7 +3,7 @@ import {
   resolveTransactionAuditParams,
   type AuditPublicKey,
   type TransactionAuditParams,
-} from '@auditable/privacy-pool-zk-sdk';
+} from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { Buffer } from 'buffer';
 
 const UNCOMPRESSED_PREFIX = '04';

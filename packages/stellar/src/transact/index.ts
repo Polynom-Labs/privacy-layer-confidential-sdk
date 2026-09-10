@@ -54,7 +54,11 @@ export {
   STANDARD_ZK_CONFIG_NONCE,
   resolveZkConfigNonce,
 } from './environment/zk-config-nonce.js';
-export { BundledZkCircuit, DEFAULT_STELLAR_ZK_CIRCUITS } from './zk/circuit-config.js';
+export {
+  BundledZkCircuit,
+  DEFAULT_STELLAR_ZK_CIRCUITS,
+  optionalZkArtifactBaseUrl,
+} from './zk/circuit-config.js';
 export type {
   StellarBundledZkCircuitDefinition,
   StellarCustomZkCircuitDefinition,

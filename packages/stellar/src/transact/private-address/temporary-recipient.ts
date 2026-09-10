@@ -1,4 +1,4 @@
-import { PrivacyPoolSDK } from '@auditable/privacy-pool-zk-sdk';
+import { PrivacyPoolSDK } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { getPrivacyPoolService } from '../pool/singleton.js';
 import { encodePrivateAddressFromHexCoordinates } from './codec.js';
 

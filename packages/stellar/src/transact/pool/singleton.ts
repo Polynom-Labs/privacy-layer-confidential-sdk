@@ -8,6 +8,7 @@ export function createPrivacyPoolService(input?: {
   auditPublicKey?: [string, string];
   zkCircuits?: Record<string, StellarZkCircuitDefinition>;
   zkConfigNonce?: bigint;
+  zkArtifactBaseUrl?: string;
 }): PrivacyPoolService {
   return new PrivacyPoolService(
     input?.assets,
@@ -15,6 +16,7 @@ export function createPrivacyPoolService(input?: {
     input?.auditPublicKey,
     input?.zkCircuits,
     input?.zkConfigNonce,
+    input?.zkArtifactBaseUrl,
   );
 }
 

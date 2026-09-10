@@ -1,9 +1,9 @@
-import { withdrawObjectFromMerkleWitness } from '@auditable/privacy-pool-zk-sdk';
+import { withdrawObjectFromMerkleWitness } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import type {
   CoinData,
   PrivacyPoolSDK,
   StateFile,
-} from '@auditable/privacy-pool-zk-sdk';
+} from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { buildPublicWithdrawLegs } from '../../proofs/transaction-input.js';
 import {
   buildApplicationIdHints,

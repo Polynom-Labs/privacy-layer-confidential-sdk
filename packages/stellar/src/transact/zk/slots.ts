@@ -5,7 +5,7 @@ import {
   type DepositSlot,
   type PrivacyPoolSDK,
   type WithdrawSlot,
-} from '@auditable/privacy-pool-zk-sdk';
+} from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import type { TransactionPublicLegParameters } from '../proofs/transaction-input.js';
 
 export function padWithdrawSlotsToLayout(

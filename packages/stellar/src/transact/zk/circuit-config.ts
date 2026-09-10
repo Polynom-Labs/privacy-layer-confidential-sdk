@@ -4,13 +4,13 @@ import {
   type DevZkCircuitConfig,
   type ZkCircuitConfig,
   type ZkCircuitLayoutFields,
-} from '@auditable/privacy-pool-zk-sdk';
+} from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import {
   BINDING_ZK_NONCE,
   SIX_BY_SIX_BINDING_ZK_NONCE,
 } from '../environment/zk-config-nonce.js';
 
-export { BundledZkCircuit } from '@auditable/privacy-pool-zk-sdk';
+export { BundledZkCircuit } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 
 export type StellarBundledZkCircuitDefinition = ZkCircuitLayoutFields & {
   circuit: BundledZkCircuit;
@@ -109,4 +109,21 @@ function stellarCircuitsOrDefault(
   circuits: Record<string, StellarZkCircuitDefinition> | undefined,
 ): Record<string, StellarZkCircuitDefinition> {
   return circuits ?? DEFAULT_STELLAR_ZK_CIRCUITS;
+}
+
+export function optionalZkArtifactBaseUrl(value: string | undefined): {
+  zkArtifactBaseUrl?: string;
+} {
+  if (value === undefined) {
+    return {};
+  }
+  const trimmed = value.trim();
+  if (trimmed === '') {
+    return {};
+  }
+  let withoutSlash = trimmed;
+  while (withoutSlash.endsWith('/')) {
+    withoutSlash = withoutSlash.slice(0, -1);
+  }
+  return { zkArtifactBaseUrl: withoutSlash };
 }

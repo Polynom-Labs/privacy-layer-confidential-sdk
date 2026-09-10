@@ -1,4 +1,4 @@
-import { BABYJUB_SUBGROUP_ORDER } from '@auditable/privacy-pool-zk-sdk';
+import { BABYJUB_SUBGROUP_ORDER } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { describe, expect, it } from 'vitest';
 import {
   buildPrivateAddressSignMessage,

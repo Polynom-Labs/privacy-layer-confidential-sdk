@@ -2,7 +2,7 @@ import {
   layoutForKnownNonce,
   zeroBindingTagsInPublicSignals,
   type InspectKytPassageApproved,
-} from '@auditable/privacy-pool-zk-sdk';
+} from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { resolvePoolApplicationId } from '../../audit/parameters.js';
 import type { KytApplicationIdHints } from '../../pool/proof-types.js';
 import { KytInspectError, parseKytReasonCode } from '../inspect-error.js';

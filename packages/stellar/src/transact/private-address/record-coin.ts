@@ -1,4 +1,4 @@
-import type { CoinData } from '@auditable/privacy-pool-zk-sdk';
+import type { CoinData } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import type {
   StellarPrivateCoinNote,
   StellarPrivateRecord,

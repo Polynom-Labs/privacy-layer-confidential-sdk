@@ -75,7 +75,7 @@ function profileFromShape(
       shape.nAuditSlots * EPHEMERAL_COORDINATE_COUNT +
       shape.nAuditSlots * shape.noteAuditLen +
       shape.nAuditSlots
-    : auditOffset + shape.nAuditSlots * EPHEMERAL_COORDINATE_COUNT + shape.nAuditSlots;
+    : auditOffset + EPHEMERAL_COORDINATE_COUNT + shape.nAuditSlots;
   const publicOutputsLength = ciphertextsInPublicSignals
     ? outputNoteOffset + shape.nOuts * shape.noteOutputLen + shape.nOuts
     : outputNoteOffset + shape.nOuts;

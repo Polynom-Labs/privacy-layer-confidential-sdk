@@ -1,4 +1,4 @@
-import type { CoinData } from '@auditable/privacy-pool-zk-sdk';
+import type { CoinData } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { assetLegToTokenAddress } from '../proofs/transaction-input.js';
 import {
   deriveEscrowRecipientFromStellarAddress,
@@ -56,7 +56,7 @@ function padFieldHex(value: string): string {
 async function defaultDecryptOutputNote(
   input: Parameters<DecryptEscrowOutputNote>[0],
 ): ReturnType<DecryptEscrowOutputNote> {
-  const module = (await import('@auditable/privacy-pool-zk-sdk')) as {
+  const module = (await import('@arcanetech/stellar-privacy-pool-zk-sdk')) as {
     decryptOutputNoteEvent?: DecryptEscrowOutputNote;
   };
   if (typeof module.decryptOutputNoteEvent !== 'function') {

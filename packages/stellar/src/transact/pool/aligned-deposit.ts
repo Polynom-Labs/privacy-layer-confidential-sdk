@@ -1,5 +1,5 @@
-import { PrivacyPoolSDK, scalarHexToFrDecimal } from '@auditable/privacy-pool-zk-sdk';
-import type { DepositObject } from '@auditable/privacy-pool-zk-sdk';
+import { PrivacyPoolSDK, scalarHexToFrDecimal } from '@arcanetech/stellar-privacy-pool-zk-sdk';
+import type { DepositObject } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import {
   decodePrivateAddress,
   recipientPublicKeysDecimalFromPrivateAddress,

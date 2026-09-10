@@ -1,4 +1,4 @@
-import type { InspectKytPassageApproved } from '@auditable/privacy-pool-zk-sdk';
+import type { InspectKytPassageApproved } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import { Buffer } from 'buffer';
 import { Operation, TransactionBuilder, rpc, xdr } from '@stellar/stellar-sdk';
 import type { StellarTransactEnvironment } from '../../environment/types.js';

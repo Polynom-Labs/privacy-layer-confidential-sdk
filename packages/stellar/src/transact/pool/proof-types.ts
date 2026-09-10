@@ -1,4 +1,4 @@
-import type { CoinData, DepositObject } from '@auditable/privacy-pool-zk-sdk';
+import type { CoinData, DepositObject } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 
 export type AlignedDepositSlot = {
   deposit: DepositObject;

@@ -4,7 +4,7 @@
 - Do not add React or NestJS-specific ESLint rules to this repository.
 - Do not bypass lint or Fallow checks by weakening config files or adding disable comments.
 - Do not add ptau files to this repository. Groth16 zkey/VK regeneration belongs in `soroban-privacy-pools` using its existing `circuits/ptau/` file; never regenerate ptau.
-- Public Mintlify/docs cover only `@arcanetech/*` packages; do not document `@auditable/*`, ZK/circuit/proving internals, or state-bridge implementation details—use adapter-library and "transaction preparation" wording instead.
+- Public Mintlify/docs cover only `@arcanetech/privacy-sdk-*` packages; do not document `@arcanetech/stellar-privacy-pool-zk-sdk`, ZK/circuit/proving internals, or state-bridge implementation details—use adapter-library and "transaction preparation" wording instead.
 - In SDK docs, mention Stellar/Soroban only in stellar-preset sections; document `core` and `state-*` as multi-chain.
 - SDK docs must not name internal backend products or concrete REST endpoint paths; describe integrations generically (e.g. asset catalog sync, registry status).
 - State-integration docs should lead with in-memory adapter examples and keep Redux as an optional adapter path; omit custom-adapter outline sections and do not mention `@arcanetech/privacy-sdk-testing` (not shipped).
@@ -15,7 +15,7 @@
 
 - `@arcanetech/privacy-sdk-stellar` owns generated pool/registry bindings under `packages/stellar/generated/`; public `.d.ts` must not export generated contract client types (`PoolTransactClient`, `RegistryContractClient`, `createPoolClient`).
 - Public `StellarPrivacyClient` methods are domain-level (`checkRegistrationStatus`, `registerPrivateAddress`, `resolveTransferRecipient`, transaction confirmation/details) — not thin wrappers over raw Soroban RPC.
-- Consuming apps pass domain config/adapters and `transactEnvironment.signTransaction` only; Soroban RPC, contract clients (`attachContractContext()` / `createPoolClient`), and raw RPC wrappers stay internal and must not appear in public API or app bootstrap.
+- Consuming apps pass domain config/adapters and `transactEnvironment.signTransaction` only; Soroban RPC, contract clients (`attachContractContext()` / `createPoolClient`), and raw RPC wrappers stay internal and must not appear in public API or app bootstrap. `transactEnvironment.zkArtifactBaseUrl` overrides the GitHub release used to download proving artifacts so local stands can serve files from disk.
 - Monorepo scripts: root `typecheck:deps` builds `core` → `state-memory` → `state-redux` → stellar `bindings:build` before workspace typechecks (types from `dist/*.d.ts`); root `verify` is `lint → typecheck → build → test → fallow`; do not add per-package build hacks in stellar typecheck.
 - State bridge operation registration (`stellarStateDefinitions` / `bridge.init`) runs inside SDK client initialization; consuming apps bind a state adapter but must not register bridge operations themselves.
 - `StellarPrivateRecord.id` must always be the commitment hex (never a random UUID) and `owner` must always be the Stellar G-address (never a private `stpl1` address); `privateAddress` holds the stpl1 address separately. Deposit/transfer/withdraw output-record builders take an explicit `walletPublicKey` to set `owner` correctly. Withdraw's execute finalize must enrich `outputRecords` from `proof.changeCoin` (`commitmentHex`/`coinNote`) the same way transfer's `enrichTransferOutputRecords` does — otherwise change notes silently vanish from the UI because `mapPrivateRecordToCoinWithMetadata` drops records missing `coinNote`.
@@ -23,7 +23,7 @@
 - Bootstrap and the transact engine must share exactly one `transactEnvironment` object instance (from `resolved.config.transactEnvironment`); never create a second copy (e.g. via `attachPoolStatePorts`) — resolvers (transfer recipient/token/wallet) registered on one copy are invisible to another and cause `"Transfer recipient resolver is not configured."`.
 - Private record `amount` must be synced from the actual coin note value (`coinNote.value`), not recomputed via display-amount-to-stroops conversion; a mismatch lets prepare select a note that fails proof validation with `"Transfer amount exceeds note value"`.
 - Canonical Stellar operation disclosure (validated in `packages/stellar/test/stellar-transfer-disclosure.test.ts`, aligned with Mintlify `docs/snippets/operation-disclosures.jsx`): deposit — sender/asset/amount public, recipient private; withdraw — sender may be public or private, recipient/asset/amount public; transfer to registered recipient — sender may be public or private, recipient/asset/amount private; transfer to unregistered/public-G recipient — sender may be public or private, recipient/asset/amount public.
-- SDK adapter method-existence checks on upstream objects (e.g. `@auditable/privacy-pool-zk-sdk`) must read the property from the instance/prototype chain, not `Object.hasOwn(sdk, name)` (which is `false` for prototype methods and causes false "Missing SDK method" errors); never use `Reflect`.
+- SDK adapter method-existence checks on upstream objects (e.g. `@arcanetech/stellar-privacy-pool-zk-sdk`) must read the property from the instance/prototype chain, not `Object.hasOwn(sdk, name)` (which is `false` for prototype methods and causes false "Missing SDK method" errors); never use `Reflect`.
 - `@arcanetech/privacy-sdk-stellar/transact` exports `assetLegToTokenAddress(assetHi, assetLo)` (symmetric to `tokenAddressToAssetLeg`) so callers can resolve a contract id back from hi/lo asset legs — needed because backend `/pending-claims` only returns `assetHiHex`/`assetLoHex`, not an `assetId` string.
 
 ## Repository Tooling
@@ -42,9 +42,9 @@
 
 ## Package Boundaries
 
-- `@arcanetech/privacy-sdk-core` must not depend on Stellar, Soroban, ZK, or `@auditable/privacy-pool-zk-sdk`. It is browser-first and must not import Node built-ins.
+- `@arcanetech/privacy-sdk-core` must not depend on Stellar, Soroban, ZK, or `@arcanetech/stellar-privacy-pool-zk-sdk`. It is browser-first and must not import Node built-ins.
 - `@arcanetech/privacy-sdk-stellar` main entry (`@arcanetech/privacy-sdk-stellar`) is browser-first: callers supply circuit artifacts as `ArrayBuffer`. Node filesystem loading lives only in `@arcanetech/privacy-sdk-stellar/node`. Test doubles live in `@arcanetech/privacy-sdk-stellar/testing`.
-- `@auditable/privacy-pool-zk-sdk` is a browser-capable dependency when callers pass preloaded WASM/zkey buffers; do not rely on its Node filesystem fallbacks in browser integrations.
+- `@arcanetech/stellar-privacy-pool-zk-sdk` is a browser-capable dependency when callers pass preloaded WASM/zkey buffers; do not rely on its Node filesystem fallbacks in browser integrations.
 - `@arcanetech/privacy-sdk-testing` is planned but intentionally not shipped in this phase.
 
 ## Common Commands

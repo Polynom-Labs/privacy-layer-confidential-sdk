@@ -2,7 +2,7 @@ import { approvalSignatureToBytes } from '../kyt/passage-inspect.js';
 import { runTtlPreflight } from './ttl-preflight.js';
 import { extendZkConfigTtlIfNeeded } from './zk-config-ttl.js';
 import type { PoolTransactClient } from '../pool/types.js';
-import type { InspectKytPassageApproved } from '@auditable/privacy-pool-zk-sdk';
+import type { InspectKytPassageApproved } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import type { StellarTransactEnvironment } from '../environment/types.js';
 import { Buffer } from 'buffer';
 

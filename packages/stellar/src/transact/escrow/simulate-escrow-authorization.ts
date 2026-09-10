@@ -1,4 +1,4 @@
-import type { InspectKytPassageApproved } from '@auditable/privacy-pool-zk-sdk';
+import type { InspectKytPassageApproved } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import {
   Account,
   Address,
