@@ -68,7 +68,7 @@ describe('protocol relay fallback gating', () => {
 
   it('refuses an escrow send when relay is unconfigured without offering wallet submission', async () => {
     const ports = createTestPorts();
-    ports.relayConfig = undefined;
+    delete ports.relayConfig;
     const refused = await submitPreparedPrivateOperation({
       ports,
       operation: {

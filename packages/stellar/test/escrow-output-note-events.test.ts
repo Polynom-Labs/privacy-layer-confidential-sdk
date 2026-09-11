@@ -42,7 +42,7 @@ function outputNoteEvent(): xdr.ContractEvent {
   });
   return new xdr.ContractEvent({
     ext: new xdr.ExtensionPoint(0),
-    contractId: StrKey.decodeContract(POOL),
+    contractId: StrKey.decodeContract(POOL) as unknown as xdr.ContractId,
     type: xdr.ContractEventType.contract(),
     body: new xdr.ContractEventBody(0, v0),
   });
