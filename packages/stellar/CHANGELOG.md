@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.4.0](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.3.0...privacy-sdk-stellar-v0.4.0) (2026-09-10)
+
+
+### Features
+
+* expose signer-independent Relay Transact Package V1 ([ccc7d95](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/ccc7d95ed3301413a0dba99e24e48b35c3ed8868))
+* **stellar:** cut over transact to owner-bound notes and escrow recipient ([2b5a552](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/2b5a552b858bd944428013b6c086a5f834c32bf5))
+* **stellar:** refuse transfers to unregistered recipients ([b072391](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/b072391a2aec7ac4fbf55e87e8002b80f290ae6b))
+* Update Stellar SDK references and enhance documentation for artifact handling ([0ff2d29](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/0ff2d292721ad8ffed218833e60073aac54cf06a))
+
+
+### Bug Fixes
+
+* **stellar:** always pass escrow_recipient on pool transact ([821e6e9](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/821e6e98725419795da536430794df6302a0280c))
+* **stellar:** reduce spend scalars into the BabyJub subgroup order ([150605a](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/150605a7e4066c27f2e95535463af21797932b73))
+* **stellar:** resolve spend scalar when checking owner-bound nullifiers ([57c159b](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/57c159b124ac068cd93971822ffa792a10f9eb42))
+
 ## [0.3.0](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.2.3...privacy-sdk-stellar-v0.3.0) (2026-07-13)
 
 
