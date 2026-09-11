@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.4.1](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.4.0...privacy-sdk-stellar-v0.4.1) (2026-09-11)
+
+
+### Bug Fixes
+
+* format stellar imports so release verify can pass ([725c90d](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/725c90d3eb92f9a9b2cb473bc5719bf60ef49ca1))
+* satisfy exactOptionalPropertyTypes in relay and stellar tests ([1e55ab6](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/1e55ab6205ba1fc4545a359f553eb0d04862c108))
+
 ## [0.4.0](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.3.0...privacy-sdk-stellar-v0.4.0) (2026-09-10)
 
 
