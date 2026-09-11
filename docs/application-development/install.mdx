@@ -21,6 +21,26 @@ pnpm add @arcanetech/privacy-sdk-stellar @arcanetech/privacy-sdk-state-redux @re
 
 </CodeGroup>
 
+For **private sender** (zero public deposit) and **escrow sends** to unregistered recipients, also install the Protocol Relay runtime. `operation.execute()` is Direct Submission only and does not contact the relayer.
+
+<CodeGroup>
+
+```bash npm
+npm install @arcanetech/privacy-sdk-relay
+```
+
+```bash yarn
+yarn add @arcanetech/privacy-sdk-relay
+```
+
+```bash pnpm
+pnpm add @arcanetech/privacy-sdk-relay
+```
+
+</CodeGroup>
+
+See [Quick start — Protocol Relay](/integration/quick-start#step-6--protocol-relay-optional) for the optional wiring step.
+
 Next, wire the client in your app shell. See [Setup](./setup).
 
 ## Related

@@ -9,6 +9,13 @@ import { OperationDisclosures } from '../../snippets/operation-disclosures.jsx';
 
 <OperationDisclosures operation="transfer-registered" />
 
+Sender may be public or **private**. Private sender requires **Protocol Relay**. `operation.execute()` is Direct Submission only and does not contact the relayer.
+
+After prepare, call `requiredSubmissionMethod(operation.prepared)` from `@arcanetech/privacy-sdk-stellar/transact`:
+
+- `direct` — `await operation.execute({})` (example below)
+- `relay` — wire `@arcanetech/privacy-sdk-relay` as in [Quick start Step 6](/integration/quick-start#step-6--protocol-relay-optional)
+
 ## Example
 
 When `recipientAddress` is `private`, set `to` to the recipient `stpl1` address from the registry lookup.

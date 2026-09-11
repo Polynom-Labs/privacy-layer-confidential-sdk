@@ -58,6 +58,8 @@ Spend a **private pool note** and pay out to a **public wallet**.
 
 <OperationDisclosures operation="withdraw" />
 
+Private sender on this route requires Protocol Relay. Direct `execute()` is for public-sender / positive public deposit.
+
 ## Transfer to registered recipient
 
 Spend a sender note and create output note(s) for a recipient who is **already in the registry cache**.
@@ -69,6 +71,8 @@ Spend a sender note and create output note(s) for a recipient who is **already i
 **Typical disclosure:**
 
 <OperationDisclosures operation="transfer-registered" />
+
+Private sender on this route requires Protocol Relay.
 
 ## Transfer to unregistered recipient (escrow send)
 

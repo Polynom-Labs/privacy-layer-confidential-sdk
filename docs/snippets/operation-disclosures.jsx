@@ -39,6 +39,8 @@ export const OperationDisclosures = ({ operation }) => {
     both: 'Public or private',
   };
 
+  const senderBothHint = 'Public (Direct), or private only with Protocol Relay';
+
   const valueStyles = {
     public: 'bg-[#2563EB]/10 text-[#2563EB] dark:bg-[#2563EB]/20 dark:text-[#93C5FD]',
     private: 'bg-violet-500/10 text-violet-700 dark:bg-violet-500/15 dark:text-violet-300',
@@ -54,7 +56,10 @@ export const OperationDisclosures = ({ operation }) => {
     <div className="not-prose my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {tiles.map((tile) => {
         const fieldValue = values[tile.key];
-        const hint = valueHints[fieldValue];
+        const hint =
+          tile.key === 'sender' && fieldValue === 'both'
+            ? senderBothHint
+            : valueHints[fieldValue];
 
         return (
           <div

@@ -33,6 +33,8 @@ Disclosure is a **product and compliance** choice within the constraints of each
 
 Some reference tables in this documentation show **both** for a field (for example withdraw sender). **Both is not a third API value** — it means the route **accepts either** `public` or `private` for that field.
 
+On Stellar, **private sender** is valid only with **Protocol Relay** (zero public deposit). Public sender uses Direct Submission (`operation.execute()`). Deposit sender cannot be private.
+
 The network preset **policy adapter** rejects invalid combinations with `unsupported_disclosure` during prepare.
 
 ## Route constraints
@@ -41,11 +43,10 @@ These rules apply across presets at the domain level:
 
 | Route | Constraint |
 | --- | --- |
-| Transfer to **public wallet** recipient | `recipientAddress`, `assetAddress`, and `amount` must be `public` |
-| **Pending claim** | `senderAddress`, `assetAddress`, and `amount` must be `public` |
-| Deposit | Recipient is typically `private`; sender/asset/amount typically `public` |
-| Registered private transfer | Recipient/asset/amount typically `private` |
-| Escrow send to unregistered recipient | Same private disclosure as a registered transfer |
+| Deposit | Recipient is typically `private`; sender/asset/amount typically `public`. Relayer does not apply. |
+| Registered private transfer | Recipient/asset/amount typically `private`. Sender may be public or private (private requires Protocol Relay). |
+| Escrow send to unregistered recipient | Same private disclosure as a registered transfer. Sender may be public or private (private requires Protocol Relay). Escrow send itself requires Protocol Relay. |
+| Withdraw to a public wallet | Recipient, asset, and amount must be `public`. Sender may be public or private (private requires Protocol Relay). |
 
 Concrete enforcement lives in the network preset policy module. Adjust disclosure before calling prepare — do not rely on execute-time fixes.
 
@@ -61,19 +62,19 @@ Sender, asset, and amount are public. Recipient stays private because the deposi
 
 <OperationDisclosures operation="withdraw" />
 
-Sender may be public or private. Payout to a public wallet requires recipient, asset, and amount to be public.
+Sender may be public or private. Payout to a public wallet requires recipient, asset, and amount to be public. Private sender requires Protocol Relay.
 
 ### Transfer to registered recipient
 
 <OperationDisclosures operation="transfer-registered" />
 
-Sender may be public or private. Recipient, asset, and amount stay private for fully private transfers between registered users.
+Sender may be public or private. Recipient, asset, and amount stay private for fully private transfers between registered users. Private sender requires Protocol Relay.
 
 ### Transfer to unregistered recipient
 
 <OperationDisclosures operation="transfer-unregistered" />
 
-Transfers to an unregistered recipient use the same private disclosure as a registered transfer. The escrow note owner is derived from a nonce and the recipient G-address; nothing about the recipient is published on-chain.
+Transfers to an unregistered recipient use the same private disclosure as a registered transfer. The escrow note owner is derived from a nonce and the recipient G-address; nothing about the recipient is published on-chain. Escrow sends require Protocol Relay. Private sender also requires Protocol Relay.
 
 ## Choosing disclosure in your product
 

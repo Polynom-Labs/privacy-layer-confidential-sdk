@@ -9,25 +9,40 @@ import { OperationDisclosures } from '../../snippets/operation-disclosures.jsx';
 
 <OperationDisclosures operation="transfer-unregistered" />
 
+Sender may be public or **private**. Private sender and this escrow send both require **Protocol Relay**. Recipient, asset, and amount stay private.
+
 ## Transact environment hooks
 
 Unregistered recipients need `resolveTransferRecipientAtExecute` on `transactEnvironment`. The default chain resolver (`resolveTransferRecipientFromChain`) looks up the registry, then **derives an escrow key** from a random nonce and the recipient's Stellar G-address. That pins exactly one recipient to the note. Public escrow recipient limbs stay zero on send, so the transaction matches an ordinary private transfer.
 
-The hook is registered during client bootstrap (see [Setup](/application-development/setup)). Custom resolvers should return `escrowSend` with the derived nonce and G-address limbs rather than a temporary private address.
+The hook is registered during client bootstrap (see [Setup](/application-development/setup)). Use a client slot assigned **after** `createStellarPrivacyClient` — do not close over `client` before it exists. Custom resolvers should return `escrowSend` with the derived nonce and G-address limbs rather than a temporary private address.
 
 ```ts
+import type { StellarPrivacyClient } from '@arcanetech/privacy-sdk-stellar';
+
+let privacyClient: StellarPrivacyClient | undefined;
+
 const transactEnvironment = {
   // ...network, kyt, signTransaction from setup
-  resolveTransferRecipientAtExecute: async ({ recipientStellarAddress, walletPublicKey }) => {
-    return client.resolveTransferRecipient({
+  resolveTransferRecipientAtExecute: async ({
+    recipientStellarAddress,
+    walletPublicKey,
+  }) => {
+    if (!privacyClient) {
+      throw new Error('Privacy client is not ready.');
+    }
+    return privacyClient.resolveTransferRecipient({
       recipientStellarAddress,
       walletPublicKey,
     });
   },
 };
+
+// after createStellarPrivacyClient succeeds:
+privacyClient = created;
 ```
 
-Escrow sends require Protocol Relay and a zero public deposit. A positive public deposit is refused (not downgraded to Direct Submission). If relay is unconfigured, submission fails with `escrow_relay_unconfigured` and wallet submission is not offered.
+Escrow sends require Protocol Relay and a zero public deposit. A positive public deposit is refused (not downgraded to Direct Submission). If relay is unconfigured, submission fails with `escrow_relay_unconfigured` and wallet submission is not offered. `operation.execute()` is Direct Submission and **does not** complete an escrow send.
 
 ## Example
 
@@ -92,6 +107,14 @@ await client.upsertPrivateRecords([
 ### Run operation
 
 ```tsx
+import { requiredSubmissionMethod } from '@arcanetech/privacy-sdk-stellar/transact';
+import {
+  createRelayApi,
+  resolveRelayOrigin,
+  submitAndAwaitPrivateOperation,
+  throwIfRelayUnsuccessful,
+} from '@arcanetech/privacy-sdk-relay';
+
 const operation = await client.transfer({
   from: 'stpl1sender7exampleprivateaddress0000000000',
   to: 'GCRECIPIENT7EXAMPLEPUBLICKEYAAAAAAAAAAAAAAA',
@@ -109,10 +132,32 @@ if (operation.status === 'rejected') {
   throw new Error(operation.errors[0]?.message);
 }
 
-await operation.execute({});
+const method = requiredSubmissionMethod(operation.prepared);
+if (method !== 'relay') {
+  throw new Error('Escrow sends must use Protocol Relay.');
+}
+
+const origin = resolveRelayOrigin(relayOriginFromEnv);
+const ports = {
+  store,
+  submitDirect,
+  finalizeLocalState,
+  drainDeliveries,
+  persistUserTransaction,
+  ...(origin
+    ? { relayConfig: { origin }, relayApi: createRelayApi({ origin }) }
+    : {}),
+};
+const result = await submitAndAwaitPrivateOperation({
+  ports,
+  operation: relayOperation,
+});
+throwIfRelayUnsuccessful(result);
 ```
 
-The SDK derives the escrow note owner at execute. It does not put the recipient G-address in pool calldata or the relay package on send.
+Build `relayOperation` from `operation.prepared` (`prepareRelayTransactPackageFromPrepared` + `serializeRelayPackage`, `submissionPath: 'relay'`). See [Quick start Step 6](/integration/quick-start#step-6--protocol-relay-optional).
+
+The SDK derives the escrow note owner at execute-time resolution. It does not put the recipient G-address in pool calldata or the relay package on send.
 
 ## Discover notes sent before registration
 

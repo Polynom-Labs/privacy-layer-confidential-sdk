@@ -14,17 +14,19 @@ A short script that:
 1. Creates a Stellar privacy client with in-memory state.
 2. Seeds the minimum fixture data prepare expects.
 3. Calls `deposit`, checks the prepare result, and runs `execute` with progress logging.
+4. Optionally routes later operations through Protocol Relay when Direct Submission is not allowed.
 
 ## Prerequisites
 
 - Node.js 20.10 or later
 - Packages: `@arcanetech/privacy-sdk-stellar`, `@arcanetech/privacy-sdk-state-memory`
+- Optional: `@arcanetech/privacy-sdk-relay` for private-sender and escrow-send paths (Step 6)
 
 ```bash
 npm install @arcanetech/privacy-sdk-stellar @arcanetech/privacy-sdk-state-memory
 ```
 
-Need Redux and React too? See [Install](/application-development/install).
+Need Redux and React too? See [Install](/application-development/install). For Protocol Relay, also install `@arcanetech/privacy-sdk-relay`.
 
 ## Step 1 — In-memory state adapter
 
@@ -193,6 +195,66 @@ await operation.execute({
 <Tip>
   Always branch on `operation.status` before calling `execute()`. Use `onEvent` to drive progress UI — stages are listed in [Operation lifecycle](/concepts/operation-lifecycle).
 </Tip>
+
+Deposit keeps the sender **public** and uses a positive public deposit, so Direct Submission (`execute()`) is the correct path. Skip Step 6 unless you are submitting a private-sender or escrow-send operation.
+
+## Step 6 — Protocol Relay (optional)
+
+`operation.execute()` is **Direct Submission**: the connected wallet signs and the transact engine submits to Soroban. It never calls `@arcanetech/privacy-sdk-relay`.
+
+After prepare, choose the path with `requiredSubmissionMethod` from `@arcanetech/privacy-sdk-stellar/transact`:
+
+- **`direct`** — positive public deposit (typical deposit). Call `operation.execute()`.
+- **`relay`** — zero public deposit (private sender) or an **escrow send** to an unregistered recipient. Do **not** call `execute()`. Build a relay package and submit through the relay runtime.
+- Escrow **sweeps** stay Direct so the claimant wallet signs the envelope.
+
+Relaying is off until `relayConfig.origin` is set. An unset origin Direct-submits and never contacts a relayer.
+
+```ts
+import { requiredSubmissionMethod } from '@arcanetech/privacy-sdk-stellar/transact';
+import {
+  createRelayApi,
+  resolveRelayOrigin,
+  submitAndAwaitPrivateOperation,
+  throwIfRelayUnsuccessful,
+  type ProtocolRelayPorts,
+} from '@arcanetech/privacy-sdk-relay';
+
+if (operation.status !== 'prepared') {
+  throw new Error(operation.errors[0]?.message ?? 'Prepare failed');
+}
+
+const method = requiredSubmissionMethod(operation.prepared);
+
+if (method === 'direct') {
+  await operation.execute({
+    onEvent(event) {
+      if (event.status === 'begin') {
+        console.log(`[${event.stage}] started`);
+      }
+    },
+  });
+} else {
+  const origin = resolveRelayOrigin(relayOriginFromEnv);
+  const ports: ProtocolRelayPorts = {
+    store,
+    submitDirect,
+    finalizeLocalState,
+    drainDeliveries,
+    persistUserTransaction,
+    ...(origin
+      ? { relayConfig: { origin }, relayApi: createRelayApi({ origin }) }
+      : {}),
+  };
+  const result = await submitAndAwaitPrivateOperation({
+    ports,
+    operation: relayOperation,
+  });
+  throwIfRelayUnsuccessful(result);
+}
+```
+
+Build `relayOperation` (`NewPrivateOperation`) in your app: set `submissionPath: 'relay'`, serialize the package with `prepareRelayTransactPackageFromPrepared` + `serializeRelayPackage`, and implement the five ports (`store`, `submitDirect`, `finalizeLocalState`, `drainDeliveries`, `persistUserTransaction`). The relay runtime does not inspect the opaque package payload. See [`@arcanetech/privacy-sdk-relay`](/overview/packages) and the [withdraw](/application-development/how-to/withdraw) / [unregistered transfer](/application-development/how-to/transfer-unregistered-recipient) how-tos.
 
 ## Next steps
 

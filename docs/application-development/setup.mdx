@@ -56,10 +56,13 @@ import {
   createStellarPrivacyClient,
   isStellarPrivacyClient,
   loadDefaultStellarBrowserAssets,
+  type StellarPrivacyClient,
 } from '@arcanetech/privacy-sdk-stellar';
 import type { StellarTransactEnvironment } from '@arcanetech/privacy-sdk-stellar/transact';
 import { privacySdkState } from './store';
 import { wallet } from './wallet';
+
+let privacyClient: StellarPrivacyClient | undefined;
 
 const transactEnvironment: StellarTransactEnvironment = {
   network: {
@@ -75,6 +78,18 @@ const transactEnvironment: StellarTransactEnvironment = {
     kytPassageRegistryContract: 'CKYTEXAMPLECONTRACTIDAAAAAAAAAAAAAAAAAAAAAA',
   },
   signTransaction: async ({ xdr }) => ({ signedTxXdr: xdr }),
+  resolveTransferRecipientAtExecute: async ({
+    recipientStellarAddress,
+    walletPublicKey,
+  }) => {
+    if (!privacyClient) {
+      throw new Error('Privacy client is not ready.');
+    }
+    return privacyClient.resolveTransferRecipient({
+      recipientStellarAddress,
+      walletPublicKey,
+    });
+  },
 };
 
 export async function bootstrapPrivacyClient() {
@@ -92,9 +107,14 @@ export async function bootstrapPrivacyClient() {
   if (!isStellarPrivacyClient(created)) {
     throw new Error('Privacy client rejected during initialization.');
   }
+  privacyClient = created;
   return created;
 }
 ```
+
+<Tip>
+  G-address transfers (registered lookup or escrow send) need `resolveTransferRecipientAtExecute` on the **same** `transactEnvironment` object you pass into `createStellarPrivacyClient`. Hold a client slot and assign it after bootstrap — do not close over `client` before it exists. The engine and bootstrap must share that one environment instance.
+</Tip>
 
 ## React provider and hook
 

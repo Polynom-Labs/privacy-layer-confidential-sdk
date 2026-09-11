@@ -9,6 +9,13 @@ import { OperationDisclosures } from '../../snippets/operation-disclosures.jsx';
 
 <OperationDisclosures operation="withdraw" />
 
+Sender may be public or **private**. Private sender requires **Protocol Relay** (zero public deposit). `operation.execute()` is Direct Submission only and does not contact the relayer.
+
+After prepare, call `requiredSubmissionMethod(operation.prepared)` from `@arcanetech/privacy-sdk-stellar/transact`:
+
+- `direct` — `await operation.execute({})` (example below)
+- `relay` — wire `@arcanetech/privacy-sdk-relay` as in [Quick start Step 6](/integration/quick-start#step-6--protocol-relay-optional)
+
 ## Example
 
 ### Seed state

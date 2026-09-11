@@ -75,9 +75,9 @@ These values never leave the client in plaintext and must not appear in server-s
   Treat wallet scalars and `coinNote` secrets like private keys. Persist them only through your chosen state adapter and per-wallet storage policy.
 </Warning>
 
-## Pending claims
+## Escrow notes (unregistered recipient)
 
-When you transfer to an **unregistered** recipient (public wallet `to`), the preset binds a public **escrow recipient** at execute time. The output note uses a temporary private address until the recipient registers.
+When you transfer to an **unregistered** recipient (public wallet `to`), the preset derives an **escrow note owner** from a nonce and the recipient G-address. The send stays indistinguishable from a private transfer. Escrow sends require Protocol Relay. After the recipient registers, they discover notes with blinded recipient tags and sweep with Direct Submission.
 
 Preset-specific hooks for this path are documented in [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient).
 

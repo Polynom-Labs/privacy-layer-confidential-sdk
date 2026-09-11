@@ -70,7 +70,7 @@ For the shipped Stellar preset, production wiring typically looks like:
 | Pool Merkle state | Pool event scanner or client sync against Soroban RPC |
 | Private records | Incoming delivery sync and output-note handling in your payment app |
 | Registry lookup | On-chain registry simulate + `checkRegistrationStatus` |
-| Pending claims index | Pending-claims list from your backend (filtered by owner and asset) |
+| Escrow note discovery | Blinded recipient tags + `fetchEscrowOutputNoteEvents` after the recipient registers |
 | Audit interpretation | Encrypted audit event indexing and interpretation in your stack |
 
 <Warning>
