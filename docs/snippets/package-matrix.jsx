@@ -76,8 +76,13 @@ export const PackageMatrix = () => {
         <tbody className="divide-y divide-zinc-200 dark:divide-zinc-800">
           {rows.map((row) => (
             <tr key={row.name}>
-              <td className="px-4 py-3 font-mono text-xs text-zinc-900 dark:text-zinc-100">
-                {row.name}
+              <td className="px-4 py-3 font-mono text-xs">
+                <a
+                  href={`https://www.npmjs.com/package/${row.name}`}
+                  className="text-zinc-900 underline decoration-zinc-300 underline-offset-2 hover:decoration-zinc-500 dark:text-zinc-100 dark:decoration-zinc-600"
+                >
+                  {row.name}
+                </a>
               </td>
               <td className="px-4 py-3 text-zinc-700 dark:text-zinc-300">
                 {row.role}

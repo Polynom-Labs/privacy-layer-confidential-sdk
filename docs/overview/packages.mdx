@@ -5,13 +5,13 @@ description: Map of @arcanetech packages, layered architecture, and the Stellar 
 
 import { PackageMatrix } from '../snippets/package-matrix.jsx';
 
-All public packages use the `@arcanetech` scope. You install presets and state adapters explicitly; **no additional cryptography packages** are required for browser or Node usage.
+All public packages use the `@arcanetech` scope and are published on npm. You install presets, state adapters, and the optional Protocol Relay runtime explicitly; **no additional cryptography packages** are required for browser or Node usage.
 
 ## Package map
 
 <PackageMatrix />
 
-`@arcanetech/privacy-sdk-stellar` ships bundled runtime assets for browser and Node. Your application passes network configuration, wallet adapter, state adapter, and policy — the preset handles the rest.
+`@arcanetech/privacy-sdk-stellar` ships bundled runtime assets for browser and Node. Your application passes network configuration, wallet adapter, state adapter, and policy — the preset handles the rest. For private sender or escrow sends, add [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) — see [Protocol Relay package](#protocol-relay).
 
 ## Layered architecture
 
@@ -47,7 +47,7 @@ Internal transitive dependencies are not part of the public integration surface.
 | Import | Purpose |
 | --- | --- |
 | `@arcanetech/privacy-sdk-core` | Intents, lifecycle helpers, error types, progress events |
-| `@arcanetech/privacy-sdk-relay` | Protocol relay runtime (ports, polling, retry, fallback) and the chain-agnostic wire vocabulary (statuses, reason codes, package JSON) |
+| [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) | Protocol relay runtime (ports, polling, retry, fallback) and the chain-agnostic wire vocabulary (statuses, reason codes, package JSON) |
 | `@arcanetech/privacy-sdk-state-memory` | In-memory state adapter for prototypes and tests |
 | `@arcanetech/privacy-sdk-state-redux` | Redux Toolkit adapter for React apps |
 
@@ -86,8 +86,22 @@ Internal transitive dependencies are not part of the public integration surface.
 For full React wiring and operation examples, continue to [Stellar application development](/application-development/install).
 
 <Note>
-  Future chains will ship as separate `@arcanetech/privacy-sdk-<chain>` preset packages. Core and state adapter APIs stay unchanged.
+  Future chains will ship as separate `@arcanetech/privacy-sdk-<chain>` preset packages. Core, relay, and state adapter APIs stay unchanged.
 </Note>
+
+## Protocol Relay package {#protocol-relay}
+
+[`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) is a chain-agnostic Protocol Relay runtime. Install it when the sender must stay private (zero public deposit) or you send to an unregistered recipient (escrow). Typical deposits keep the sender public and stay on Direct Submission — they do not need this package.
+
+```bash
+npm install @arcanetech/privacy-sdk-relay
+```
+
+The package owns admission, lifecycle polling, retry, and consented Direct-submit fallback. Callers supply five required ports (`store`, `submitDirect`, `finalizeLocalState`, `drainDeliveries`, `persistUserTransaction`). Relaying is off until `relayConfig.origin` is set; an unset origin Direct-submits and never contacts a relayer. The runtime does not inspect opaque package payloads and has no Stellar, Soroban, or zero-knowledge dependencies.
+
+Main exports: `createRelayApi`, `resolveRelayOrigin`, `submitAndAwaitPrivateOperation`, `throwIfRelayUnsuccessful`, `serializeRelayPackage` / `deserializeRelayPackage`, `resumePendingOperations`, `retryFailedRelayAttempt`.
+
+See [Quick start — Protocol Relay](/integration/quick-start#step-6--protocol-relay-optional) to wire it after `requiredSubmissionMethod`.
 
 ## Which packages you need
 
@@ -106,6 +120,8 @@ flowchart TD
 
   Learn --> CoreOnly["core only (read API)"]
   StellarApp --> StellarStack["core + stellar + state-memory"]
+  StellarApp --> PrivateSender[Private sender / escrow]
+  PrivateSender --> Relay["+ privacy-sdk-relay"]
   ReactProd --> ReduxStack["+ state-redux (optional)"]
   Tests --> Testing["+ stellar/testing"]
 ```
@@ -121,5 +137,8 @@ flowchart TD
   </Card>
   <Card title="Install" icon="download" href="/application-development/install">
     Full Stellar React stack install.
+  </Card>
+  <Card title="Protocol Relay" icon="route" href="/integration/quick-start#step-6--protocol-relay-optional">
+    Optional `@arcanetech/privacy-sdk-relay` wiring after prepare.
   </Card>
 </CardGroup>

@@ -7,11 +7,13 @@ The Privacy Layer SDK is a high-level **multi-chain** TypeScript library for aud
 
 ## What the SDK is
 
-The SDK splits into two layers:
+The SDK splits into these layers:
 
 | Layer | Packages | Role |
 | --- | --- | --- |
-| **Core + state** | `@arcanetech/privacy-sdk-core`, `@arcanetech/privacy-sdk-state-*`, `@arcanetech/privacy-sdk-relay` | Chain-agnostic intents, operation lifecycle, errors, progress events, pluggable state, protocol relay runtime |
+| **Core** | `@arcanetech/privacy-sdk-core` | Chain-agnostic intents, operation lifecycle, errors, progress events |
+| **Relay** | [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) | Optional Protocol Relay runtime: admission, polling, retry, fallback |
+| **State** | `@arcanetech/privacy-sdk-state-*` | Pluggable persistence for SDK domain state |
 | **Network preset** | `@arcanetech/privacy-sdk-stellar` (first shipped preset) | Binding to a specific blockchain: contracts, wallet format, bundled runtime assets |
 
 The SDK **orchestrates** private transactions on the client and maintains a **local cache** of domain state (private records, pool snapshot, registry lookups, wallet keys). It does **not** replace your backend or indexer — those services still supply asset catalogs, delivery indexing, and audit interpretation.
