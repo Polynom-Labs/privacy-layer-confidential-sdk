@@ -4,7 +4,10 @@ import {
   encodeStealthAddress,
   recipientPublicKeysDecimalFromStealthAddress,
 } from '@arcanetech/stellar-privacy-pool-zk-sdk';
-import type { PrivacyPoolSDK, SpendScalarDomain } from '@arcanetech/stellar-privacy-pool-zk-sdk';
+import type {
+  PrivacyPoolSDK,
+  SpendScalarDomain,
+} from '@arcanetech/stellar-privacy-pool-zk-sdk';
 export { DEFAULT_STEALTH_SIGN_NONCE as DEFAULT_PRIVATE_ADDRESS_SIGN_NONCE } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 export {
   OWNER_BOUND_NOTE_SCHEMA_VERSION,

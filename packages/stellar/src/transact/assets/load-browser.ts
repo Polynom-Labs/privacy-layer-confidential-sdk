@@ -19,8 +19,10 @@ export async function loadDefaultStellarBrowserAssets(options?: {
   cacheBust?: boolean;
 }): Promise<StellarBrowserAssets> {
   await import('@arcanetech/stellar-privacy-pool-zk-sdk');
-  const sdkWasmUrl = new URL('@arcanetech/stellar-privacy-pool-zk-sdk/sdk.wasm', import.meta.url)
-    .href;
+  const sdkWasmUrl = new URL(
+    '@arcanetech/stellar-privacy-pool-zk-sdk/sdk.wasm',
+    import.meta.url,
+  ).href;
   return loadStellarBrowserAssets({
     sdkWasmUrl,
     ...(options?.cacheBust ? { cacheBust: true } : {}),
