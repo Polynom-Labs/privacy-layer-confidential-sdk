@@ -13,6 +13,10 @@ Deposit keeps the sender **public**. Protocol Relay does not apply: a deposit us
 
 ## Example
 
+<Warning>
+  Pool IDs, `G…` / `stpl1` addresses, and seed hex below are **tutorial fixtures**. The client can be created if `auditPublicKeyHex` is a valid BabyJubJub key (Quick start uses the SDK bundled demo key). `execute()` will not confirm on testnet with these values — use your own pool, registry, KYT, audit key, and wallet. See [Data sources](/integration/data-sources).
+</Warning>
+
 ### Seed state
 
 ```tsx
@@ -56,6 +60,8 @@ await client.setPoolMerkleState({
 ```
 
 ### Run operation
+
+`execute()` submits to Soroban. With the fixture wallet and contracts above it will not confirm on testnet.
 
 ```tsx
 const operation = await client.deposit({

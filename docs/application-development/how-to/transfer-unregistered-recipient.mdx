@@ -46,6 +46,10 @@ Escrow sends require Protocol Relay and a zero public deposit. A positive public
 
 ## Example
 
+<Warning>
+  Pool IDs, `G…` / `stpl1` addresses, and seed hex below are **tutorial fixtures**. The client can be created if `auditPublicKeyHex` is a valid BabyJubJub key (Quick start uses the SDK bundled demo key). `execute()` will not confirm on testnet with these values — use your own pool, registry, KYT, audit key, and wallet. See [Data sources](/integration/data-sources).
+</Warning>
+
 Call `transfer` with a public Stellar `to` address and the same private disclosure as a registered transfer.
 
 ### Seed state
@@ -144,6 +148,7 @@ if (method !== 'relay') {
   throw new Error('Escrow sends must use Protocol Relay.');
 }
 
+// You implement these — they are not SDK exports.
 const origin = resolveRelayOrigin(relayOriginFromEnv);
 const ports = {
   store,

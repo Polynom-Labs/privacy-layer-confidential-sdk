@@ -8,7 +8,7 @@ import { DataSourceLegend } from '../snippets/data-source-legend.jsx';
 SDK state can be populated manually for tutorials, but production applications load domain data from **trusted services** and **chain sync**. This page separates the two.
 
 <Warning>
-  **Seed state** blocks in [Deposit](/application-development/how-to/deposit), [Withdraw](/application-development/how-to/withdraw), and [Transfer](/application-development/how-to/transfer-registered-recipient) how-to guides are **documentation fixtures**. They exist so examples run in isolation. Do not ship them as user onboarding flows.
+  **Seed state** blocks in [Deposit](/application-development/how-to/deposit), [Withdraw](/application-development/how-to/withdraw), [Transfer](/application-development/how-to/transfer-registered-recipient), and [Unregistered transfer](/application-development/how-to/transfer-unregistered-recipient) how-to guides are **documentation fixtures**. They exist so examples run in isolation. Do not ship them as user onboarding flows.
 </Warning>
 
 <DataSourceLegend />
@@ -98,7 +98,7 @@ Tutorial IDs in Quick start and how-to pages are **fixtures**. A live client mus
 | KYT registry | `CKYTEXAMPLECONTRACTIDAAAAAAAAAAAAAAAAAAAAAA` | — | `CCOHV6N5Q6O3AWBZ66G5NWSG6J5UXVBOXJ3LIDBQ35WOPGTOMGQH4AYH` |
 | KYT API | `https://example.invalid` | — | `https://stellar.arcane.finance/payment/api` |
 | Application ID | `00000000-0000-0000-0000-000000000001` | — | `3520878299009890` |
-| Audit public key | tutorial placeholder in Quick start / Setup | — | `044899603ebf8f88…c1ca8a6` |
+| Audit public key | SDK bundled demo key in Quick start / Setup (valid format; not for production) | — | your application key from Compliance |
 | `zkConfigNonce` | omit (SDK default = Commitment V2, nonce `2`) | — | `0` (legacy stand) |
 | Relay origin | unset → Relayer is never contacted | — | not set in the payment UI |
 

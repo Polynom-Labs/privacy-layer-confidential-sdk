@@ -5,6 +5,10 @@ description: Bootstrap the Stellar privacy client with Redux state, a wallet ada
 
 This page shows the infrastructure code you add once before calling deposit, transfer, or withdraw. All examples use TypeScript and React.
 
+<Warning>
+  Network contract IDs, KYT, `applicationId`, the wallet `G…` stub, and `auditPublicKeyHex` on this page are **tutorial fixtures**. The audit hex is the SDK bundled demo key (valid format), not your application key. `execute()` on testnet needs your stand and a real wallet. See [Data sources](/integration/data-sources).
+</Warning>
+
 ## Redux state adapter
 
 Create the SDK state branch, register it in your store, and bind the adapter before creating the client.
@@ -33,7 +37,7 @@ bindReduxStateAdapter(privacySdkState, store);
 
 ## Wallet adapter
 
-The client signs messages and transactions through a wallet adapter. Implement the three methods against your wallet SDK.
+The client signs messages and transactions through a wallet adapter. The `G…` value below is **not** a valid Stellar public key — it is a stub. Implement the three methods against your wallet SDK.
 
 ```ts
 import type { StellarWalletAdapter } from '@arcanetech/privacy-sdk-stellar';
@@ -99,8 +103,9 @@ export async function bootstrapPrivacyClient() {
     wallet,
     state: privacySdkState.adapter,
     assets,
+    // SDK bundled demo audit key. Replace with your application key in production.
     auditPublicKeyHex:
-      'a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2',
+      '042fc449e2dd0c5349d06092adc126e213858984584e429842d87bcc705837c76529b060ee13f1da3bde25e0e11c23a145656ede61710ed78593d69b8bdbc1a581',
     transactEnvironment,
     policy: createStellarPolicyAdapterFromEnvironment(transactEnvironment),
   });

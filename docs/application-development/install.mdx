@@ -5,6 +5,10 @@ description: Install the Stellar privacy client and Redux state adapter in your 
 
 Add `@arcanetech/privacy-sdk-stellar` and `@arcanetech/privacy-sdk-state-redux` to your React application. The Redux adapter also requires `@reduxjs/toolkit` as a peer dependency.
 
+Node.js 20.10 or later is enough to install. `@stellar/stellar-sdk` 16 (pulled by the Stellar preset) declares Node 22+; install on 20.10 may print `EBADENGINE`.
+
+Scripts and services without React should use [`@arcanetech/privacy-sdk-state-memory`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-state-memory) instead — see [Quick start](/integration/quick-start).
+
 <CodeGroup>
 
 ```bash npm
