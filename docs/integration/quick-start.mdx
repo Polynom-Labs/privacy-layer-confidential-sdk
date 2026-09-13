@@ -18,8 +18,8 @@ A short script that:
 
 ## Prerequisites
 
-- Node.js 20.10 or later
-- Packages: `@arcanetech/privacy-sdk-stellar`, `@arcanetech/privacy-sdk-state-memory`
+- Node.js 20.10 or later. `@stellar/stellar-sdk` 16 (pulled by the Stellar preset) declares Node 22+; install on 20.10 may print `EBADENGINE`.
+- Packages: [`@arcanetech/privacy-sdk-stellar`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-stellar), [`@arcanetech/privacy-sdk-state-memory`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-state-memory)
 - Optional: [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) for private-sender and escrow-send paths (Step 6)
 
 ```bash
@@ -113,7 +113,7 @@ const client = created;
 ```
 
 <Tip>
-  `loadDefaultStellarBrowserAssets()` loads the bundled SDK WASM. Proving artifacts download from the GitHub release for the SDK version unless `transactEnvironment.zkArtifactBaseUrl` overrides that URL (used by local stands). `transactEnvironment` also ties together network contracts, optional KYT, and your app's transaction signing hook.
+  `loadDefaultStellarBrowserAssets()` is the **browser** loader (Vite / SPA). It uses `fetch` on a WASM URL and fails in Node. For a Node service use [`@arcanetech/privacy-sdk-stellar/node`](/integration/integration-paths#node-path-stellar-preset) with a filesystem `sdkWasmPath`. Proving artifacts download from the GitHub release for the SDK version unless `transactEnvironment.zkArtifactBaseUrl` overrides that URL (used by local stands). `transactEnvironment` also ties together network contracts, optional KYT, and your app's transaction signing hook.
 </Tip>
 
 ## Step 4 — Seed minimal fixture state
@@ -150,6 +150,7 @@ await client.saveWalletPrivateAddressScalar({
   nonce: '1',
   scalarHex: '0xabc123scalarhexexample000000000000000000000000000000000000',
 });
+await client.setWalletDefaultPrivateAddressNonce({ owner: OWNER, nonce: '1' });
 await client.setPoolMerkleState({
   poolContract: POOL,
   commitments: ['0xmerklecommitmenthexexample00000000000000000000000000000000'],

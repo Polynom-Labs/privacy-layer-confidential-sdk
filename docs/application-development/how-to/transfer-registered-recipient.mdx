@@ -13,8 +13,8 @@ Sender may be public or **private**. Private sender requires **Protocol Relay**.
 
 After prepare, call `requiredSubmissionMethod(operation.prepared)` from `@arcanetech/privacy-sdk-stellar/transact`:
 
-- `direct` — `await operation.execute({})` (example below)
-- `relay` — wire `@arcanetech/privacy-sdk-relay` as in [Quick start Step 6](/integration/quick-start#step-6--protocol-relay-optional)
+- `direct` — `await operation.execute({})`
+- `relay` — do **not** call `execute()`; wire `@arcanetech/privacy-sdk-relay` as in [Quick start Step 6](/integration/quick-start#step-6--protocol-relay-optional)
 
 ## Example
 
@@ -55,11 +55,18 @@ await client.setPoolMerkleState({
   merkleRootHex: '0xmerkleroothexexample000000000000000000000000000000000000',
   updatedAt: Date.now(),
 });
+await client.saveWalletPrivateAddressRecord({
+  owner: SENDER,
+  nonce: '1',
+  privateAddress: SENDER_PRIVATE,
+  createdAt: Date.now(),
+});
 await client.saveWalletPrivateAddressScalar({
   owner: SENDER,
   nonce: '1',
   scalarHex: '0xabc123scalarhexexample000000000000000000000000000000000000',
 });
+await client.setWalletDefaultPrivateAddressNonce({ owner: SENDER, nonce: '1' });
 await client.upsertPrivateRecords([
   {
     id: '0xnotecommitmenthexexample000000000000000000000000000000000000',
@@ -84,6 +91,8 @@ await client.upsertPrivateRecords([
 ### Run operation
 
 ```tsx
+import { requiredSubmissionMethod } from '@arcanetech/privacy-sdk-stellar/transact';
+
 const operation = await client.transfer({
   from: 'stpl1sender7exampleprivateaddress0000000000',
   to: 'stpl1recipient7exampleprivateaddress000000',
@@ -97,11 +106,17 @@ const operation = await client.transfer({
   },
 });
 
-if (operation.status === 'rejected') {
+if (operation.status !== 'prepared') {
   throw new Error(operation.errors[0]?.message);
 }
 
-await operation.execute({});
+const method = requiredSubmissionMethod(operation.prepared);
+
+if (method === 'direct') {
+  await operation.execute({});
+} else {
+  // Private sender: Protocol Relay. See Quick start Step 6.
+}
 ```
 
 ## Related

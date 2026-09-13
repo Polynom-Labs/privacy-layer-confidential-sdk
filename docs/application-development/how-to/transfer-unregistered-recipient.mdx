@@ -78,11 +78,18 @@ await client.setPoolMerkleState({
   merkleRootHex: '0xmerkleroothexexample000000000000000000000000000000000000',
   updatedAt: Date.now(),
 });
+await client.saveWalletPrivateAddressRecord({
+  owner: SENDER,
+  nonce: '1',
+  privateAddress: SENDER_PRIVATE,
+  createdAt: Date.now(),
+});
 await client.saveWalletPrivateAddressScalar({
   owner: SENDER,
   nonce: '1',
   scalarHex: '0xabc123scalarhexexample000000000000000000000000000000000000',
 });
+await client.setWalletDefaultPrivateAddressNonce({ owner: SENDER, nonce: '1' });
 await client.upsertPrivateRecords([
   {
     id: '0xnotecommitmenthexexample000000000000000000000000000000000000',

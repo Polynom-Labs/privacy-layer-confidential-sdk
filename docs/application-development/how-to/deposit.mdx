@@ -45,6 +45,7 @@ await client.saveWalletPrivateAddressScalar({
   nonce: '1',
   scalarHex: '0xabc123scalarhexexample000000000000000000000000000000000000',
 });
+await client.setWalletDefaultPrivateAddressNonce({ owner: OWNER, nonce: '1' });
 await client.setPoolMerkleState({
   poolContract: POOL,
   commitments: ['0xmerklecommitmenthexexample00000000000000000000000000000000'],

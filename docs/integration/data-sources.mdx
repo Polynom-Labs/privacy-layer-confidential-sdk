@@ -48,6 +48,7 @@ Your application orchestrates these writes **before** users submit operations, k
 | `saveRegistryLookup` | `checkRegistrationStatus` or registry poll | Hardcoded lookup row |
 | `saveWalletPrivateAddressRecord` | Wallet private-address creation flow | Static `stpl1` address |
 | `saveWalletPrivateAddressScalar` | Wallet signature during address setup | Static scalar hex |
+| `setWalletDefaultPrivateAddressNonce` | Same wallet UX after the record/scalar exist | `{ owner, nonce: '1' }`. Spend prepare reads `$.wallet.defaultPrivateAddressNonce` — without this call it throws, it does not return `rejected`. |
 
 ## What runs automatically on execute
 
@@ -85,6 +86,23 @@ For the shipped Stellar preset, production wiring typically looks like:
 - [ ] Registry status fetched before registered-recipient transfers
 - [ ] Deliveries indexer populates `upsertPrivateRecords` for incoming notes
 - [ ] Environment variables set for pool, registry, application ID, audit public key
+
+## Where each config field comes from
+
+Tutorial IDs in Quick start and how-to pages are **fixtures**. A live client must use the pool, registry, KYT, application ID, and audit key of **your** stand or Compliance application. Values currently present in this repo (they can rotate):
+
+| Field | Tutorial fixture | SDK `bindings:generate` | Stellar Pay testnet stand |
+| --- | --- | --- | --- |
+| Pool | `CBVQTSTSIJ4UZMN5FQBFHPUIYSW3ATGSP57BZDJNKTOBNQODQTRGE4K5` | `CD56SAQXVPM3MWTTNVDBDVUEQC6DPRIIYHP67C3ICH6JGMLJSWWUFUON` | `CD56SAQXVPM3MWTTNVDBDVUEQC6DPRIIYHP67C3ICH6JGMLJSWWUFUON` |
+| Registry | `CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC` | `CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC` | `CCBTGPQFV74MMRNML23UCG3LEGU2WA2S6JU67HVZDGEYTXR6KMTSSA4C` |
+| KYT registry | `CKYTEXAMPLECONTRACTIDAAAAAAAAAAAAAAAAAAAAAA` | — | `CCOHV6N5Q6O3AWBZ66G5NWSG6J5UXVBOXJ3LIDBQ35WOPGTOMGQH4AYH` |
+| KYT API | `https://example.invalid` | — | `https://stellar.arcane.finance/payment/api` |
+| Application ID | `00000000-0000-0000-0000-000000000001` | — | `3520878299009890` |
+| Audit public key | tutorial placeholder in Quick start / Setup | — | `044899603ebf8f88…c1ca8a6` |
+| `zkConfigNonce` | omit (SDK default = Commitment V2, nonce `2`) | — | `0` (legacy stand) |
+| Relay origin | unset → Relayer is never contacted | — | not set in the payment UI |
+
+Do not copy the Pay stand `zkConfigNonce=0` into a new integration unless that stand is the target. Escrow sends without `relayConfig.origin` fail (`escrow_relay_unconfigured`); they are not downgraded to Direct.
 
 ## Related
 
