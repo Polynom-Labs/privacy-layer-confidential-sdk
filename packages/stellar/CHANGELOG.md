@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.5.0](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.4.1...privacy-sdk-stellar-v0.5.0) (2026-09-14)
+
+
+### Features
+
+* implement browser caching for ZK artifacts in Stellar SDK ([1d1b29d](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/1d1b29d89f14b905afc28eab06c69f4311b8704c))
+
+
+### Bug Fixes
+
+* deadcode guard ([e48d9f5](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/e48d9f580e25afe8529914d3d32099aee2eef420))
+
 ## [0.4.1](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.4.0...privacy-sdk-stellar-v0.4.1) (2026-09-11)
 
 
