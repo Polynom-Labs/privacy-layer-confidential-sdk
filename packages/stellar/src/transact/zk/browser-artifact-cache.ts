@@ -1,6 +1,6 @@
 import { ZK_SDK_PACKAGE_VERSION } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 
-export const ZK_ARTIFACT_CACHE_NAME = `privacy-sdk-stellar-zk-artifacts:${ZK_SDK_PACKAGE_VERSION}`;
+const ZK_ARTIFACT_CACHE_NAME = `privacy-sdk-stellar-zk-artifacts:${ZK_SDK_PACKAGE_VERSION}`;
 
 type ArtifactResponse = {
   ok: boolean;
