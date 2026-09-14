@@ -1,11 +1,11 @@
 ---
 title: Operation lifecycle
-description: Prepare and execute phases, prepared operations, errors, progress events, and persisted state
+description: Prepare and execute, prepared operations, errors, progress events, and persisted state
 ---
 
 import { LifecycleFlow } from '../snippets/lifecycle-flow.jsx';
 
-Every `deposit`, `transfer`, and `withdraw` call follows the same lifecycle. Understanding the two phases helps you build UI that fails fast and shows meaningful progress.
+Every `deposit`, `transfer`, and `withdraw` call **prepares**, then you **execute**. Check `status` before you submit so the wallet prompt never opens on a rejected intent.
 
 ## Two-phase model
 
@@ -54,10 +54,10 @@ When `status === 'prepared'`, the operation includes:
 | --- | --- |
 | `kind` | `deposit`, `transfer`, or `withdraw` |
 | `intent` | Echo of your input for confirmation screens |
-| `prepared` | Network-specific plan: selected notes, expected outputs, transact artifacts |
+| `prepared` | Plan: selected notes, expected outputs, transact artifacts |
 | `execute()` | Async function — run once to submit the transaction |
 
-The `prepared` payload is useful for advanced UI (showing change amounts) but you can treat it as opaque for basic integrations.
+The `prepared` payload is useful for advanced UI (showing change amounts). You can treat it as opaque for a basic integration.
 
 ## Execute flow and progress events
 
@@ -85,7 +85,7 @@ await operation.execute({
 | `authorization` | Wallet message or transaction signing |
 | `preparation` | Build private transaction payload |
 | `policyCheck` | Disclosure and compliance validation |
-| `submission` | Submit to the target blockchain |
+| `submission` | Submit to Stellar |
 | `confirmation` | Wait for inclusion/finality |
 | `storageCommit` | Write updated records and pool state locally |
 
@@ -101,7 +101,7 @@ You can also pass `signal: AbortSignal` to cancel long-running execute work.
 | `insufficient_state` | Missing notes, stale pool root, unknown recipient | Yes — sync state and retry |
 | `user_rejected` | Wallet declined signing | Yes — user can retry |
 | `execution_error` | Submission or confirmation failed | Usually no — inspect `stage` |
-| `unsupported_operation` | Operation not implemented for preset | No |
+| `unsupported_operation` | Operation not implemented | No |
 
 **Prepare-time** errors appear in `operation.errors` when `status === 'rejected'`.
 
@@ -122,7 +122,7 @@ If you use a Redux adapter with localStorage hydration, persist the SDK state br
 
 <CardGroup cols={2}>
   <Card title="Operations" icon="arrow-right-arrow-left" href="/concepts/operations">
-    Domain semantics for each operation kind.
+    What each operation kind does.
   </Card>
   <Card title="State integration" icon="database" href="/integration/state-integration">
     Why prepare reads SDK state.

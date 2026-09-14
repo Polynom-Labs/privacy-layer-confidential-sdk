@@ -5,10 +5,10 @@ description: Production data flows vs documentation fixtures for SDK state
 
 import { DataSourceLegend } from '../snippets/data-source-legend.jsx';
 
-SDK state can be populated manually for tutorials, but production applications load domain data from **trusted services** and **chain sync**. This page separates the two.
+Load domain data from **trusted services** and **chain sync** in production. How-to pages seed state by hand so examples run in isolation.
 
 <Warning>
-  **Seed state** blocks in [Deposit](/application-development/how-to/deposit), [Withdraw](/application-development/how-to/withdraw), [Transfer](/application-development/how-to/transfer-registered-recipient), and [Unregistered transfer](/application-development/how-to/transfer-unregistered-recipient) how-to guides are **documentation fixtures**. They exist so examples run in isolation. Do not ship them as user onboarding flows.
+  **Seed state** blocks in [Deposit](/application-development/how-to/deposit), [Withdraw](/application-development/how-to/withdraw), [Transfer](/application-development/how-to/transfer-registered-recipient), and [Unregistered transfer](/application-development/how-to/transfer-unregistered-recipient) are **documentation fixtures**. Do not ship them as user onboarding flows.
 </Warning>
 
 <DataSourceLegend />
@@ -36,7 +36,7 @@ flowchart LR
   WalletKeys --> SDKState
 ```
 
-Your application orchestrates these writes **before** users submit operations, keeping prepare reliable.
+Write this data **before** users submit operations so prepare stays reliable.
 
 ## SDK method × typical source
 
@@ -59,13 +59,11 @@ After a successful operation, the SDK updates local state without manual calls:
 - refresh pool commitment snapshot
 - record delivery metadata when configured
 
-Label these updates **SDK auto** in your mental model — not fixtures and not backend-fed.
+Treat these updates as **SDK auto** — not fixtures and not backend-fed.
 
-## Stellar preset examples {#stellar-preset-examples}
+## Stellar production sources {#stellar-preset-examples}
 
-For the shipped Stellar preset, production wiring typically looks like:
-
-| Data | Stellar-specific source |
+| Data | Source |
 | --- | --- |
 | Asset rows | Asset catalog from your backend (includes `clientContract` and `poolContract` Soroban IDs) |
 | Pool Merkle state | Pool event scanner or client sync against Soroban RPC |
@@ -78,7 +76,7 @@ For the shipped Stellar preset, production wiring typically looks like:
   How-to **Seed state** sections use example `G...` and `stpl1...` addresses and static hex commitments. Treat them as copy-paste fixtures for docs only.
 </Warning>
 
-### Minimal Stellar production checklist
+### Production checklist
 
 - [ ] Asset catalog synced from backend before showing balances
 - [ ] Pool Merkle state kept current via scanner or post-tx sync

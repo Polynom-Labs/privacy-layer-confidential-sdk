@@ -5,7 +5,7 @@ description: Control on-chain visibility of sender, recipient, asset, and amount
 
 import { OperationDisclosures } from '../snippets/operation-disclosures.jsx';
 
-**Disclosure** controls which transaction attributes appear in the **public/on-chain** portion of a private operation. Auditors still receive encrypted audit payloads; disclosure decides what is additionally visible as plaintext metadata according to your compliance design.
+**Disclosure** sets which attributes appear in the public, on-chain portion of a private operation. Auditors still receive encrypted audit payloads. Disclosure decides what is also visible as plaintext.
 
 ## What disclosure controls
 
@@ -27,19 +27,17 @@ Each field is either `'public'` or `'private'`.
 | `public` | Attribute included in publicly visible transaction metadata for this operation |
 | `private` | Attribute not published in plaintext; auditors rely on encrypted audit data |
 
-Disclosure is a **product and compliance** choice within the constraints of each operation route.
+Set disclosure on the intent. Each route only accepts some combinations.
 
 ## "Both" in route reference tables
 
 Some reference tables in this documentation show **both** for a field (for example withdraw sender). **Both is not a third API value** — it means the route **accepts either** `public` or `private` for that field.
 
-On Stellar, **private sender** is valid only with **Protocol Relay** (zero public deposit). Public sender uses Direct Submission (`operation.execute()`). Deposit sender cannot be private.
+**Private sender** is valid only with **Protocol Relay** (zero public deposit). Public sender uses Direct Submission (`operation.execute()`). Deposit sender cannot be private.
 
-The network preset **policy adapter** rejects invalid combinations with `unsupported_disclosure` during prepare.
+The Stellar **policy adapter** rejects invalid combinations with `unsupported_disclosure` during prepare.
 
 ## Route constraints
-
-These rules apply across presets at the domain level:
 
 | Route | Constraint |
 | --- | --- |
@@ -48,7 +46,7 @@ These rules apply across presets at the domain level:
 | Escrow send to unregistered recipient | Same private disclosure as a registered transfer. Sender may be public or private (private requires Protocol Relay). Escrow send itself requires Protocol Relay. |
 | Withdraw to a public wallet | Recipient, asset, and amount must be `public`. Sender may be public or private (private requires Protocol Relay). |
 
-Concrete enforcement lives in the network preset policy module. Adjust disclosure before calling prepare — do not rely on execute-time fixes.
+Set a valid disclosure before you call prepare. Execute does not fix an invalid combination.
 
 ## Per-operation reference
 

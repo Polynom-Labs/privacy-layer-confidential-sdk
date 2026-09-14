@@ -3,7 +3,7 @@ title: Setup
 description: Bootstrap the Stellar privacy client with Redux state, a wallet adapter, and optional persistence
 ---
 
-This page shows the infrastructure code you add once before calling deposit, transfer, or withdraw. All examples use TypeScript and React.
+Add this once, then call deposit, transfer, or withdraw. All examples use TypeScript and React.
 
 <Warning>
   Network contract IDs, KYT, `applicationId`, the wallet `G…` stub, and `auditPublicKeyHex` on this page are **tutorial fixtures**. The audit hex is the SDK bundled demo key (valid format), not your application key. `execute()` on testnet needs your stand and a real wallet. See [Data sources](/integration/data-sources).
@@ -204,7 +204,7 @@ Call `usePrivacySdkPersistence(walletAddress)` inside `PrivacySdkProvider` after
 
 <CardGroup cols={2}>
   <Card title="Quick start (Stellar preset)" icon="rocket" href="/integration/quick-start">
-    Minimal in-memory bootstrap before this full React setup.
+    In-memory client before this React setup.
   </Card>
   <Card title="State integration" icon="database" href="/integration/state-integration">
     Why the SDK needs state and when to use Redux.

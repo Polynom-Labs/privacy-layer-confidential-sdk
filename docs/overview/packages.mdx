@@ -5,13 +5,13 @@ description: Map of @arcanetech packages, layered architecture, and the Stellar 
 
 import { PackageMatrix } from '../snippets/package-matrix.jsx';
 
-All public packages use the `@arcanetech` scope and are published on npm. You install presets, state adapters, and the optional Protocol Relay runtime explicitly; **no additional cryptography packages** are required for browser or Node usage.
+All public packages use the `@arcanetech` scope and are published on npm. Install the Stellar preset, a state adapter, and the optional Protocol Relay runtime explicitly. **No additional cryptography packages** are required for browser or Node.
 
 ## Package map
 
 <PackageMatrix />
 
-`@arcanetech/privacy-sdk-stellar` ships bundled runtime assets for browser and Node. Your application passes network configuration, wallet adapter, state adapter, and policy — the preset handles the rest. For private sender or escrow sends, add [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) — see [Protocol Relay package](#protocol-relay).
+`@arcanetech/privacy-sdk-stellar` ships bundled runtime assets for browser and Node. Pass network configuration, a wallet adapter, a state adapter, and policy — the preset handles the rest. For private sender or escrow sends, add [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) — see [Protocol Relay package](#protocol-relay).
 
 ## Layered architecture
 
@@ -33,21 +33,21 @@ flowchart BT
   Redux --> Core
 ```
 
-- **Core** — network-agnostic orchestration: intents, prepare/execute lifecycle, errors, progress events.
-- **Relay** — chain-agnostic protocol relay runtime: admission, polling, retry, and fallback over caller-supplied ports. It owns statuses, reason codes, and package JSON serialization, follows a caller-supplied submission path, and never inspects opaque package payloads or deposit amounts. Relaying is enabled only when the caller sets `relayConfig.origin`; otherwise the runtime Direct-submits and does not contact a relayer. Settlement polling is bounded.
-- **State adapters** — pluggable persistence for SDK domain state; work with any frontend or backend storage stack.
-- **Network presets** — chain-specific clients, contract bindings, and state schema extensions.
+- **Core** — intents, prepare/execute lifecycle, errors, progress events.
+- **Relay** — Protocol Relay runtime: admission, polling, retry, and fallback over caller-supplied ports. It owns statuses, reason codes, and package JSON serialization, follows a caller-supplied submission path, and never inspects opaque package payloads or deposit amounts. Relaying is enabled only when the caller sets `relayConfig.origin`; otherwise the runtime Direct-submits and does not contact a relayer. Settlement polling is bounded. The package does not depend on Stellar or Soroban.
+- **State adapters** — persistence for SDK domain state.
+- **Network preset** — `@arcanetech/privacy-sdk-stellar`: client, contract bindings, and state schema extensions.
 
 Internal transitive dependencies are not part of the public integration surface.
 
 ## Entry points and subpaths
 
-**Multi-chain (chain-agnostic):**
+**Shared packages:**
 
 | Import | Purpose |
 | --- | --- |
 | `@arcanetech/privacy-sdk-core` | Intents, lifecycle helpers, error types, progress events |
-| [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) | Protocol relay runtime (ports, polling, retry, fallback) and the chain-agnostic wire vocabulary (statuses, reason codes, package JSON) |
+| [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) | Protocol relay runtime (ports, polling, retry, fallback) and the wire vocabulary (statuses, reason codes, package JSON) |
 | `@arcanetech/privacy-sdk-state-memory` | In-memory state adapter for prototypes and tests |
 | `@arcanetech/privacy-sdk-state-redux` | Redux Toolkit adapter for React apps |
 
@@ -62,7 +62,7 @@ Internal transitive dependencies are not part of the public integration surface.
 
 ## Stellar preset {#stellar-preset}
 
-`@arcanetech/privacy-sdk-stellar` is the first shipped network preset. It targets **Stellar** with **Soroban** smart contracts:
+Use `@arcanetech/privacy-sdk-stellar` for **Stellar** with **Soroban** smart contracts:
 
 - **Pool contract** — private deposits, transfers, and withdrawals.
 - **Private-address registry** — maps public Stellar accounts to private payment addresses.
@@ -71,7 +71,7 @@ Internal transitive dependencies are not part of the public integration surface.
 - **`requiredSubmissionMethod(prepared)`** — Direct Submission vs Protocol Relay for a prepared operation (positive public deposits stay direct; a zero public deposit uses relay). Escrow sends require relay and a zero public deposit; a positive public deposit is refused rather than downgraded. Escrow sweeps use Direct Submission so the claimant wallet signs the envelope.
 - **`buildBlindedRecipientTagChallengeMessage(fields)`** — wallet-signed challenge string used to issue blinded recipient tags so a recipient can discover escrow notes after they register. See [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient#discover-notes-sent-before-registration).
 
-**Address model (Stellar only):**
+**Address model:**
 
 | Type | Format | Used for |
 | --- | --- | --- |
@@ -83,15 +83,11 @@ Internal transitive dependencies are not part of the public integration surface.
 - `loadDefaultStellarBrowserAssets()` — bundled SDK WASM for the browser. Circuit schemes (2×2 and 6×6) are selected by `zkConfigNonce` (Commitment V2 by default).
 - `transactEnvironment` — network, KYT, and transaction signing hooks passed at client creation.
 
-For full React wiring and operation examples, continue to [Stellar application development](/application-development/install).
-
-<Note>
-  Future chains will ship as separate `@arcanetech/privacy-sdk-<chain>` preset packages. Core, relay, and state adapter APIs stay unchanged.
-</Note>
+For React wiring and operation examples, continue to [Stellar application development](/application-development/install).
 
 ## Protocol Relay package {#protocol-relay}
 
-[`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) is a chain-agnostic Protocol Relay runtime. Install it when the sender must stay private (zero public deposit) or you send to an unregistered recipient (escrow). Typical deposits keep the sender public and stay on Direct Submission — they do not need this package.
+Install [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) when the sender must stay private (zero public deposit) or you send to an unregistered recipient (escrow). Typical deposits keep the sender public and stay on Direct Submission — they do not need this package. The runtime does not depend on Stellar or Soroban.
 
 ```bash
 npm install @arcanetech/privacy-sdk-relay
@@ -136,9 +132,9 @@ flowchart TD
     Choose in-memory or Redux state adapters.
   </Card>
   <Card title="Quick start (Stellar preset)" icon="rocket" href="/integration/quick-start">
-    Minimal Stellar client bootstrap.
+    Create a Stellar client and run a deposit.
   </Card>
   <Card title="Install" icon="download" href="/application-development/install">
-    Full Stellar React stack install.
+    Install the Stellar React stack.
   </Card>
 </CardGroup>

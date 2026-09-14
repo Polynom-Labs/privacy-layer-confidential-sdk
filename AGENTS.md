@@ -5,7 +5,8 @@
 - Do not bypass lint or Fallow checks by weakening config files or adding disable comments.
 - Do not add ptau files to this repository. Groth16 zkey/VK regeneration belongs in `soroban-privacy-pools` using its existing `circuits/ptau/` file; never regenerate ptau.
 - Public Mintlify/docs cover only `@arcanetech/privacy-sdk-*` packages; do not document `@arcanetech/stellar-privacy-pool-zk-sdk`, ZK/circuit/proving internals, or state-bridge implementation details—use adapter-library and "transaction preparation" wording instead.
-- In SDK docs, mention Stellar/Soroban only in stellar-preset sections; document `core` and `state-*` as multi-chain.
+- SDK Mintlify docs describe the Stellar integration (`@arcanetech/privacy-sdk-stellar`). Do not use "multi-chain", "chain-agnostic", "network-agnostic", "first shipped preset", or "future chains will ship". Describe shared packages (core, relay, state-*) by what they do. Keep "network preset" only as the name of the Stellar package.
+- SDK docs use Stripe-style developer voice: open with the outcome, then the step; second person; active voice; one idea per sentence; imperative headings; code immediately after the instruction. Warn only when a mistake is expensive (fixture IDs vs a live stand, demo audit key, Node engine). Do not hedge ("learning exercise", "not a production app layout") or sell architecture ("extensibility").
 - SDK docs must not name internal backend products or concrete REST endpoint paths; describe integrations generically (e.g. asset catalog sync, registry status).
 - State-integration docs should lead with in-memory adapter examples and keep Redux as an optional adapter path; omit custom-adapter outline sections and do not mention `@arcanetech/privacy-sdk-testing` (not shipped).
 - For internal workspace dependencies in npm workspaces, use `"*"` (not `workspace:*`, which npm does not support) so CI links local packages instead of resolving stale semver pins.

@@ -3,14 +3,14 @@ title: Security and privacy
 description: Trust boundaries, local storage, on-chain publication, auditor visibility, and KYT
 ---
 
-Private payments require clear trust boundaries. This page summarizes what the SDK stores locally, what reaches the blockchain, and what auditors and compliance services can see.
+This page lists what the SDK stores locally, what reaches Stellar, and what auditors and compliance services can see.
 
 ## Trust boundaries
 
 ```mermaid
 flowchart LR
   Device[User device SDK state]
-  Chain[Target blockchain]
+  Chain[Stellar]
   KYT[Compliance KYT service]
   Audit[Audit infrastructure and auditors]
 
@@ -23,7 +23,7 @@ flowchart LR
 | Boundary | Responsibility |
 | --- | --- |
 | **User device** | Wallet keys, note secrets, SDK state persistence |
-| **Target blockchain** | Commitments, nullifiers, disclosed fields, encrypted audit events |
+| **Stellar** | Commitments, nullifiers, disclosed fields, encrypted audit events |
 | **Compliance (KYT)** | Policy screening on passage payloads when configured |
 | **Audit infrastructure** | Encrypted audit decryption and case interpretation |
 
@@ -68,7 +68,7 @@ Private disclosure fields are not published as plaintext on-chain; interpretatio
 
 ## KYT and passage registry
 
-When KYT is configured on the network preset, the SDK may submit a **passage inspect** request before submission. High-level payload contents include hashed public signals and passage metadata — not local note secrets.
+When KYT is configured on the Stellar client, the SDK may submit a **passage inspect** request before submission. High-level payload contents include hashed public signals and passage metadata — not local note secrets.
 
 The integration **fails closed**: if compliance rejects the passage, execute stops before submission.
 
@@ -77,7 +77,7 @@ The integration **fails closed**: if compliance rejects the passage, execute sto
 Prepare/execute may request:
 
 - **Message authorization** — proves control of a private payment address
-- **Transaction signing** — signs the prepared transaction payload for the target network
+- **Transaction signing** — signs the prepared Stellar transaction payload
 
 Review wallet prompts carefully in UI copy so users understand what they authorize.
 

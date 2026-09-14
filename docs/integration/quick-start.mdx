@@ -1,11 +1,11 @@
 ---
 title: Quick start (Stellar preset)
-description: Minimal Stellar client bootstrap with in-memory state — prepare and execute a deposit
+description: Create a Stellar client with in-memory state, then prepare and execute a deposit
 ---
 
-This tutorial walks through a **minimal Stellar preset** integration using an **in-memory state adapter** — no Redux, no React provider. It is a learning exercise, not a production app layout.
+This tutorial walks through a **minimal Stellar preset** integration using an **in-memory state adapter**.
 
-For full React wiring, see [Setup](/application-development/setup).
+For React wiring, see [Setup](/application-development/setup).
 
 ## What you will build
 
@@ -27,16 +27,16 @@ A short script that:
 npm install @arcanetech/privacy-sdk-stellar @arcanetech/privacy-sdk-state-memory
 ```
 
-Need Redux and React too? See [Install](/application-development/install). For Protocol Relay, also install `@arcanetech/privacy-sdk-relay`.
+For Redux and React, see [Install](/application-development/install). For Protocol Relay, also install `@arcanetech/privacy-sdk-relay`.
 
-## Step 1 — In-memory state adapter
+## Step 1 — Create an in-memory state adapter
 
-The SDK keeps domain data — private records, pool snapshot, registry cache, wallet keys — that **prepare reads** to decide whether an operation is valid. If notes, pool root, or wallet secrets are missing or stale, prepare returns `rejected` with `insufficient_state` instead of opening the wallet.
+Prepare reads local domain data — private records, pool snapshot, registry cache, wallet keys. If notes, pool root, or wallet secrets are missing or stale, prepare returns `rejected` with `insufficient_state` instead of opening the wallet.
 
-An in-memory adapter stores this data in process memory. It is ideal for tutorials and unit tests; it does not survive reloads.
+An in-memory adapter stores this data in process memory. It does not survive reloads.
 
 <Tip>
-  You pass the adapter to `createStellarPrivacyClient` as `state`. The SDK reads and updates domain data through the adapter library — you do not implement low-level storage APIs yourself.
+  Pass the adapter to `createStellarPrivacyClient` as `state`. The SDK reads and updates domain data through the adapter — you do not implement storage APIs yourself.
 </Tip>
 
 ```ts
@@ -45,9 +45,9 @@ import { createInMemoryStateAdapter } from '@arcanetech/privacy-sdk-state-memory
 const state = createInMemoryStateAdapter();
 ```
 
-## Step 2 — Wallet stub
+## Step 2 — Add a wallet adapter
 
-The Stellar preset signs through a wallet adapter. The `G…` value below is **not** a valid Stellar public key — it is a stub. Replace it with your wallet SDK in production.
+The Stellar preset signs through a wallet adapter. The `G…` value below is **not** a valid Stellar public key — it is a stub. Replace it with your wallet SDK before you send live transactions.
 
 ```ts
 import type { StellarWalletAdapter } from '@arcanetech/privacy-sdk-stellar';
@@ -122,9 +122,9 @@ const client = created;
   `loadDefaultStellarBrowserAssets()` is the **browser** loader (Vite / SPA). It uses `fetch` on a WASM URL and fails in Node. For a Node service use [`@arcanetech/privacy-sdk-stellar/node`](/integration/integration-paths#node-path-stellar-preset) with a filesystem `sdkWasmPath`. Proving artifacts download from the GitHub release for the SDK version unless `transactEnvironment.zkArtifactBaseUrl` overrides that URL (used by local stands). `transactEnvironment` also ties together network contracts, optional KYT, and your app's transaction signing hook.
 </Tip>
 
-## Step 4 — Seed minimal fixture state
+## Step 4 — Seed fixture state
 
-The block below is **tutorial fixture data** — in production, assets and wallet secrets come from your backend and wallet flows. See [Data sources](/integration/data-sources).
+The block below is **tutorial fixture data**. In production, assets and wallet secrets come from your backend and wallet flows. See [Data sources](/integration/data-sources).
 
 ```ts
 const POOL = transactEnvironment.network.poolContract;
@@ -172,7 +172,7 @@ await client.setPoolMerkleState({
 
 ## Step 5 — Prepare and execute
 
-`execute()` submits to Soroban. With the fixture wallet and contracts above it will not confirm on testnet. Use this block to learn the prepare / execute API; swap in a real wallet and stand before sending.
+`execute()` submits to Soroban. With the fixture wallet and contracts above it will not confirm on testnet. Swap in a real wallet and stand before sending.
 
 ```ts
 const operation = await client.deposit({
@@ -272,15 +272,15 @@ Build `relayOperation` (`NewPrivateOperation`) in your app: set `submissionPath:
 
 <CardGroup cols={2}>
   <Card title="State integration" icon="database" href="/integration/state-integration">
-    Move from in-memory to Redux for production React.
+    Use Redux when your React app already has a store.
   </Card>
   <Card title="Data sources" icon="server" href="/integration/data-sources">
     Replace fixtures with live backend and chain sync.
   </Card>
   <Card title="Setup" icon="wrench" href="/application-development/setup">
-    Full Stellar application shell with persistence.
+    React client bootstrap with persistence.
   </Card>
   <Card title="Deposit how-to" icon="book" href="/application-development/how-to/deposit">
-    Complete deposit reference with disclosure tiles.
+    Deposit reference with disclosure tiles.
   </Card>
 </CardGroup>

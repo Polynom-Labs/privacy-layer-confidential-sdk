@@ -1,28 +1,26 @@
 ---
 title: Introduction
-description: What the Privacy Layer SDK is, what problems it solves, and how the documentation is organized
+description: Add auditable private payments with deposit, transfer, and withdraw
 ---
 
-The Privacy Layer SDK is a high-level **multi-chain** TypeScript library for auditable private payments. It gives your application a stable domain API — `deposit`, `transfer`, and `withdraw` — while hiding low-level cryptography and chain orchestration inside **network presets**.
+The Privacy Layer SDK is a TypeScript library for auditable private payments. Use `deposit`, `transfer`, and `withdraw` — the SDK prepares the transaction, drives wallet signing, and submits it.
 
-## What the SDK is
-
-The SDK splits into these layers:
+## Packages
 
 | Layer | Packages | Role |
 | --- | --- | --- |
-| **Core** | `@arcanetech/privacy-sdk-core` | Chain-agnostic intents, operation lifecycle, errors, progress events |
+| **Core** | `@arcanetech/privacy-sdk-core` | Intents, operation lifecycle, errors, progress events |
 | **Relay** | [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) | Optional Protocol Relay runtime: admission, polling, retry, fallback |
-| **State** | `@arcanetech/privacy-sdk-state-*` | Pluggable persistence for SDK domain state |
-| **Network preset** | `@arcanetech/privacy-sdk-stellar` (first shipped preset) | Binding to a specific blockchain: contracts, wallet format, bundled runtime assets |
+| **State** | `@arcanetech/privacy-sdk-state-*` | Persistence for SDK domain state |
+| **Network preset** | `@arcanetech/privacy-sdk-stellar` | Stellar contracts, wallet format, bundled runtime assets |
 
-The SDK **orchestrates** private transactions on the client and maintains a **local cache** of domain state (private records, pool snapshot, registry lookups, wallet keys). It does **not** replace your backend or indexer — those services still supply asset catalogs, delivery indexing, and audit interpretation.
+The SDK runs private transactions on the client and keeps a **local cache** of domain state (private records, pool snapshot, registry lookups, wallet keys). It does **not** replace your backend or indexer. Those services still supply asset catalogs, delivery indexing, and audit interpretation.
 
 ```mermaid
 flowchart LR
   App[Your application]
-  Preset[Network preset]
-  Chain[Target blockchain]
+  Preset[Stellar preset]
+  Chain[Stellar]
   Backend[Optional backend services]
 
   App --> Preset
@@ -31,42 +29,34 @@ flowchart LR
   Preset -.-> Backend
 ```
 
-<Note>
-  Stellar and Soroban details appear only in the [Stellar preset](/overview/packages#stellar-preset) section, [Quick start (Stellar preset)](/integration/quick-start), and [Stellar application development](/application-development/install) how-to guides.
-</Note>
+## What the SDK does
 
-## Problems it solves
-
-Without the SDK, every application must manually assemble transaction inputs, validate pool state, enforce disclosure rules, drive wallet signing, and persist private records. The SDK provides:
-
-- A **two-phase operation model** — `prepare` validates and plans; `execute` signs, submits, and persists — so UI can show errors before the wallet prompt.
+- **Prepare, then execute** — `prepare` validates and plans; `execute` signs, submits, and persists. The UI can show errors before the wallet prompt.
 - **Typed errors** and **progress events** for loading states and retry logic.
-- **Pluggable state** through adapter libraries (in-memory, Redux) instead of locking you to one state manager.
-- **Extensibility** — new chain presets can ship without changing the core intent and lifecycle API.
+- **State adapters** (in-memory, Redux) so you are not locked to one store.
 
 ## What you can build
 
-- A multi-chain wallet or payment client (Stellar is the first shipped preset).
-- Embedded private transfers inside an existing dApp on a supported network.
-- A backend signing service using a preset's Node entrypoint (you supply a server-side wallet adapter).
-- Automated test harnesses and CI pipelines with fake transact engines — no live chain required.
+- A Stellar wallet or payment client.
+- Private transfers inside an existing Stellar dApp.
+- A Node signing service (you supply a server-side wallet adapter).
+- Tests with a fake transact engine — no live chain required.
 
-## How documentation is organized
+## Next
 
-Read in this order:
-
-1. **Overview** — product scope and package map (multi-chain).
-2. **Concepts** — domain model, operations, lifecycle, disclosure, security (multi-chain).
-3. **Integration** — [Getting access](/integration/getting-access) (npm + stand values), runtime paths, quick start, state adapters, production data sources.
-4. **Stellar application development** — full React + Redux wiring and operation how-to guides.
+1. **[Packages](/overview/packages)** — npm map and Stellar entry points.
+2. **[Domain model](/concepts/domain-model)** — addresses, records, pool, and registry.
+3. **[Getting access](/integration/getting-access)** — npm install and live stand values.
+4. **[Quick start](/integration/quick-start)** — create a client and run a deposit.
+5. **[Stellar application development](/application-development/install)** — React wiring and operation how-tos.
 
 ```mermaid
 flowchart TD
   Intro[Introduction]
   Pkg[Packages]
   Domain[Domain model]
-  QS[Quick start Stellar]
-  HowTo[Stellar how-to]
+  QS[Quick start]
+  HowTo[How-to]
 
   Intro --> Pkg --> Domain --> QS --> HowTo
 ```
@@ -81,9 +71,9 @@ flowchart TD
     Map of `@arcanetech/*` packages and the Stellar preset.
   </Card>
   <Card title="Quick start (Stellar preset)" icon="rocket" href="/integration/quick-start">
-    Minimal in-memory example without Redux.
+    Create a Stellar client and run a deposit.
   </Card>
   <Card title="Domain model" icon="sitemap" href="/concepts/domain-model">
-    Addresses, records, pool, and registry concepts.
+    Addresses, records, pool, and registry.
   </Card>
 </CardGroup>

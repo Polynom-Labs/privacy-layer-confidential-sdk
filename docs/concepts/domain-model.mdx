@@ -1,16 +1,16 @@
 ---
 title: Domain model
-description: Core entities in the Privacy Layer SDK — addresses, registry, assets, private records, and pool state
+description: Addresses, registry, assets, private records, and pool state in the Privacy Layer SDK
 ---
 
-Before writing integration code, understand the domain objects the SDK reads and writes. These concepts are **multi-chain** — address formats and contract names depend on your network preset.
+The SDK reads and writes these objects during prepare and execute. On Stellar, public wallets use `G...` accounts and private payment addresses use `stpl1...`.
 
 ## Address types
 
 | Concept | Description |
 | --- | --- |
-| **Public wallet address** | The on-chain identifier for a user's wallet in the target network. Used for public deposits, withdrawals, and unregistered-recipient transfers. |
-| **Private payment address** | An address format used for private pool notes. Appears in `from` or `to` when moving value inside the privacy pool. Format is preset-specific — see [Stellar preset](/overview/packages#stellar-preset) for the shipped Stellar layout. |
+| **Public wallet address** | The Stellar `G...` account. Used for public deposits, withdrawals, and unregistered-recipient transfers. |
+| **Private payment address** | A `stpl1...` address for private pool notes. Appears in `from` or `to` when moving value inside the privacy pool. |
 
 **Typical patterns:**
 
@@ -32,7 +32,7 @@ The SDK caches registry lookups in local state so prepare can resolve recipients
 
 ## Assets and pool binding
 
-Your asset catalog maps human-readable asset IDs (for example `usdc`) to on-chain token identifiers and the privacy **pool contract** that holds notes for that asset. The preset uses this binding when building transactions.
+Your asset catalog maps human-readable asset IDs (for example `usdc`) to on-chain token identifiers and the privacy **pool contract** that holds notes for that asset. The Stellar preset uses this binding when building transactions.
 
 Populate the catalog from your backend in production — see [Data sources](/integration/data-sources).
 
@@ -79,7 +79,7 @@ These values never leave the client in plaintext and must not appear in server-s
 
 When you transfer to an **unregistered** recipient (public wallet `to`), the preset derives an **escrow note owner** from a nonce and the recipient G-address. The send stays indistinguishable from a private transfer. Escrow sends require Protocol Relay. After the recipient registers, they discover notes with blinded recipient tags and sweep with Direct Submission.
 
-Preset-specific hooks for this path are documented in [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient).
+See [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient).
 
 ## Entity relationships
 
