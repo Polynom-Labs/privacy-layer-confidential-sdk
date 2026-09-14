@@ -119,7 +119,7 @@ const client = created;
 ```
 
 <Tip>
-  `loadDefaultStellarBrowserAssets()` is the **browser** loader (Vite / SPA). It uses `fetch` on a WASM URL and fails in Node. For a Node service use [`@arcanetech/privacy-sdk-stellar/node`](/integration/integration-paths#node-path-stellar-preset) with a filesystem `sdkWasmPath`. Proving artifacts download from the GitHub release for the SDK version unless `transactEnvironment.zkArtifactBaseUrl` overrides that URL (used by local stands). `transactEnvironment` also ties together network contracts, optional KYT, and your app's transaction signing hook.
+  `loadDefaultStellarBrowserAssets()` is the **browser** loader (Vite / SPA). It uses `fetch` on a WASM URL and fails in Node. For a Node service use [`@arcanetech/privacy-sdk-stellar/node`](/integration/integration-paths#node-path-stellar-preset) with a filesystem `sdkWasmPath`. Proving artifacts download from the CDN for the SDK version unless `transactEnvironment.zkArtifactBaseUrl` overrides that URL (used by local stands). `transactEnvironment` also ties together network contracts, optional KYT, and your app's transaction signing hook.
 </Tip>
 
 ## Step 4 — Seed fixture state

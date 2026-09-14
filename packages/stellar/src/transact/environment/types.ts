@@ -55,7 +55,7 @@ export interface StellarTransactEnvironment {
   zkCircuits?: Record<string, StellarZkCircuitDefinition>;
   /**
    * Directory or HTTP prefix for graph / r1cs / proving-key files.
-   * Defaults to the GitHub release for `@arcanetech/stellar-privacy-pool-zk-sdk`.
+   * Defaults to the CDN prefix baked into `@arcanetech/stellar-privacy-pool-zk-sdk`.
    * Staging and local stands override this to serve files from disk.
    */
   zkArtifactBaseUrl?: string;
