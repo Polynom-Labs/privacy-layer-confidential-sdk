@@ -37,7 +37,7 @@ flowchart TD
 
 For **Stellar + Soroban** applications:
 
-1. Install `@arcanetech/privacy-sdk-stellar` and a state adapter — see [Quick start](/integration/quick-start) or [Install](/application-development/install). For private sender or escrow sends, also install [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay).
+1. Install `@arcanetech/privacy-sdk-stellar` and a state adapter — see [Getting access](/integration/getting-access), [Quick start](/integration/quick-start), or [Install](/application-development/install). For private sender or escrow sends, also install [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay).
 2. Load bundled SDK WASM with `loadDefaultStellarBrowserAssets()` (browser) or a filesystem WASM path via `@arcanetech/privacy-sdk-stellar/node`. Circuit artifacts resolve from the SDK defaults unless you pass a custom/dev scheme.
 3. Implement a **Stellar wallet adapter** (`getAddress`, `authorizeMessage`, `signTransactionPayload`).
 4. Pass **`transactEnvironment`** with Soroban RPC URL, pool/registry contract IDs, KYT config, and `signTransaction`.

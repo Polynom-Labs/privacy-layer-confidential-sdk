@@ -1,0 +1,62 @@
+---
+title: Getting access
+description: How to install the SDK and where to get live stand values — not from a Stellar wallet
+---
+
+Packages are on the public npm registry under `@arcanetech`. Anonymous `npm install` is enough for the published 0.4.x line. There is no extra GitHub Packages token in this path.
+
+```bash
+npm install @arcanetech/privacy-sdk-stellar @arcanetech/privacy-sdk-state-memory
+```
+
+React apps: [Install](/application-development/install) (`state-redux` + Relayer when you need a private sender or escrow send).
+
+## What a live client needs
+
+A Stellar **wallet** (Freighter or your adapter) only supplies a `G…` address and signatures. It does **not** supply pool IDs, KYT, or Relayer.
+
+| You must have | What it is |
+| --- | --- |
+| `network.poolContract` | Soroban privacy pool (`C…`) |
+| `network.registryContract` | Private-address registry (`C…`) |
+| `network.applicationId` | Compliance / audit-backend app id (UUID **or** number) |
+| `auditPublicKeyHex` | Application audit public key (128 hex or `04`+X+Y). Not the SDK demo key |
+| `kyt.apiBaseUrl` | KYT / Passage HTTP API |
+| `kyt.kytPassageRegistryContract` | KYT passage registry (`C…`) |
+| `network.rpcUrl` / passphrase | Testnet defaults are public (`soroban-testnet.stellar.org`, SDF testnet passphrase) |
+| `relayConfig.origin` | Relayer base URL. Required for **private sender** and **escrow send**. Unset origin never contacts a relayer; escrow then fails with `escrow_relay_unconfigured` |
+
+Contract IDs and keys in [Quick start](/integration/quick-start) and how-to pages are **tutorial fixtures**. `execute()` will not confirm on testnet with those values.
+
+## Where partners get the values
+
+1. Create or receive a **`stellar-pool` application** in the [Compliance Platform](/products/compliance-platform/user-guide/organisation-management/application-management). The platform issues the application id and the public audit key. Private audit material stays server-side.
+2. Take **pool, registry, KYT contract, KYT URL, and Relayer origin** from the stand Arcane gives you (or from your own deployment). Do not copy the internal Stellar Pay `.env` into a partner app unless that stand is explicitly yours.
+3. Put them in your environment. The internal Pay UI today (stellar **0.3.0**) does **not** set a Relayer origin — that is a product gap on that app, not a missing SDK API.
+
+Side-by-side tutorial / `bindings:generate` / Pay stand IDs: [Data sources](/integration/data-sources#where-each-config-field-comes-from).
+
+Do not copy Pay `zkConfigNonce=0` into a new integration. Omit the field; SDK default is Commitment V2 (nonce `2`).
+
+## First live transaction
+
+Deposit with a **public sender** and Direct Submission (`operation.execute()`). That path does not need Relayer. You still need a funded testnet wallet and the stand row above.
+
+Private sender, unregistered escrow send, and Relayer wiring: [Quick start Step 6](/integration/quick-start#step-6--protocol-relay-optional).
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
+    Fixture bootstrap and prepare / execute shape.
+  </Card>
+  <Card title="Data sources" icon="server" href="/integration/data-sources">
+    Fixtures vs production writes, and the three ID sets.
+  </Card>
+  <Card title="Install" icon="download" href="/application-development/install">
+    React + Relayer packages.
+  </Card>
+  <Card title="Application management" icon="building" href="/products/compliance-platform/user-guide/organisation-management/application-management">
+    `stellar-pool` application, audit public key.
+  </Card>
+</CardGroup>

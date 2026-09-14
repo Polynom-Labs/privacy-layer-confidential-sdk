@@ -87,9 +87,9 @@ For the shipped Stellar preset, production wiring typically looks like:
 - [ ] Deliveries indexer populates `upsertPrivateRecords` for incoming notes
 - [ ] Environment variables set for pool, registry, application ID, audit public key
 
-## Where each config field comes from
+## Where each config field comes from {#where-each-config-field-comes-from}
 
-Tutorial IDs in Quick start and how-to pages are **fixtures**. A live client must use the pool, registry, KYT, application ID, and audit key of **your** stand or Compliance application. Values currently present in this repo (they can rotate):
+How to install and who issues these values: [Getting access](/integration/getting-access). Tutorial IDs in Quick start and how-to pages are **fixtures**. A live client must use the pool, registry, KYT, application ID, and audit key of **your** stand or Compliance application. Values currently present in this repo (they can rotate):
 
 | Field | Tutorial fixture | SDK `bindings:generate` | Stellar Pay testnet stand |
 | --- | --- | --- | --- |
@@ -107,6 +107,9 @@ Do not copy the Pay stand `zkConfigNonce=0` into a new integration unless that s
 ## Related
 
 <CardGroup cols={2}>
+  <Card title="Getting access" icon="key" href="/integration/getting-access">
+    npm and stand values (not from a wallet).
+  </Card>
   <Card title="Domain model" icon="sitemap" href="/concepts/domain-model">
     What each state entity represents.
   </Card>
@@ -115,8 +118,5 @@ Do not copy the Pay stand `zkConfigNonce=0` into a new integration unless that s
   </Card>
   <Card title="Deposit how-to" icon="book" href="/application-development/how-to/deposit">
     Fixture seed state example.
-  </Card>
-  <Card title="State integration" icon="database" href="/integration/state-integration">
-    Adapter libraries for persisting SDK state.
   </Card>
 </CardGroup>
