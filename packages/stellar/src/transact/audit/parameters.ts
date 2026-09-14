@@ -70,11 +70,18 @@ export function buildPoolTransactionAuditParameters(input: {
   );
 }
 
+const DECIMAL_APPLICATION_ID = /^\d+$/u;
+
 export function resolvePoolApplicationId(applicationId: string | undefined): string {
   const trimmed = applicationId?.trim();
   if (!trimmed) {
     throw new Error(
       'Privacy pool applicationId is required. Pass it in client factory config.',
+    );
+  }
+  if (!DECIMAL_APPLICATION_ID.test(trimmed)) {
+    throw new Error(
+      'Privacy pool applicationId must be association.audit_id (decimal Fr), not a UUID or foreignId.',
     );
   }
   return trimmed;
