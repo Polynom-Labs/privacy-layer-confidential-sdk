@@ -29,6 +29,7 @@ async function privacyPoolInitOptions(
   const zkCircuits = await materializeSelectedZkCircuit(
     transactEnvironment.zkCircuits,
     zkConfigNonce,
+    transactEnvironment.zkArtifactBaseUrl,
   );
   return {
     wasmBinary: assets.sdkWasm,

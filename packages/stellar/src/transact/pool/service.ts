@@ -75,6 +75,7 @@ export class PrivacyPoolService {
       const zkCircuits = await materializeSelectedZkCircuit(
         this.zkCircuits,
         zkConfigNonce,
+        this.zkArtifactBaseUrl,
       );
       this.sdk = await PrivacyPoolSDK.init({
         wasmBinary: this.assets.sdkWasm,

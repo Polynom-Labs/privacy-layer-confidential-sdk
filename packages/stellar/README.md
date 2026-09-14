@@ -61,7 +61,7 @@ const clientOrRejected = await createStellarPrivacyClientFromNodeConfig({
 
 ## Required Assets
 
-The Stellar preset loads proving artifacts from the GitHub release for `@arcanetech/stellar-privacy-pool-zk-sdk`. Pass `sdkWasm` (browser) or `sdkWasmPath` (Node). Override `transactEnvironment.zkArtifactBaseUrl` for local files. Custom circuit URLs are only for development. Do not regenerate `ptau` or Groth16 zkey files inside this repository.
+The Stellar preset loads proving artifacts from the GitHub release for `@arcanetech/stellar-privacy-pool-zk-sdk`. Pass `sdkWasm` (browser) or `sdkWasmPath` (Node). Override `transactEnvironment.zkArtifactBaseUrl` for local files. The browser bundle stores those proving files in Cache Storage (keyed by zk-sdk version) so a later visit or a second `init` in the same origin reuses the download. Node still reads files from disk or HTTP without Cache Storage. Custom circuit URLs are only for development. Do not regenerate `ptau` or Groth16 zkey files inside this repository.
 
 ## Related Docs
 
