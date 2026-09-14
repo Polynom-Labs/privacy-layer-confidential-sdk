@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.5.0...privacy-sdk-stellar-v0.5.1) (2026-09-14)
+
+
+### Bug Fixes
+
+* stellar zk sdk version bump ([a077b59](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/a077b5900410869572649f573f26f7747dd0f06f))
+
 ## [0.5.0](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.4.1...privacy-sdk-stellar-v0.5.0) (2026-09-14)
 
 
