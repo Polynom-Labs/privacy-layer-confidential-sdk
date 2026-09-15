@@ -87,20 +87,22 @@ Treat these updates as **SDK auto** — not fixtures and not backend-fed.
 
 ## Where each config field comes from {#where-each-config-field-comes-from}
 
-How to install and who issues these values: [Getting access](/integration/getting-access). Tutorial IDs in Quick start and how-to pages are **fixtures**. A live client must use the pool, registry, KYT, application ID, and audit key of **your** stand or Compliance application. Values currently present in this repo (they can rotate):
+How to install and who issues these values: [Getting access](/integration/getting-access). Tutorial IDs in Quick start and how-to pages are **fixtures**. A live client must use the pool, registry, KYT, decimal application ID, and audit key of **your** stand or Compliance application. Values below can rotate:
 
 | Field | Tutorial fixture | SDK `bindings:generate` | Stellar Pay testnet stand |
 | --- | --- | --- | --- |
-| Pool | `CBVQTSTSIJ4UZMN5FQBFHPUIYSW3ATGSP57BZDJNKTOBNQODQTRGE4K5` | `CD56SAQXVPM3MWTTNVDBDVUEQC6DPRIIYHP67C3ICH6JGMLJSWWUFUON` | `CD56SAQXVPM3MWTTNVDBDVUEQC6DPRIIYHP67C3ICH6JGMLJSWWUFUON` |
-| Registry | `CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC` | `CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC` | `CCBTGPQFV74MMRNML23UCG3LEGU2WA2S6JU67HVZDGEYTXR6KMTSSA4C` |
-| KYT registry | `CKYTEXAMPLECONTRACTIDAAAAAAAAAAAAAAAAAAAAAA` | — | `CCOHV6N5Q6O3AWBZ66G5NWSG6J5UXVBOXJ3LIDBQ35WOPGTOMGQH4AYH` |
-| KYT API | `https://example.invalid` | — | `https://stellar.arcane.finance/payment/api` |
-| Application ID | `00000000-0000-0000-0000-000000000001` | — | `3520878299009890` |
+| Pool | `CBVQTSTSIJ4UZMN5FQBFHPUIYSW3ATGSP57BZDJNKTOBNQODQTRGE4K5` | `CD56SAQXVPM3MWTTNVDBDVUEQC6DPRIIYHP67C3ICH6JGMLJSWWUFUON` | `CA5VMH2O7ZVBNBMAMRO3INM5NSTRQYLJEKOC352OKGFNBU45Y3O7CNQ4` |
+| Registry | `CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC` | `CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC` | `CCYTAXXIHB2PY2AY423LIE3YOGY5BJSDP2EGWF6SXV3KF52R4VJ5X7AV` |
+| KYT registry | `CKYTEXAMPLECONTRACTIDAAAAAAAAAAAAAAAAAAAAAA` | — | `CCZSPXBKKQWYADKCULGLEXJGP7QFKFIULOPVDB7WFOQ76ESBON7LVVDU` |
+| KYT API | `https://example.invalid` | — | `https://arcane-pay.testnet.arcane.finance/api` |
+| Application ID | `1` (decimal fixture only) | — | `8925686221542498` |
 | Audit public key | SDK bundled demo key in Quick start / Setup (valid format; not for production) | — | your application key from Compliance |
-| `zkConfigNonce` | omit (SDK default = Commitment V2, nonce `2`) | — | `0` (legacy stand) |
-| Relay origin | unset → Relayer is never contacted | — | not set in the payment UI |
+| `zkConfigNonce` | omit → SDK default **`3`** | — | `7` |
+| Relay origin | unset → Relayer is never contacted | — | set on this stand (base URL from stand owner) |
+| Tag issuance / storage origin | — | — | stand-supplied base URL for escrow discovery |
+| `zkArtifactBaseUrl` | omit → SDK CDN default | — | stand may override (Pay points at a static CDN) |
 
-Do not copy the Pay stand `zkConfigNonce=0` into a new integration unless that stand is the target. Escrow sends without `relayConfig.origin` fail (`escrow_relay_unconfigured`); they are not downgraded to Direct.
+`bindings:generate` IDs can diverge from the live Pay stand. Do not copy the Pay stand `zkConfigNonce=7` into a new integration unless that stand is the target. Escrow sends without `relayConfig.origin` fail (`escrow_relay_unconfigured`); they are not downgraded to Direct.
 
 ## Related
 

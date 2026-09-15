@@ -13,7 +13,7 @@ Transfer to a recipient whose private address is already in the registry cache.
 
 Sender may be public or **private**. Private sender requires **Protocol Relay**. `operation.execute()` is Direct Submission only and does not contact the relayer.
 
-After prepare, call `requiredSubmissionMethod(operation.prepared)` from `@arcanetech/privacy-sdk-stellar/transact`:
+After prepare, call `requiredSubmissionMethod(operation.prepared, zkConfigNonce)` from `@arcanetech/privacy-sdk-stellar/transact` (pass the pool’s nonce; SDK default is `3n`):
 
 - `direct` — `await operation.execute({})`
 - `relay` — do **not** call `execute()`; wire `@arcanetech/privacy-sdk-relay` as in [Quick start Step 6](/integration/quick-start#step-6--protocol-relay-optional)
@@ -116,7 +116,7 @@ if (operation.status !== 'prepared') {
   throw new Error(operation.errors[0]?.message);
 }
 
-const method = requiredSubmissionMethod(operation.prepared);
+const method = requiredSubmissionMethod(operation.prepared, 3n);
 
 if (method === 'direct') {
   await operation.execute({});

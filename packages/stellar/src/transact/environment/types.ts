@@ -43,14 +43,15 @@ export interface StellarTransactEnvironment {
   network: StellarNetworkConfig;
   /**
    * Nonce (persistent storage key) of the pool's `ZkConfig` entry this
-   * environment's proofs/circuit shape target. Defaults to `2n` (Commitment
-   * V2, 95 public signals) when omitted. Nonce `0` is the retired 93-signal
-   * layout and must be passed explicitly.
+   * environment's proofs/circuit shape target. Defaults to `3n` (bundled 2×2
+   * binding layout) when omitted. Also bundled: `7n` (6×6). The value must
+   * match the on-chain pool config or bootstrap/execute fails with
+   * `no zk circuit configured for nonce …`.
    */
   zkConfigNonce?: bigint;
   /**
-   * Optional nonce-keyed circuit map. Defaults to the SDK bundled 2×2 (nonce 2)
-   * and 6×6 (nonce 6) schemes. URL fields are only for a custom/dev circuit.
+   * Optional nonce-keyed circuit map. Defaults to the SDK bundled 2×2 (nonce 3)
+   * and 6×6 (nonce 7) schemes. URL fields are only for a custom/dev circuit.
    */
   zkCircuits?: Record<string, StellarZkCircuitDefinition>;
   /**

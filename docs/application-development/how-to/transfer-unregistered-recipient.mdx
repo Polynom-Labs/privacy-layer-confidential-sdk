@@ -145,7 +145,7 @@ if (operation.status === 'rejected') {
   throw new Error(operation.errors[0]?.message);
 }
 
-const method = requiredSubmissionMethod(operation.prepared);
+const method = requiredSubmissionMethod(operation.prepared, 3n);
 if (method !== 'relay') {
   throw new Error('Escrow sends must use Protocol Relay.');
 }
@@ -175,7 +175,9 @@ The SDK derives the escrow note owner at execute-time resolution. It does not pu
 
 ## Discover notes sent before registration
 
-A recipient who registers later can still find notes that were sent to their public wallet. They prove control of that wallet by signing a challenge in the same labeled-line shape used to derive a private-note spend key. `buildBlindedRecipientTagChallengeMessage` builds that exact UTF-8 string so it matches issuance.
+A recipient who registers later can still find notes that were sent to their public wallet. Escrow discovery uses **blinded recipient tags**, not the retired pending-claim client API.
+
+Your stand may provide a **tag-issuance / storage origin**. Production apps often fetch the challenge and issued tags from that service, then sign the challenge with the wallet. When your app builds the challenge string locally, use `buildBlindedRecipientTagChallengeMessage` so the UTF-8 bytes match issuance (same labeled-line shape as a private-note spend key).
 
 Sign the message with a current account signer, then present the signature to your tag-issuance integration. Issued **blinded recipient tags** (one per tag epoch) are how the recipient looks up notes without revealing their address to the index.
 

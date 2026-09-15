@@ -6,7 +6,7 @@ description: Bootstrap the Stellar privacy client with Redux state, a wallet ada
 Add this once, then call deposit, transfer, or withdraw. All examples use TypeScript and React.
 
 <Warning>
-  Network contract IDs, KYT, `applicationId`, the wallet `G…` stub, and `auditPublicKeyHex` on this page are **tutorial fixtures**. The audit hex is the SDK bundled demo key (valid format), not your application key. `execute()` on testnet needs your stand and a real wallet. See [Data sources](/integration/data-sources).
+  Network contract IDs, KYT, decimal `applicationId`, the wallet `G…` stub, and `auditPublicKeyHex` on this page are **tutorial fixtures**. The audit hex is the SDK bundled demo key (valid format), not your application key. Live `execute()` needs your stand’s real audit id and a real wallet. See [Data sources](/integration/data-sources).
 </Warning>
 
 ## Redux state adapter
@@ -52,7 +52,7 @@ export const wallet: StellarWalletAdapter = {
 
 ## Client bootstrap
 
-Load the bundled SDK WASM, pass network configuration, and create the client once at startup. Commitment V2 (nonce `2`) is the default; the SDK already includes bundled 2×2 and 6×6 circuit schemes. Pass `zkConfigNonce` only to select a non-default scheme. Custom circuit URLs are for development only.
+Load the bundled SDK WASM, pass network configuration, and create the client once at startup. When `zkConfigNonce` is omitted, the SDK default is binding nonce **`3`** (bundled 2×2). Nonce **`7`** (bundled 6×6) is also shipped. Pass `zkConfigNonce` only to match your pool’s on-chain `ZkConfig`. Override `zkArtifactBaseUrl` when the stand serves proving artifacts from a custom CDN.
 
 ```ts
 import {
@@ -75,7 +75,7 @@ const transactEnvironment: StellarTransactEnvironment = {
     networkPassphrase: 'Test SDF Network ; September 2015',
     poolContract: 'CBVQTSTSIJ4UZMN5FQBFHPUIYSW3ATGSP57BZDJNKTOBNQODQTRGE4K5',
     registryContract: 'CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC',
-    applicationId: '00000000-0000-0000-0000-000000000001',
+    applicationId: '1',
   },
   kyt: {
     apiBaseUrl: 'https://example.invalid',

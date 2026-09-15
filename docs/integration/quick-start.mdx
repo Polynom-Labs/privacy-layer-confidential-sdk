@@ -69,7 +69,7 @@ const wallet: StellarWalletAdapter = {
 Load bundled runtime assets, configure Soroban network contracts, and create the client once.
 
 <Warning>
-  Contract IDs, KYT, `applicationId`, and `auditPublicKeyHex` in this block are **tutorial fixtures**. `auditPublicKeyHex` is the SDK bundled demo key (valid BabyJubJub format) — not a production application key. A live `execute()` needs your stand’s pool, registry, KYT, application ID, and audit key. `applicationId` may be a UUID or a numeric string depending on the stand. See [Data sources](/integration/data-sources).
+  Contract IDs, KYT, `applicationId`, and `auditPublicKeyHex` in this block are **tutorial fixtures**. `auditPublicKeyHex` is the SDK bundled demo key (valid BabyJubJub format) — not a production application key. A live `execute()` needs your stand’s pool, registry, KYT, decimal `applicationId` (`association.audit_id`), and audit key. UUIDs are rejected. See [Data sources](/integration/data-sources).
 </Warning>
 
 ```ts
@@ -88,7 +88,7 @@ const transactEnvironment: StellarTransactEnvironment = {
     networkPassphrase: 'Test SDF Network ; September 2015',
     poolContract: 'CBVQTSTSIJ4UZMN5FQBFHPUIYSW3ATGSP57BZDJNKTOBNQODQTRGE4K5',
     registryContract: 'CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC',
-    applicationId: '00000000-0000-0000-0000-000000000001',
+    applicationId: '1',
   },
   kyt: {
     apiBaseUrl: 'https://example.invalid',
@@ -211,7 +211,7 @@ Deposit keeps the sender **public** and uses a positive public deposit, so Direc
 
 `operation.execute()` is **Direct Submission**: the connected wallet signs and the transact engine submits to Soroban. It never calls `@arcanetech/privacy-sdk-relay`.
 
-After prepare, choose the path with `requiredSubmissionMethod` from `@arcanetech/privacy-sdk-stellar/transact`:
+After prepare, choose the path with `requiredSubmissionMethod` from `@arcanetech/privacy-sdk-stellar/transact`. Pass the same `zkConfigNonce` as the pool (SDK default `3n`) so public-signal layout matches:
 
 - **`direct`** — positive public deposit (typical deposit). Call `operation.execute()`.
 - **`relay`** — zero public deposit (private sender) or an **escrow send** to an unregistered recipient. Do **not** call `execute()`. Build a relay package and submit through the relay runtime.
@@ -235,7 +235,9 @@ if (operation.status !== 'prepared') {
   throw new Error(operation.errors[0]?.message ?? 'Prepare failed');
 }
 
-const method = requiredSubmissionMethod(operation.prepared);
+// Match the pool ZkConfig nonce (SDK default is 3n when omitted on the client).
+const zkConfigNonce = 3n;
+const method = requiredSubmissionMethod(operation.prepared, zkConfigNonce);
 
 if (method === 'direct') {
   await operation.execute({

@@ -68,7 +68,7 @@ Use `@arcanetech/privacy-sdk-stellar` for **Stellar** with **Soroban** smart con
 - **Private-address registry** — maps public Stellar accounts to private payment addresses.
 - **Soroban RPC** — submission and confirmation.
 - **`createStellarPrivacyClient()`** — main browser entrypoint.
-- **`requiredSubmissionMethod(prepared)`** — Direct Submission vs Protocol Relay for a prepared operation (positive public deposits stay direct; a zero public deposit uses relay). Escrow sends require relay and a zero public deposit; a positive public deposit is refused rather than downgraded. Escrow sweeps use Direct Submission so the claimant wallet signs the envelope.
+- **`requiredSubmissionMethod(prepared, zkConfigNonce?)`** — Direct Submission vs Protocol Relay for a prepared operation (positive public deposits stay direct; a zero public deposit uses relay). Pass the same `zkConfigNonce` as the pool (SDK default `3`) so public-signal layout matches. Escrow sends require relay and a zero public deposit; a positive public deposit is refused rather than downgraded. Escrow sweeps use Direct Submission so the claimant wallet signs the envelope.
 - **`buildBlindedRecipientTagChallengeMessage(fields)`** — wallet-signed challenge string used to issue blinded recipient tags so a recipient can discover escrow notes after they register. See [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient#discover-notes-sent-before-registration).
 
 **Address model:**
@@ -80,8 +80,8 @@ Use `@arcanetech/privacy-sdk-stellar` for **Stellar** with **Soroban** smart con
 
 **Bootstrap helpers:**
 
-- `loadDefaultStellarBrowserAssets()` — bundled SDK WASM for the browser. Circuit schemes (2×2 and 6×6) are selected by `zkConfigNonce` (Commitment V2 by default).
-- `transactEnvironment` — network, KYT, and transaction signing hooks passed at client creation.
+- `loadDefaultStellarBrowserAssets()` — bundled SDK WASM for the browser. Circuit schemes are selected by `zkConfigNonce`: **`3`** (2×2, default) and **`7`** (6×6).
+- `transactEnvironment` — network, KYT, optional `zkConfigNonce` / `zkArtifactBaseUrl`, and transaction signing hooks passed at client creation.
 
 For React wiring and operation examples, continue to [Stellar application development](/application-development/install).
 
