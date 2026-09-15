@@ -163,7 +163,11 @@ Wrap your app root with `PrivacySdkProvider` and read `client` from the hook bef
 
 ## Persist state in local storage
 
-SDK state lives in the Redux branch created above. Save and restore that branch per wallet owner so private records and registry cache survive reloads.
+SDK state lives in the Redux branch created above. Hydrate and save **that branch only**, keyed by wallet owner, so private records and registry cache survive reloads.
+
+<Warning>
+  The persisted JSON is the full SDK cache, including `coinNote` secrets and wallet scalars. Treat it like a private-key store: scope it per wallet, do not write the rest of the Redux store, and encrypt at rest if your threat model requires it. See [Security and privacy](/concepts/security-and-privacy).
+</Warning>
 
 ```tsx
 import { useEffect } from 'react';
@@ -191,14 +195,20 @@ export function usePrivacySdkPersistence(walletAddress: string | undefined) {
       store.dispatch(hydrateReduxPrivacySdkState(saved));
     }
 
+    let previous = store.getState().privacySdkState;
     return store.subscribe(() => {
-      saveBranch(owner, store.getState().privacySdkState);
+      const branch = store.getState().privacySdkState;
+      if (branch === previous) {
+        return;
+      }
+      previous = branch;
+      saveBranch(owner, branch);
     });
   }, [walletAddress]);
 }
 ```
 
-Call `usePrivacySdkPersistence(walletAddress)` inside `PrivacySdkProvider` after the client is ready. Amount fields in private records are stored as strings in JSON; the SDK normalizes them on read.
+Call `usePrivacySdkPersistence(walletAddress)` inside `PrivacySdkProvider` after the client is ready. Write only when the SDK branch changes — not on every unrelated store update. Amount fields in private records are stored as strings in JSON; the SDK normalizes them on read.
 
 ## Related
 
