@@ -78,12 +78,14 @@ Treat these updates as **SDK auto** — not fixtures and not backend-fed.
 
 ### Production checklist
 
-- [ ] Asset catalog synced from backend before showing balances
-- [ ] Pool Merkle state kept current via scanner or post-tx sync
-- [ ] Wallet private-address and scalar created through wallet UX, not hardcoded
-- [ ] Registry status fetched before registered-recipient transfers
-- [ ] Deliveries indexer populates `upsertPrivateRecords` for incoming notes
-- [ ] Environment variables set for pool, registry, application ID, audit public key
+Before you go live, confirm:
+
+1. Asset catalog synced from backend before showing balances
+2. Pool Merkle state kept current via scanner or post-tx sync
+3. Wallet private-address and scalar created through wallet UX, not hardcoded
+4. Registry status fetched before registered-recipient transfers
+5. Deliveries indexer populates `upsertPrivateRecords` for incoming notes
+6. Environment variables set for pool, registry, application ID, audit public key, Relayer origin (if needed), and tag-issuance origin (if using escrow discovery)
 
 ## Where each config field comes from {#where-each-config-field-comes-from}
 
