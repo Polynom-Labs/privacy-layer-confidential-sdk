@@ -7,6 +7,13 @@
 * require an explicit relay origin to enable Protocol Relay; unset origin Direct-submits and never calls the relayer
 * bound settlement polling with backoff and a `settlement_timed_out` outcome
 
+## [0.2.2](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-relay-v0.2.1...privacy-sdk-relay-v0.2.2) (2026-09-15)
+
+
+### Bug Fixes
+
+* enhance relay API URL handling and documentation ([e09a010](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/e09a0100694e817398f9ea9dd55328714602915b))
+
 ## [0.2.1](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-relay-v0.2.0...privacy-sdk-relay-v0.2.1) (2026-09-11)
 
 
