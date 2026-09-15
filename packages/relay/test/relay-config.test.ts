@@ -7,6 +7,7 @@ import {
   resolveRelayOrigin,
   submitPreparedPrivateOperation,
 } from '../src/index.js';
+import { joinRelayApiUrl } from '../src/relay-config.js';
 import { createTestPorts, newOperation } from './relay-runtime.harness.js';
 
 describe('resolveRelayOrigin', () => {
@@ -21,6 +22,20 @@ describe('resolveRelayOrigin', () => {
     expect(resolveRelayOrigin('http://localhost:3010/')).toBe('http://localhost:3010');
     expect(resolveRelayOrigin('http://localhost:3010/api')).toBe(
       'http://localhost:3010/api',
+    );
+    expect(resolveRelayOrigin('http://localhost:3010/api/')).toBe(
+      'http://localhost:3010/api',
+    );
+  });
+});
+
+describe('joinRelayApiUrl', () => {
+  it('joins relay-requests under a URI prefix', () => {
+    expect(joinRelayApiUrl('http://localhost:3010/api')).toBe(
+      'http://localhost:3010/api/relay-requests',
+    );
+    expect(joinRelayApiUrl('http://localhost:3010/api/', 'relay-1', 'attempts')).toBe(
+      'http://localhost:3010/api/relay-requests/relay-1/attempts',
     );
   });
 });
@@ -56,6 +71,34 @@ describe('createRelayApi', () => {
     expect(urls).toEqual(['http://localhost:3010/relay-requests/relay-1']);
     expect(status.relayRequestId).toBe('relay-1');
     expect(status.status).toBe('queued');
+  });
+
+  it('posts under a configured URI prefix', async () => {
+    const urls: string[] = [];
+    const api = createRelayApi({
+      origin: 'https://payments.example/api',
+      fetch: async (input) => {
+        urls.push(String(input));
+        return Response.json(
+          {
+            relayRequestId: 'relay-1',
+            status: 'accepted',
+            createdAt: '2026-01-01T00:00:00.000Z',
+            statusUrl: '/api/relay-requests/relay-1',
+          },
+          { status: 202, headers: { 'Content-Type': 'application/json' } },
+        );
+      },
+    });
+    await api.createRequest({
+      version: 1,
+      poolSelector: 'pool',
+      zkConfigNonce: '3',
+      proofBytes: '',
+      publicSignals: '',
+      applicationIdHints: [],
+    });
+    expect(urls).toEqual(['https://payments.example/api/relay-requests']);
   });
 });
 

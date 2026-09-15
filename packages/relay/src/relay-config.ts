@@ -1,9 +1,19 @@
+const RELAY_REQUESTS_SEGMENT = 'relay-requests';
+
 export function resolveRelayOrigin(origin?: string): string | undefined {
   const trimmed = origin?.trim().replace(/\/$/u, '');
   if (!trimmed) {
     return undefined;
   }
   return trimmed;
+}
+
+export function joinRelayApiUrl(origin: string, ...pathSegments: string[]): string {
+  const base = requireRelayOrigin(origin);
+  const rest = [RELAY_REQUESTS_SEGMENT, ...pathSegments].flatMap((segment) =>
+    segment.split('/').filter((part) => part.length > 0),
+  );
+  return [base, ...rest].join('/');
 }
 
 export function isRelayConfigured(config?: { origin?: string }): boolean {

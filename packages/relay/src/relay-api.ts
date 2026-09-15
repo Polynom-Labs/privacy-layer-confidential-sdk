@@ -1,4 +1,4 @@
-import { requireRelayOrigin } from './relay-config.js';
+import { joinRelayApiUrl, requireRelayOrigin } from './relay-config.js';
 import { RelayApiError } from './relay-api-error.js';
 import { RELAY_PUBLIC_REASON } from './reasons.js';
 import type {
@@ -113,7 +113,7 @@ export function createRelayApi(input: CreateRelayApiInput): RelayApi {
     async createRequest(body) {
       const result = await requestJson({
         fetch: fetchImpl,
-        url: `${origin}/relay-requests`,
+        url: joinRelayApiUrl(origin),
         method: 'POST',
         body,
       });
@@ -128,7 +128,7 @@ export function createRelayApi(input: CreateRelayApiInput): RelayApi {
     async readStatus(relayRequestId) {
       const result = await requestJson({
         fetch: fetchImpl,
-        url: `${origin}/relay-requests/${relayRequestId}`,
+        url: joinRelayApiUrl(origin, relayRequestId),
         method: 'GET',
       });
       return mapStatus(
@@ -142,7 +142,7 @@ export function createRelayApi(input: CreateRelayApiInput): RelayApi {
     async retryAttempt(relayRequestId) {
       const result = await requestJson({
         fetch: fetchImpl,
-        url: `${origin}/relay-requests/${relayRequestId}/attempts`,
+        url: joinRelayApiUrl(origin, relayRequestId, 'attempts'),
         method: 'POST',
       });
       return mapStatus(

@@ -33,16 +33,14 @@ const ports: ProtocolRelayPorts = {
   finalizeLocalState,
   drainDeliveries,
   persistUserTransaction,
-  ...(origin
-    ? { relayConfig: { origin }, relayApi: createRelayApi({ origin }) }
-    : {}),
+  ...(origin ? { relayConfig: { origin }, relayApi: createRelayApi({ origin }) } : {}),
 };
 
 const result = await submitAndAwaitPrivateOperation({ ports, operation });
 const { txId } = throwIfRelayUnsuccessful(result);
 ```
 
-Relaying is off until `relayConfig.origin` is set. An unset origin Direct-submits even when the caller marks the operation as `relay`, and the relayer is never contacted.
+Relaying is off until `relayConfig.origin` is set. An unset origin Direct-submits even when the caller marks the operation as `relay`, and the relayer is never contacted. `origin` may be a host or an origin plus path prefix such as `https://payments.example/api`.
 
 Substitute `relayApi` (or the optional `fetch` on `createRelayApi`) in tests. Direct submission stays a caller-supplied port because it closes over a prepared operation that cannot be serialized.
 

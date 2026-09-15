@@ -44,21 +44,21 @@ Internal transitive dependencies are not part of the public integration surface.
 
 **Shared packages:**
 
-| Import | Purpose |
-| --- | --- |
-| `@arcanetech/privacy-sdk-core` | Intents, lifecycle helpers, error types, progress events |
+| Import                                                                                         | Purpose                                                                                                                 |
+| ---------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `@arcanetech/privacy-sdk-core`                                                                 | Intents, lifecycle helpers, error types, progress events                                                                |
 | [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) | Protocol relay runtime (ports, polling, retry, fallback) and the wire vocabulary (statuses, reason codes, package JSON) |
-| `@arcanetech/privacy-sdk-state-memory` | In-memory state adapter for prototypes and tests |
-| `@arcanetech/privacy-sdk-state-redux` | Redux Toolkit adapter for React apps |
+| `@arcanetech/privacy-sdk-state-memory`                                                         | In-memory state adapter for prototypes and tests                                                                        |
+| `@arcanetech/privacy-sdk-state-redux`                                                          | Redux Toolkit adapter for React apps                                                                                    |
 
 **Stellar preset:**
 
-| Import | Purpose |
-| --- | --- |
-| `@arcanetech/privacy-sdk-stellar` | Browser client factory and Stellar types |
+| Import                                     | Purpose                                                                                                                                                                                 |
+| ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@arcanetech/privacy-sdk-stellar`          | Browser client factory and Stellar types                                                                                                                                                |
 | `@arcanetech/privacy-sdk-stellar/transact` | Stellar transaction helpers, including `requiredSubmissionMethod`, `buildBlindedRecipientTagChallengeMessage`, `fetchEscrowOutputNoteEvents`, and `unsignedEscrowAuthorizationForSweep` |
-| `@arcanetech/privacy-sdk-stellar/node` | Node client with filesystem asset loading |
-| `@arcanetech/privacy-sdk-stellar/testing` | Fake transact engine for unit tests |
+| `@arcanetech/privacy-sdk-stellar/node`     | Node client with filesystem asset loading                                                                                                                                               |
+| `@arcanetech/privacy-sdk-stellar/testing`  | Fake transact engine for unit tests                                                                                                                                                     |
 
 ## Stellar preset {#stellar-preset}
 
@@ -73,10 +73,10 @@ Use `@arcanetech/privacy-sdk-stellar` for **Stellar** with **Soroban** smart con
 
 **Address model:**
 
-| Type | Format | Used for |
-| --- | --- | --- |
-| Public wallet | Stellar `G...` account | On-chain identity, public payouts |
-| Private payment | `stpl1...` address | Pool notes and private sends |
+| Type            | Format                 | Used for                          |
+| --------------- | ---------------------- | --------------------------------- |
+| Public wallet   | Stellar `G...` account | On-chain identity, public payouts |
+| Private payment | `stpl1...` address     | Pool notes and private sends      |
 
 **Bootstrap helpers:**
 
@@ -93,7 +93,7 @@ Install [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanet
 npm install @arcanetech/privacy-sdk-relay
 ```
 
-The package owns admission, lifecycle polling, retry, and consented Direct-submit fallback. Callers supply five required ports (`store`, `submitDirect`, `finalizeLocalState`, `drainDeliveries`, `persistUserTransaction`). Relaying is off until `relayConfig.origin` is set; an unset origin Direct-submits and never contacts a relayer. The runtime does not inspect opaque package payloads and has no Stellar, Soroban, or zero-knowledge dependencies.
+The package owns admission, lifecycle polling, retry, and consented Direct-submit fallback. Callers supply five required ports (`store`, `submitDirect`, `finalizeLocalState`, `drainDeliveries`, `persistUserTransaction`). Relaying is off until `relayConfig.origin` is set; an unset origin Direct-submits and never contacts a relayer. `origin` may include a URI path prefix (for example `https://payments.example/api`). The runtime does not inspect opaque package payloads and has no Stellar, Soroban, or zero-knowledge dependencies.
 
 Main exports: `createRelayApi`, `resolveRelayOrigin`, `submitAndAwaitPrivateOperation`, `throwIfRelayUnsuccessful`, `serializeRelayPackage` / `deserializeRelayPackage`, `resumePendingOperations`, `retryFailedRelayAttempt`.
 
@@ -131,7 +131,11 @@ flowchart TD
   <Card title="State integration" icon="database" href="/integration/state-integration">
     Choose in-memory or Redux state adapters.
   </Card>
-  <Card title="Quick start (Stellar preset)" icon="rocket" href="/integration/quick-start">
+  <Card
+    title="Quick start (Stellar preset)"
+    icon="rocket"
+    href="/integration/quick-start"
+  >
     Create a Stellar client and run a deposit.
   </Card>
   <Card title="Install" icon="download" href="/application-development/install">
