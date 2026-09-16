@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.2](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.5.1...privacy-sdk-stellar-v0.5.2) (2026-09-16)
+
+
+### Bug Fixes
+
+* budget safe commitments sync methods ([1f7f2e2](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/commit/1f7f2e2257d8441aff3ae226642bbf3fa0ee2acf))
+
 ## [0.5.1](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.5.0...privacy-sdk-stellar-v0.5.1) (2026-09-14)
 
 
