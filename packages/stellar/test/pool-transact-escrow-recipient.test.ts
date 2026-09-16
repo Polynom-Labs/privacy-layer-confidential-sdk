@@ -35,7 +35,7 @@ async function captureTransactArgs() {
   let captured: Parameters<PoolTransactClient['transact']>[0] | undefined;
   const contractClient: PoolTransactClient = {
     get_merkle_root: async () => ({ result: Buffer.alloc(32) }),
-    get_commitments: async () => ({ result: [] }),
+    get_commitment_count: async () => ({ result: 0 }),
     get_leaf_ephemeral: async () => ({
       result: { x: Buffer.alloc(32), y: Buffer.alloc(32) },
     }),

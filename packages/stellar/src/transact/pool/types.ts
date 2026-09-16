@@ -8,7 +8,7 @@ export type PoolTransactResult = {
 
 export type PoolTransactClient = {
   get_merkle_root: () => Promise<{ result: Buffer }>;
-  get_commitments: () => Promise<{ result: Buffer[] }>;
+  get_commitment_count: () => Promise<{ result: number }>;
   get_leaf_ephemeral: (input: {
     leaf_index: number;
   }) => Promise<{ result: { x: Buffer; y: Buffer } }>;

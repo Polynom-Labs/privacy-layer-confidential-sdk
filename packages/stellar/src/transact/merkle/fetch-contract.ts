@@ -1,5 +1,4 @@
 import { Buffer } from 'buffer';
-import { commitmentsBuffersToDecimal } from './encoding.js';
 import type {
   CachedPoolMerkleView,
   PoolMerkleStatePort,
@@ -7,7 +6,11 @@ import type {
 } from '../merkle/state-port.js';
 import { poolMerkleStateToCachedView } from '../merkle/state-port.js';
 import { readPoolClientFactory } from '../../contracts/contract-context.js';
+import { createStellarRpcServer } from '../../rpc/server.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
+import type { PoolTransactClient } from '../pool/types.js';
+import { readTreeLeafCommitments } from './read-tree-leaves.js';
+import { reuseCachedCommitments } from './reuse-cached-commitments.js';
 
 export interface FetchContractMerkleResult {
   commitmentCount: number;
@@ -16,91 +19,37 @@ export interface FetchContractMerkleResult {
   updatedAt: number;
 }
 
-function normalizeCommitmentBuffers(rawBuffers: Buffer[]): Buffer[] {
-  return rawBuffers.map((bufferRow) =>
-    Buffer.isBuffer(bufferRow) ? bufferRow : Buffer.from(bufferRow),
-  );
-}
-
-function mergeContractMerkleWithCache(parameters: {
-  poolContractId: string;
-  contractCommitments: string[];
-  contractCount: number;
-  merkleRootHex: string;
-  cachedState: CachedPoolMerkleView | undefined;
-  poolMerkleState?: PoolMerkleStatePort;
-}): FetchContractMerkleResult {
-  const cachedCount = parameters.cachedState?.commitments.length ?? 0;
-  const shouldPreferContract =
-    parameters.contractCount > cachedCount ||
-    !parameters.cachedState ||
-    cachedCount === 0;
-  if (shouldPreferContract) {
-    const updatedAt = Date.now();
-    void parameters.poolMerkleState?.set({
-      poolContract: parameters.poolContractId,
-      commitments: parameters.contractCommitments,
-      commitmentCount: parameters.contractCount,
-      merkleRootHex: parameters.merkleRootHex,
-      updatedAt,
-    });
-    return {
-      commitments: parameters.contractCommitments,
-      updatedAt,
-      merkleRootHex: parameters.merkleRootHex,
-      commitmentCount: parameters.contractCount,
-    };
-  }
-  return {
-    commitments: parameters.cachedState!.commitments,
-    updatedAt: parameters.cachedState!.updatedAt,
-    merkleRootHex: parameters.cachedState!.merkleRootHex ?? parameters.merkleRootHex,
-    commitmentCount: parameters.cachedState!.commitments.length,
-  };
-}
-
-async function readCachedPoolMerkleView(
-  poolMerkleState: PoolMerkleStatePort | undefined,
-  poolContractId: string,
-): Promise<CachedPoolMerkleView | undefined> {
-  if (!poolMerkleState) {
-    return undefined;
-  }
-  const cached = await poolMerkleState.get(poolContractId);
-  return cached ? poolMerkleStateToCachedView(cached) : undefined;
-}
-
+/**
+ * Loads pool Merkle leaves without `get_commitments()`. That helper walks the
+ * whole tree in one simulate and exceeds the Soroban host budget on a live
+ * stand. Completes the cached prefix from persistent `TreeDataKey::Leaf`
+ * ledger entries instead.
+ */
 export async function fetchAndMergeMerkleState(parameters: {
   poolContractId: string;
   walletPublicKey: string;
   transactEnvironment: StellarTransactEnvironment;
   poolMerkleState?: PoolMerkleStatePort;
 }): Promise<FetchContractMerkleResult> {
-  const client = readPoolClientFactory(parameters.transactEnvironment)({
-    contractId: parameters.poolContractId,
-    walletPublicKey: parameters.walletPublicKey,
-    networkPassphrase: parameters.transactEnvironment.network.networkPassphrase,
-    sorobanRpcUrl: parameters.transactEnvironment.network.rpcUrl,
-  });
-
-  const commitmentsRead = await client.get_commitments();
-  const rawBuffers = commitmentsRead.result as Buffer[];
-  const buffers = normalizeCommitmentBuffers(rawBuffers);
-  const contractCommitments = commitmentsBuffersToDecimal(buffers);
-  const contractCount = contractCommitments.length;
-
+  const client = createPoolClient(parameters);
+  const countRead = await client.get_commitment_count();
+  const onChainCount = requireCommitmentCount(countRead.result);
   const rootRead = await client.get_merkle_root();
-  const merkleRootBuffer = rootRead.result as Buffer;
-  const merkleRootHex = Buffer.from(merkleRootBuffer).toString('hex');
-
+  const merkleRootHex = merkleRootToHex(rootRead.result);
   const cachedState = await readCachedPoolMerkleView(
     parameters.poolMerkleState,
     parameters.poolContractId,
   );
-  return mergeContractMerkleWithCache({
+  const commitments = await loadCommitments({
+    cachedState,
+    onChainCount,
+    merkleRootHex,
+    rpcUrl: parameters.transactEnvironment.network.rpcUrl,
+    contractId: parameters.poolContractId,
+  });
+  return persistFetchedMerkleState({
     poolContractId: parameters.poolContractId,
-    contractCommitments,
-    contractCount,
+    commitments,
     merkleRootHex,
     cachedState,
     ...(parameters.poolMerkleState
@@ -123,12 +72,7 @@ export async function readLeafEphemeralHex(parameters: {
   if (cached?.xHex && cached.yHex) {
     return { xHex: cached.xHex, yHex: cached.yHex };
   }
-  const client = readPoolClientFactory(parameters.transactEnvironment)({
-    contractId: parameters.poolContractId,
-    walletPublicKey: parameters.walletPublicKey,
-    networkPassphrase: parameters.transactEnvironment.network.networkPassphrase,
-    sorobanRpcUrl: parameters.transactEnvironment.network.rpcUrl,
-  });
+  const client = createPoolClient(parameters);
   const read = await client.get_leaf_ephemeral({ leaf_index: parameters.leafIndex });
   const coords = read.result;
   if (!coords?.x || !coords?.y) {
@@ -144,4 +88,119 @@ export async function readLeafEphemeralHex(parameters: {
     cachedAt: new Date().toISOString(),
   });
   return { xHex, yHex };
+}
+
+function createPoolClient(parameters: {
+  poolContractId: string;
+  walletPublicKey: string;
+  transactEnvironment: StellarTransactEnvironment;
+}): PoolTransactClient {
+  return readPoolClientFactory(parameters.transactEnvironment)({
+    contractId: parameters.poolContractId,
+    walletPublicKey: parameters.walletPublicKey,
+    networkPassphrase: parameters.transactEnvironment.network.networkPassphrase,
+    sorobanRpcUrl: parameters.transactEnvironment.network.rpcUrl,
+  });
+}
+
+function requireCommitmentCount(result: unknown): number {
+  if (typeof result === 'number' && Number.isInteger(result) && result >= 0) {
+    return result;
+  }
+  throw new Error('Pool commitment count is not a non-negative integer.');
+}
+
+function merkleRootToHex(root: Buffer): string {
+  return Buffer.from(root).toString('hex');
+}
+
+async function readCachedPoolMerkleView(
+  poolMerkleState: PoolMerkleStatePort | undefined,
+  poolContractId: string,
+): Promise<CachedPoolMerkleView | undefined> {
+  if (!poolMerkleState) {
+    return undefined;
+  }
+  const cached = await poolMerkleState.get(poolContractId);
+  return cached ? poolMerkleStateToCachedView(cached) : undefined;
+}
+
+async function loadCommitments(input: {
+  cachedState: CachedPoolMerkleView | undefined;
+  onChainCount: number;
+  merkleRootHex: string;
+  rpcUrl: string;
+  contractId: string;
+}): Promise<string[]> {
+  const reused = reuseCachedCommitments({
+    cachedState: input.cachedState,
+    onChainCount: input.onChainCount,
+    merkleRootHex: input.merkleRootHex,
+  });
+  if (reused.length === input.onChainCount) {
+    return reused;
+  }
+  const fetched = await readTreeLeafCommitments({
+    reader: createStellarRpcServer(input.rpcUrl),
+    contractId: input.contractId,
+    startIndex: reused.length,
+    endIndex: input.onChainCount,
+  });
+  return [...reused, ...fetched];
+}
+
+async function persistFetchedMerkleState(input: {
+  poolContractId: string;
+  commitments: string[];
+  merkleRootHex: string;
+  cachedState: CachedPoolMerkleView | undefined;
+  poolMerkleState?: PoolMerkleStatePort;
+}): Promise<FetchContractMerkleResult> {
+  const cachedState = input.cachedState;
+  if (
+    cachedState &&
+    cachedMerkleUnchanged(cachedState, input.commitments, input.merkleRootHex)
+  ) {
+    return viewFromCachedMerkle(cachedState, input.merkleRootHex);
+  }
+  const updatedAt = Date.now();
+  await input.poolMerkleState?.set({
+    poolContract: input.poolContractId,
+    commitments: input.commitments,
+    commitmentCount: input.commitments.length,
+    merkleRootHex: input.merkleRootHex,
+    updatedAt,
+  });
+  return {
+    commitments: input.commitments,
+    updatedAt,
+    merkleRootHex: input.merkleRootHex,
+    commitmentCount: input.commitments.length,
+  };
+}
+
+function viewFromCachedMerkle(
+  cachedState: CachedPoolMerkleView,
+  merkleRootHex: string,
+): FetchContractMerkleResult {
+  return {
+    commitments: cachedState.commitments,
+    updatedAt: cachedState.updatedAt,
+    merkleRootHex: cachedState.merkleRootHex ?? merkleRootHex,
+    commitmentCount: cachedState.commitments.length,
+  };
+}
+
+function cachedMerkleUnchanged(
+  cachedState: CachedPoolMerkleView | undefined,
+  commitments: string[],
+  merkleRootHex: string,
+): boolean {
+  if (!cachedState) {
+    return false;
+  }
+  if ((cachedState.merkleRootHex ?? merkleRootHex) !== merkleRootHex) {
+    return false;
+  }
+  return cachedState.commitments.join(',') === commitments.join(',');
 }
