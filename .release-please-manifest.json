@@ -1,7 +1,7 @@
 {
   "packages/core": "0.3.0",
   "packages/relay": "0.2.2",
-  "packages/stellar": "0.5.1",
+  "packages/stellar": "0.5.2",
   "packages/state/redux": "0.2.2",
   "packages/state/memory": "0.2.2"
 }
