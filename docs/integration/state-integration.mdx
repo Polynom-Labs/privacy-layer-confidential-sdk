@@ -28,8 +28,8 @@ After a successful **execute**, the SDK updates the same cache (consumed records
 
 | Library | Package | When to use |
 | --- | --- | --- |
-| **In-memory** | `@arcanetech/privacy-sdk-state-memory` | Scripts, prototypes, unit tests |
-| **Redux** | `@arcanetech/privacy-sdk-state-redux` | React apps already using Redux Toolkit |
+| **In-memory** | `@arcanetech/privacy-sdk-state-memory` | Scripts, Node services, unit tests — see [Quick start](/integration/quick-start) |
+| **Redux** | `@arcanetech/privacy-sdk-state-redux` | React apps already using Redux Toolkit — see [Quick start](/integration/quick-start) |
 
 Pass the adapter to `createStellarPrivacyClient`:
 
@@ -48,7 +48,7 @@ import { createInMemoryStateAdapter } from '@arcanetech/privacy-sdk-state-memory
 const state = createInMemoryStateAdapter();
 ```
 
-Zero extra dependencies. Data is lost when the process ends. Use this path in [Quick start](/integration/quick-start).
+Zero extra dependencies. Data is lost when the process ends unless you snapshot it (the backend demo persists JSONB). Use this path in the [Quick start](/integration/quick-start).
 
 ## Redux adapter
 
@@ -62,7 +62,7 @@ npm install @arcanetech/privacy-sdk-state-redux @reduxjs/toolkit react-redux
 
 The Redux adapter is **optional**. Start with in-memory state in tests, then adopt Redux when you need persistence.
 
-Full store wiring, provider, and localStorage persistence live in [Setup](/application-development/setup) — copy that pattern rather than re-deriving it here.
+Runnable browser path: [Quick start](/integration/quick-start). Full store wiring, provider, and localStorage persistence live in [Setup](/application-development/setup) — copy that pattern rather than re-deriving it here.
 
 ## Persistence strategies
 
@@ -81,13 +81,13 @@ When using Redux (or your own persistence layer):
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Quick start (Stellar preset)" icon="rocket" href="/integration/quick-start">
-    In-memory bootstrap.
+  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
+    Frontend or Backend demo tabs.
   </Card>
   <Card title="Data sources" icon="server" href="/integration/data-sources">
     Where production state data originates.
   </Card>
-  <Card title="Operation lifecycle" icon="timeline" href="/concepts/operation-lifecycle">
+  <Card title="Operation lifecycle" icon="history" href="/concepts/operation-lifecycle">
     When prepare reads and execute writes state.
   </Card>
   <Card title="Setup" icon="wrench" href="/application-development/setup">

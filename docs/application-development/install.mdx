@@ -7,7 +7,7 @@ Add `@arcanetech/privacy-sdk-stellar` and `@arcanetech/privacy-sdk-state-redux` 
 
 Node.js 20.10 or later is enough to install. `@stellar/stellar-sdk` 16 (pulled by the Stellar preset) declares Node 22+; install on 20.10 may print `EBADENGINE`.
 
-Scripts and services without React should use [`@arcanetech/privacy-sdk-state-memory`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-state-memory) instead — see [Quick start](/integration/quick-start).
+For a runnable browser demo first, see [Quick start](/integration/quick-start). Scripts and services without React should use [`@arcanetech/privacy-sdk-state-memory`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-state-memory) — see [Quick start](/integration/quick-start).
 
 <CodeGroup>
 
@@ -45,7 +45,7 @@ pnpm add @arcanetech/privacy-sdk-relay
 
 Stand values (pool, registry, KYT, application id, audit key, Relayer origin) are not in these install lines — see [Getting access](/integration/getting-access).
 
-See [Quick start — Protocol Relay](/integration/quick-start#step-6--protocol-relay-optional) for the optional wiring step.
+Relay wiring after prepare: [Quick start](/integration/quick-start), and [Withdraw](/application-development/how-to/withdraw).
 
 Next, wire the client in your app shell. See [Setup](./setup).
 
@@ -55,13 +55,10 @@ Next, wire the client in your app shell. See [Setup](./setup).
   <Card title="Getting access" icon="key" href="/integration/getting-access">
     Stand values and npm install.
   </Card>
-  <Card title="Packages" icon="cube" href="/overview/packages">
+  <Card title="Packages" icon="box" href="/overview/packages">
     Map of `@arcanetech/*` packages and the Stellar preset.
   </Card>
-  <Card title="Integration paths" icon="route" href="/integration/integration-paths">
-    Choose browser, Node, or tests.
-  </Card>
-  <Card title="Quick start (Stellar preset)" icon="rocket" href="/integration/quick-start">
-    Create a Stellar client and run a deposit.
+  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
+    Frontend or Backend demo tabs.
   </Card>
 </CardGroup>

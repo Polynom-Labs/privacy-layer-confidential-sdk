@@ -30,6 +30,7 @@
       {
         "group": "Integration",
         "pages": [
+          "docs/integration/getting-access",
           "docs/integration/integration-paths",
           "docs/integration/quick-start",
           "docs/integration/state-integration",
@@ -53,5 +54,15 @@
         ]
       }
     ]
-  }
+  },
+  "redirects": [
+    {
+      "source": "/integration/quick-start-frontend",
+      "destination": "/integration/quick-start"
+    },
+    {
+      "source": "/integration/quick-start-backend",
+      "destination": "/integration/quick-start"
+    }
+  ]
 }

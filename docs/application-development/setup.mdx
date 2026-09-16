@@ -3,7 +3,9 @@ title: Setup
 description: Bootstrap the Stellar privacy client with Redux state, a wallet adapter, and optional persistence
 ---
 
-Add this once, then call deposit, transfer, or withdraw. All examples use TypeScript and React.
+Add this once in a React app shell, then call deposit, transfer, or withdraw. All examples use TypeScript and React.
+
+For a runnable Freighter demo before you wire your own shell, see [Quick start](/integration/quick-start) (Frontend tab).
 
 <Warning>
   Network contract IDs, KYT, decimal `applicationId`, the wallet `G…` stub, and `auditPublicKeyHex` on this page are **tutorial fixtures**. The audit hex is the SDK bundled demo key (valid format), not your application key. Live `execute()` needs your stand’s real audit id and a real wallet. See [Data sources](/integration/data-sources).
@@ -213,8 +215,8 @@ Call `usePrivacySdkPersistence(walletAddress)` inside `PrivacySdkProvider` after
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Quick start (Stellar preset)" icon="rocket" href="/integration/quick-start">
-    In-memory client before this React setup.
+  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
+    Frontend demo tab before this shell.
   </Card>
   <Card title="State integration" icon="database" href="/integration/state-integration">
     Why the SDK needs state and when to use Redux.
@@ -222,7 +224,7 @@ Call `usePrivacySdkPersistence(walletAddress)` inside `PrivacySdkProvider` after
   <Card title="Data sources" icon="server" href="/integration/data-sources">
     Production vs documentation fixture state.
   </Card>
-  <Card title="Operation lifecycle" icon="timeline" href="/concepts/operation-lifecycle">
+  <Card title="Operation lifecycle" icon="history" href="/concepts/operation-lifecycle">
     Prepare, execute, errors, and progress events.
   </Card>
 </CardGroup>

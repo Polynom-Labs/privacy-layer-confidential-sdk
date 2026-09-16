@@ -27,32 +27,32 @@ A Stellar **wallet** (Freighter or your adapter) only supplies a `G…` address 
 | `relayConfig.origin` | Relayer base URL. Required for **private sender** and **escrow send**. Unset origin never contacts a relayer; escrow then fails with `escrow_relay_unconfigured` |
 | Tag issuance / storage origin (optional) | Stand-supplied base URL used for escrow note discovery after the recipient registers |
 
-Contract IDs and keys in [Quick start](/integration/quick-start) and how-to pages are **tutorial fixtures**. `execute()` will not confirm on testnet with those values.
+How-to pages use **tutorial fixtures**. Runnable demos ship live stand rows in `.env.example` — see [Quick start](/integration/quick-start). `execute()` will not confirm on testnet with how-to fixture IDs.
 
 ## Where partners get the values
 
 1. Create or receive a **`stellar-pool` application** in the [Compliance Platform](/products/compliance-platform/user-guide/organisation-management/application-management). The platform issues the **decimal** application id (`association.audit_id`) and the public audit key. Private audit material stays server-side.
-2. Take **pool, registry, KYT contract, KYT URL, Relayer origin**, and — when you need escrow discovery — a **tag-issuance / storage origin** from the stand Arcane gives you (or from your own deployment). Do not copy the internal Stellar Pay `.env` into a partner app unless that stand is explicitly yours.
-3. Put them in your environment. The current Stellar Pay testnet stand **does** configure a Relayer origin; yours must come from your stand owner.
+2. Take **pool, registry, KYT contract, KYT URL, Relayer origin**, and — when you need escrow discovery — a **tag-issuance / storage origin** from the stand Arcane gives you (or from your own deployment). Do not copy another product’s `.env` into a partner app unless that stand is explicitly yours.
+3. Put them in your environment. Demo stands configure a Relayer origin; yours must come from your stand owner.
 
-Side-by-side tutorial / `bindings:generate` / Pay stand IDs: [Data sources](/integration/data-sources#where-each-config-field-comes-from).
+Side-by-side tutorial / frontend demo / backend demo IDs: [Data sources](/integration/data-sources#where-each-config-field-comes-from).
 
 When `zkConfigNonce` is omitted, the SDK default is binding nonce **`3`** (bundled 2×2). Nonce **`7`** (bundled 6×6) is also shipped. Match the on-chain pool `ZkConfig` — a mismatch fails with `no zk circuit configured for nonce …`. Do not copy another stand’s nonce into a new integration unless that stand is the target.
 
 ## First live transaction
 
-Deposit with a **public sender** and Direct Submission (`operation.execute()`). That path does not need Relayer. You still need a funded testnet wallet and the stand row above.
+Deposit with a **public sender** and Direct Submission (`operation.execute()`). That path does not need Relayer. You still need a funded testnet wallet (or HD account) and the stand row above.
 
-Private sender, unregistered escrow send, and Relayer wiring: [Quick start Step 6](/integration/quick-start#step-6--protocol-relay-optional).
+Fastest path: clone a demo — [Quick start](/integration/quick-start). Private sender, unregistered escrow send, and Relayer wiring are covered there and in the [withdraw](/application-development/how-to/withdraw) / [unregistered transfer](/application-development/how-to/transfer-unregistered-recipient) how-tos.
 
 ## Related
 
 <CardGroup cols={2}>
   <Card title="Quick start" icon="rocket" href="/integration/quick-start">
-    Create a client and run a deposit.
+    Choose frontend or backend demo.
   </Card>
   <Card title="Data sources" icon="server" href="/integration/data-sources">
-    Fixtures vs production writes, and the three ID sets.
+    Fixtures vs frontend and backend demo config.
   </Card>
   <Card title="Install" icon="download" href="/application-development/install">
     React + Relayer packages.

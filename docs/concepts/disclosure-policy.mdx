@@ -72,7 +72,7 @@ Sender may be public or private. Recipient, asset, and amount stay private for f
 
 <OperationDisclosures operation="transfer-unregistered" />
 
-Transfers to an unregistered recipient use the same private disclosure as a registered transfer. The escrow note owner is derived from a nonce and the recipient G-address; nothing about the recipient is published on-chain. Escrow sends require Protocol Relay. Private sender also requires Protocol Relay.
+Transfers to an unregistered recipient use the same private disclosure as a registered transfer (the documented product path). The escrow note owner is derived from a nonce and the recipient G-address; nothing about the recipient is published on-chain. Escrow sends require Protocol Relay. Private sender also requires Protocol Relay. Policy also accepts a fully public disclosure for a public `G…` recipient; demos and how-tos use the private escrow path.
 
 ## Choosing disclosure in your product
 
@@ -84,13 +84,13 @@ Read [Security and privacy](/concepts/security-and-privacy) for where disclosed 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Operations" icon="arrow-right-arrow-left" href="/concepts/operations">
+  <Card title="Operations" icon="arrow-right-left" href="/concepts/operations">
     How each operation uses disclosure.
   </Card>
   <Card title="Security and privacy" icon="shield" href="/concepts/security-and-privacy">
     Local storage vs on-chain visibility.
   </Card>
-  <Card title="Operation lifecycle" icon="timeline" href="/concepts/operation-lifecycle">
+  <Card title="Operation lifecycle" icon="history" href="/concepts/operation-lifecycle">
     When policy errors surface.
   </Card>
 </CardGroup>

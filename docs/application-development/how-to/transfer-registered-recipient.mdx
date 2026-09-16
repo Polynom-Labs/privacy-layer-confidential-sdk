@@ -13,15 +13,15 @@ Transfer to a recipient whose private address is already in the registry cache.
 
 Sender may be public or **private**. Private sender requires **Protocol Relay**. `operation.execute()` is Direct Submission only and does not contact the relayer.
 
-After prepare, call `requiredSubmissionMethod(operation.prepared, zkConfigNonce)` from `@arcanetech/privacy-sdk-stellar/transact` (pass the pool’s nonce; SDK default is `3n`):
+After prepare, call `requiredSubmissionMethod(operation.prepared, zkConfigNonce)` from `@arcanetech/privacy-sdk-stellar/transact` (pass the pool’s nonce; SDK default is `3n`; demos use `7n`):
 
 - `direct` — `await operation.execute({})`
-- `relay` — do **not** call `execute()`; wire `@arcanetech/privacy-sdk-relay` as in [Quick start Step 6](/integration/quick-start#step-6--protocol-relay-optional)
+- `relay` — do **not** call `execute()`; wire `@arcanetech/privacy-sdk-relay` as in the [Quick start](/integration/quick-start) (Frontend or Backend tab) demo
 
 ## Example
 
 <Warning>
-  Pool IDs, `G…` / `stpl1` addresses, and seed hex below are **tutorial fixtures**. The client can be created if `auditPublicKeyHex` is a valid BabyJubJub key (Quick start uses the SDK bundled demo key). `execute()` will not confirm on testnet with these values — use your own pool, registry, KYT, audit key, and wallet. See [Data sources](/integration/data-sources).
+  Pool IDs, `G…` / `stpl1` addresses, and seed hex below are **tutorial fixtures**. The client can be created if `auditPublicKeyHex` is a valid BabyJubJub key (Setup uses the SDK bundled demo key). For a live transfer, use the [Quick start](/integration/quick-start) (Frontend or Backend tab) demo `.env`, or your own stand. See [Data sources](/integration/data-sources).
 </Warning>
 
 When `recipientAddress` is `private`, set `to` to the recipient `stpl1` address from the registry lookup.
@@ -121,18 +121,15 @@ const method = requiredSubmissionMethod(operation.prepared, 3n);
 if (method === 'direct') {
   await operation.execute({});
 } else {
-  // Private sender: Protocol Relay. See Quick start Step 6.
+  // Private sender: Protocol Relay. See Quick start demos.
 }
 ```
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Operations — Transfer" icon="arrow-right-arrow-left" href="/concepts/operations#transfer-to-registered-recipient">
-    Registered recipient transfer semantics.
-  </Card>
-  <Card title="Domain model" icon="sitemap" href="/concepts/domain-model#private-address-registry">
-    Registry cache and address types.
+  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
+    Frontend or Backend demo tabs.
   </Card>
   <Card title="Data sources" icon="server" href="/integration/data-sources">
     Seed state is a doc fixture; production data flows.

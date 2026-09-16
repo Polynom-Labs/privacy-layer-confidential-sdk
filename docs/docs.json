@@ -54,5 +54,15 @@
         ]
       }
     ]
-  }
+  },
+  "redirects": [
+    {
+      "source": "/integration/quick-start-frontend",
+      "destination": "/integration/quick-start"
+    },
+    {
+      "source": "/integration/quick-start-backend",
+      "destination": "/integration/quick-start"
+    }
+  ]
 }

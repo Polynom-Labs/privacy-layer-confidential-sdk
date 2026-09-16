@@ -97,7 +97,7 @@ The package owns admission, lifecycle polling, retry, and consented Direct-submi
 
 Main exports: `createRelayApi`, `resolveRelayOrigin`, `submitAndAwaitPrivateOperation`, `throwIfRelayUnsuccessful`, `serializeRelayPackage` / `deserializeRelayPackage`, `resumePendingOperations`, `retryFailedRelayAttempt`.
 
-See [Quick start — Protocol Relay](/integration/quick-start#step-6--protocol-relay-optional) to wire it after `requiredSubmissionMethod`.
+See [Quick start](/integration/quick-start) for runnable Relay wiring after `requiredSubmissionMethod`. Operation detail: [Withdraw](/application-development/how-to/withdraw) and [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient).
 
 ## Which packages you need
 
@@ -122,6 +122,15 @@ flowchart TD
   Tests --> Testing["+ stellar/testing"]
 ```
 
+### Frontend vs backend package set
+
+| Path | Packages |
+| --- | --- |
+| **Frontend** (browser wallet) | `@arcanetech/privacy-sdk-stellar` + `@arcanetech/privacy-sdk-state-redux` + `@arcanetech/privacy-sdk-relay` (wallet kit is outside the SDK) |
+| **Backend** (Node signing) | `@arcanetech/privacy-sdk-stellar/node` + `@arcanetech/privacy-sdk-state-memory` + `@arcanetech/privacy-sdk-relay` |
+
+Runnable demos: [Quick start](/integration/quick-start).
+
 ## Related
 
 <CardGroup cols={2}>
@@ -131,12 +140,8 @@ flowchart TD
   <Card title="State integration" icon="database" href="/integration/state-integration">
     Choose in-memory or Redux state adapters.
   </Card>
-  <Card
-    title="Quick start (Stellar preset)"
-    icon="rocket"
-    href="/integration/quick-start"
-  >
-    Create a Stellar client and run a deposit.
+  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
+    Frontend or backend demo.
   </Card>
   <Card title="Install" icon="download" href="/application-development/install">
     Install the Stellar React stack.

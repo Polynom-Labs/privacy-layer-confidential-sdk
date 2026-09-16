@@ -91,6 +91,21 @@ await operation.execute({
 
 You can also pass `signal: AbortSignal` to cancel long-running execute work.
 
+## Direct Submission vs Protocol Relay
+
+`operation.execute()` is **Direct Submission**: the connected wallet (or server keypair) signs and the transact engine submits to Soroban. It never calls `@arcanetech/privacy-sdk-relay`.
+
+After prepare, choose the path with `requiredSubmissionMethod` from `@arcanetech/privacy-sdk-stellar/transact`. Pass the same `zkConfigNonce` as the pool (SDK default `3n` when omitted; demos use `7n`):
+
+| Method | When | What to call |
+| --- | --- | --- |
+| `direct` | Positive public deposit (typical deposit); escrow **sweep** | `operation.execute()` |
+| `relay` | Zero public deposit (private sender) or **escrow send** to an unregistered recipient | Build a relay package and submit through `@arcanetech/privacy-sdk-relay` — do **not** call `execute()` |
+
+Relaying is off until `relayConfig.origin` is set. An unset origin Direct-submits a typical deposit and never contacts a relayer. An escrow send without origin fails with `escrow_relay_unconfigured` — it is not downgraded to Direct.
+
+Runnable wiring: [Quick start](/integration/quick-start). Operation examples: [Withdraw](/application-development/how-to/withdraw), [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient).
+
 ## Error model
 
 | Code | Typical cause | Recoverable |
@@ -121,7 +136,7 @@ If you use a Redux adapter with localStorage hydration, persist the SDK state br
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Operations" icon="arrow-right-arrow-left" href="/concepts/operations">
+  <Card title="Operations" icon="arrow-right-left" href="/concepts/operations">
     What each operation kind does.
   </Card>
   <Card title="State integration" icon="database" href="/integration/state-integration">
@@ -129,5 +144,8 @@ If you use a Redux adapter with localStorage hydration, persist the SDK state br
   </Card>
   <Card title="Disclosure policy" icon="eye" href="/concepts/disclosure-policy">
     Policy errors during prepare and execute.
+  </Card>
+  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
+    Frontend or backend demo with Direct and Relay.
   </Card>
 </CardGroup>
