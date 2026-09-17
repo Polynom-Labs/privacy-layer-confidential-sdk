@@ -34,7 +34,7 @@ The SDK caches registry lookups in local state so prepare can resolve recipients
 
 Your asset catalog maps human-readable asset IDs (for example `usdc`) to on-chain token identifiers and the privacy **pool contract** that holds notes for that asset. The Stellar preset uses this binding when building transactions.
 
-Populate the catalog from your backend in production — see [Data sources](/integration/data-sources).
+Populate the catalog from your backend in production — see [State methods](/integration/data-sources).
 
 ## Private records (notes)
 
@@ -60,7 +60,7 @@ The pool maintains a Merkle structure of commitments. The SDK caches:
 - current Merkle root hash
 - last update timestamp
 
-Prepare reads this snapshot to validate that notes reference the current pool state. Sync the snapshot from chain events or your indexer — see [Data sources](/integration/data-sources).
+Prepare reads this snapshot to validate that notes reference the current pool state. Sync the snapshot from chain events or your indexer — see [State methods](/integration/data-sources).
 
 ## Wallet secrets in state
 
@@ -96,13 +96,13 @@ erDiagram
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Operations" icon="arrow-right-left" href="/concepts/operations">
+  <Card title="Operations" href="/concepts/operations">
     How deposit, withdraw, and transfer use these entities.
   </Card>
-  <Card title="Data sources" icon="server" href="/integration/data-sources">
+  <Card title="State methods" href="/integration/data-sources">
     Where production data for each entity comes from.
   </Card>
-  <Card title="Security and privacy" icon="shield" href="/concepts/security-and-privacy">
+  <Card title="Security and privacy" href="/concepts/security-and-privacy">
     What stays local vs on-chain.
   </Card>
 </CardGroup>

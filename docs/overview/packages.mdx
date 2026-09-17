@@ -83,7 +83,7 @@ Use `@arcanetech/privacy-sdk-stellar` for **Stellar** with **Soroban** smart con
 - `loadDefaultStellarBrowserAssets()` — bundled SDK WASM for the browser. Circuit schemes are selected by `zkConfigNonce`: **`3`** (2×2, default) and **`7`** (6×6).
 - `transactEnvironment` — network, KYT, optional `zkConfigNonce` / `zkArtifactBaseUrl`, and transaction signing hooks passed at client creation.
 
-For React wiring and operation examples, continue to [Stellar application development](/application-development/install).
+For React wiring and operation examples, continue to [Stellar application development](/application-development/setup).
 
 ## Protocol Relay package {#protocol-relay}
 
@@ -97,7 +97,7 @@ The package owns admission, lifecycle polling, retry, and consented Direct-submi
 
 Main exports: `createRelayApi`, `resolveRelayOrigin`, `submitAndAwaitPrivateOperation`, `throwIfRelayUnsuccessful`, `serializeRelayPackage` / `deserializeRelayPackage`, `resumePendingOperations`, `retryFailedRelayAttempt`.
 
-See [Quick start](/integration/quick-start) for runnable Relay wiring after `requiredSubmissionMethod`. Operation detail: [Withdraw](/application-development/how-to/withdraw) and [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient).
+See [Examples](/integration/quick-start) for runnable Relay wiring after `requiredSubmissionMethod`. Operation detail: [Withdraw](/application-development/how-to/withdraw) and [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient).
 
 ## Which packages you need
 
@@ -129,21 +129,21 @@ flowchart TD
 | **Frontend** (browser wallet) | `@arcanetech/privacy-sdk-stellar` + `@arcanetech/privacy-sdk-state-redux` + `@arcanetech/privacy-sdk-relay` (wallet kit is outside the SDK) |
 | **Backend** (Node signing) | `@arcanetech/privacy-sdk-stellar/node` + `@arcanetech/privacy-sdk-state-memory` + `@arcanetech/privacy-sdk-relay` |
 
-Runnable demos: [Quick start](/integration/quick-start).
+Runnable demos: [Examples](/integration/quick-start).
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Getting access" icon="key" href="/integration/getting-access">
+  <Card title="Set up the SDK" href="/integration/getting-access">
     npm install and where live stand values come from.
   </Card>
-  <Card title="State integration" icon="database" href="/integration/state-integration">
+  <Card title="State adapters" href="/integration/state-integration">
     Choose in-memory or Redux state adapters.
   </Card>
-  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
+  <Card title="Examples" href="/integration/quick-start">
     Frontend or backend demo.
   </Card>
-  <Card title="Install" icon="download" href="/application-development/install">
+  <Card title="Install" href="/application-development/setup">
     Install the Stellar React stack.
   </Card>
 </CardGroup>

@@ -49,7 +49,7 @@ Escrow sends require Protocol Relay and a zero public deposit. A positive public
 ## Example
 
 <Warning>
-  Pool IDs, `G…` / `stpl1` addresses, and seed hex below are **tutorial fixtures**. The client can be created if `auditPublicKeyHex` is a valid BabyJubJub key (Setup uses the SDK bundled demo key). For a live escrow send, use the [Quick start](/integration/quick-start) (Frontend or Backend tab) demo `.env`, or your own stand. See [Data sources](/integration/data-sources).
+  The addresses, contracts, and seed values below are placeholders, not runnable testnet data. Use the matching pool configuration and audit public key from [Set up the SDK](/integration/getting-access). Create the client using [Frontend integration](/application-development/setup) or [Backend integration](/integration/backend), and load real account state as described in [State methods](/integration/data-sources).
 </Warning>
 
 Call `transfer` with a public Stellar `to` address and the same private disclosure as a registered transfer.
@@ -145,7 +145,12 @@ if (operation.status === 'rejected') {
   throw new Error(operation.errors[0]?.message);
 }
 
-const method = requiredSubmissionMethod(operation.prepared, 3n);
+// Use the same environment passed when creating the client.
+const zkConfigNonce = transactEnvironment.zkConfigNonce;
+if (zkConfigNonce === undefined) {
+  throw new Error('Configure the nonce for your deployed pool.');
+}
+const method = requiredSubmissionMethod(operation.prepared, zkConfigNonce);
 if (method !== 'relay') {
   throw new Error('Escrow sends must use Protocol Relay.');
 }
@@ -171,7 +176,7 @@ const result = await submitAndAwaitPrivateOperation({
 throwIfRelayUnsuccessful(result);
 ```
 
-Build `relayOperation` from `operation.prepared` (`prepareRelayTransactPackageFromPrepared` + `serializeRelayPackage`, `submissionPath: 'relay'`). Complete port implementations: [Quick start](/integration/quick-start).
+Build `relayOperation` from `operation.prepared` (`prepareRelayTransactPackageFromPrepared` + `serializeRelayPackage`, `submissionPath: 'relay'`). Complete port implementations: [Examples](/integration/quick-start).
 
 The SDK derives the escrow note owner at execute-time resolution. It does not put the recipient G-address in pool calldata or the relay package on send.
 
@@ -203,13 +208,13 @@ Do not reconstruct the message by hand. Issuance verifies the signed string byte
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
-    Frontend or Backend demo tabs.
+  <Card title="Examples" href="/integration/quick-start">
+    Explore the frontend and backend reference applications.
   </Card>
-  <Card title="Data sources" icon="server" href="/integration/data-sources">
+  <Card title="State methods" href="/integration/data-sources">
     Seed state is a doc fixture; production data flows.
   </Card>
-  <Card title="Disclosure policy" icon="eye" href="/concepts/disclosure-policy">
+  <Card title="Disclosure policy" href="/concepts/disclosure-policy">
     Private escrow disclosure constraints.
   </Card>
 </CardGroup>

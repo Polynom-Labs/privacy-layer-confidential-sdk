@@ -1,11 +1,11 @@
 ---
-title: Operation lifecycle
+title: Transaction lifecycle
 description: Prepare and execute, prepared operations, errors, progress events, and persisted state
 ---
 
 import { LifecycleFlow } from '../snippets/lifecycle-flow.jsx';
 
-Every `deposit`, `transfer`, and `withdraw` call **prepares**, then you **execute**. Check `status` before you submit so the wallet prompt never opens on a rejected intent.
+Every `deposit`, `transfer`, and `withdraw` call prepares an operation. Check its status, then choose direct submission or Protocol Relay. The execute stages below describe direct submission.
 
 ## Two-phase model
 
@@ -104,7 +104,7 @@ After prepare, choose the path with `requiredSubmissionMethod` from `@arcanetech
 
 Relaying is off until `relayConfig.origin` is set. An unset origin Direct-submits a typical deposit and never contacts a relayer. An escrow send without origin fails with `escrow_relay_unconfigured` — it is not downgraded to Direct.
 
-Runnable wiring: [Quick start](/integration/quick-start). Operation examples: [Withdraw](/application-development/how-to/withdraw), [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient).
+Runnable wiring: [Examples](/integration/quick-start). Operation examples: [Withdraw](/application-development/how-to/withdraw), [Transfer to unregistered recipient](/application-development/how-to/transfer-unregistered-recipient).
 
 ## Error model
 
@@ -131,21 +131,21 @@ On the `storageCommit` stage the SDK updates local domain state:
 - refresh pool commitment snapshot
 - append delivery metadata when configured
 
-If you use a Redux adapter with localStorage hydration, persist the SDK state branch per wallet owner so records survive reloads — see [State integration](/integration/state-integration) and [Setup](/application-development/setup).
+Save private records using protected storage scoped to the account and network. Restore them before preparing a spend. Redux alone does not preserve state across reloads. See [State adapters](/integration/state-integration) and [Frontend integration](/application-development/setup#handle-reloads-and-account-changes).
 
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Operations" icon="arrow-right-left" href="/concepts/operations">
+  <Card title="Operations" href="/concepts/operations">
     What each operation kind does.
   </Card>
-  <Card title="State integration" icon="database" href="/integration/state-integration">
+  <Card title="State adapters" href="/integration/state-integration">
     Why prepare reads SDK state.
   </Card>
-  <Card title="Disclosure policy" icon="eye" href="/concepts/disclosure-policy">
+  <Card title="Disclosure policy" href="/concepts/disclosure-policy">
     Policy errors during prepare and execute.
   </Card>
-  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
+  <Card title="Examples" href="/integration/quick-start">
     Frontend or backend demo with Direct and Relay.
   </Card>
 </CardGroup>

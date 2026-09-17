@@ -39,7 +39,7 @@ export const OperationDisclosures = ({ operation }) => {
     both: 'Public or private',
   };
 
-  const senderBothHint = 'Public (Direct), or private only with Protocol Relay';
+  const senderBothHint = 'Sender can remain private with Protocol Relay';
 
   const valueStyles = {
     public: 'bg-[#2563EB]/10 text-[#2563EB] dark:bg-[#2563EB]/20 dark:text-[#93C5FD]',
@@ -55,9 +55,10 @@ export const OperationDisclosures = ({ operation }) => {
   return (
     <div className="not-prose my-4 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
       {tiles.map((tile) => {
-        const fieldValue = values[tile.key];
+        const supportedDisclosure = values[tile.key];
+        const fieldValue = supportedDisclosure === 'both' ? 'private' : supportedDisclosure;
         const hint =
-          tile.key === 'sender' && fieldValue === 'both'
+          tile.key === 'sender' && supportedDisclosure === 'both'
             ? senderBothHint
             : valueHints[fieldValue];
 
@@ -118,7 +119,7 @@ export const OperationDisclosures = ({ operation }) => {
                     <path d="M4 17h16" />
                   </svg>
                 )}
-                <span>{fieldValue}</span>
+                <span>{fieldValue === 'private' ? 'Private' : 'Public'}</span>
               </div>
               <div
                 className="pointer-events-none absolute bottom-full left-0 z-20 mb-2 w-max max-w-[14rem] rounded-md bg-zinc-900 px-2.5 py-1.5 text-xs leading-snug text-white opacity-0 shadow-md transition-opacity duration-150 invisible group-hover:visible group-hover:opacity-100 dark:bg-zinc-100 dark:text-zinc-900"

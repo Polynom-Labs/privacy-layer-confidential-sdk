@@ -1,5 +1,5 @@
 ---
-title: Deposit
+title: Deposit funds
 description: Seed SDK state and run a deposit through the Stellar privacy client
 ---
 
@@ -16,7 +16,7 @@ Deposit keeps the sender **public**. Protocol Relay does not apply: a deposit us
 ## Example
 
 <Warning>
-  Pool IDs, `G…` / `stpl1` addresses, and seed hex below are **tutorial fixtures**. The client can be created if `auditPublicKeyHex` is a valid BabyJubJub key (Setup uses the SDK bundled demo key). For a live deposit, use the [Quick start](/integration/quick-start) (Frontend or Backend tab) demo `.env`, or your own stand. See [Data sources](/integration/data-sources).
+  The addresses, contracts, and seed values below are placeholders, not runnable testnet data. Use the matching pool configuration and audit public key from [Set up the SDK](/integration/getting-access). Create the client using [Frontend integration](/application-development/setup) or [Backend integration](/integration/backend), and load real account state as described in [State methods](/integration/data-sources).
 </Warning>
 
 ### Seed state
@@ -89,13 +89,13 @@ await operation.execute({});
 ## Related
 
 <CardGroup cols={2}>
-  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
-    Frontend or Backend demo tabs.
+  <Card title="Examples" href="/integration/quick-start">
+    Explore the frontend and backend reference applications.
   </Card>
-  <Card title="Data sources" icon="server" href="/integration/data-sources">
+  <Card title="State methods" href="/integration/data-sources">
     Seed state is a doc fixture; production data flows.
   </Card>
-  <Card title="Operation lifecycle" icon="history" href="/concepts/operation-lifecycle">
+  <Card title="Operation lifecycle" href="/concepts/operation-lifecycle">
     Prepare and execute phases.
   </Card>
 </CardGroup>

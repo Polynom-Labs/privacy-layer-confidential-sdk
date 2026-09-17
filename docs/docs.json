@@ -1,6 +1,6 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "name": "Privacy Layer SDK",
+  "name": "Arcane Privacy SDK",
   "description": "Arcane privacy layer TypeScript SDK documentation",
   "theme": "mint",
   "colors": {
@@ -13,8 +13,29 @@
       {
         "group": "Overview",
         "pages": [
-          "overview/introduction",
-          "overview/packages"
+          "overview/introduction"
+        ]
+      },
+      {
+        "group": "Get started",
+        "pages": [
+          "integration/getting-access",
+          "application-development/setup",
+          "integration/backend"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "application-development/how-to/deposit",
+          {
+            "group": "Send a private transfer",
+            "root": "application-development/how-to/transfer-registered-recipient",
+            "pages": [
+              "application-development/how-to/transfer-unregistered-recipient"
+            ]
+          },
+          "application-development/how-to/withdraw"
         ]
       },
       {
@@ -28,27 +49,15 @@
         ]
       },
       {
-        "group": "Integration",
+        "group": "Reference",
         "pages": [
-          "integration/getting-access",
-          "integration/integration-paths",
-          "integration/quick-start",
-          "integration/state-integration",
-          "integration/data-sources"
-        ]
-      },
-      {
-        "group": "Stellar application development",
-        "pages": [
-          "application-development/install",
-          "application-development/setup",
           {
-            "group": "How to",
+            "group": "SDK reference",
+            "root": "overview/packages",
             "pages": [
-              "application-development/how-to/deposit",
-              "application-development/how-to/withdraw",
-              "application-development/how-to/transfer-registered-recipient",
-              "application-development/how-to/transfer-unregistered-recipient"
+              "integration/integration-paths",
+              "integration/state-integration",
+              "integration/data-sources"
             ]
           }
         ]
@@ -63,6 +72,10 @@
     {
       "source": "/integration/quick-start-backend",
       "destination": "/integration/quick-start"
+    },
+    {
+      "source": "/application-development/install",
+      "destination": "/application-development/setup"
     }
   ]
 }

@@ -1,0 +1,159 @@
+---
+title: Backend integration
+description: Build server-side private payments with the Arcane Privacy SDK.
+---
+
+<Card title="Backend example on GitHub" href="https://github.com/arcanetechhq/pl-backend-sdk-demo">
+  Follow the TypeScript application: set up test accounts, deposit XLM, send private transfers, and withdraw.
+</Card>
+
+This guide follows the example's SDK integration. Your server holds the signer, prepares transactions, and preserves account state. Users do not need a browser wallet.
+
+## Start with the example
+
+Clone the repository and follow its [README](https://github.com/arcanetechhq/pl-backend-sdk-demo#readme) to run the application. This guide focuses on the Arcane integration; the example's framework and storage are application choices.
+
+```bash
+git clone https://github.com/arcanetechhq/pl-backend-sdk-demo.git
+cd pl-backend-sdk-demo
+```
+
+The example uses test application `845068536382695`. Keep the matching settings from its `.env.example` file. See [Set up the SDK](/integration/getting-access) to register your own application.
+
+In the app, select **Setup accounts**, make a small **Deposit**, and check the private balance. Use **Start** and **Stop** to try private transfers between the test accounts, then **Withdraw**.
+
+## Connect the SDK
+
+[Account client setup](https://github.com/arcanetechhq/pl-backend-sdk-demo/blob/main/src/privacy/clients/privacy-account-clients.ts) creates a client for each server-controlled account. It connects:
+
+- The account address, message signer, and transaction signer.
+- Network and application configuration.
+- The SDK runtime asset and transaction configuration.
+- An account-scoped state adapter.
+- KYT and recipient-resolution configuration.
+
+The example resolves configuration with `resolveStellarPrivacyClientConfig` and constructs the client with `createStellarPrivacyClientFromResolvedConfig`. Its transaction-engine setup also supports the example's Relay preparation flow. Reuse the complete setup when following the example.
+
+You can integrate the SDK into another Node.js application without adopting the example's framework.
+
+## Keep state on the server
+
+The example uses `@arcanetech/privacy-sdk-state-memory` for SDK state and adds application-managed persistence. The basic adapter starts with:
+
+```ts
+import { createInMemoryStateAdapter } from '@arcanetech/privacy-sdk-state-memory';
+
+const state = createInMemoryStateAdapter();
+```
+
+In the example, each account's saved snapshot is restored before operations. State changes are persisted through the application's storage integration. The in-memory adapter by itself does not save data across restarts.
+
+Preserve private-address data, private records, and unresolved transaction state. Keep each account's data separate and protect signing material. See the [state integration](https://github.com/arcanetechhq/pl-backend-sdk-demo/tree/main/src/privacy/state) for the example's implementation.
+
+## Set up private accounts
+
+The example's account setup derives test accounts, funds them on Stellar testnet, and registers their private addresses.
+
+[The registration flow](https://github.com/arcanetechhq/pl-backend-sdk-demo/blob/main/src/privacy/operations/privacy-job-runner.ts) signs an SDK-generated message on the server, derives and saves the private address, and calls `registerPrivateAddress`. It then checks registration with `checkRegistrationStatus`.
+
+Your application can supply its own signer. Keep message signing and transaction signing tied to the same account. This account registration is separate from registering your application.
+
+## Deposit funds
+
+The excerpts below follow [PrivacyJobRunner](https://github.com/arcanetechhq/pl-backend-sdk-demo/blob/main/src/privacy/operations/privacy-job-runner.ts). Here, `client` belongs to the selected account; `publicKey`, `privateAddress`, and `env` come from account setup and configuration.
+
+Refresh pool state, then prepare the deposit:
+
+```ts
+await client.syncPoolMerkleState({
+  poolContractId: env.poolContract,
+  walletPublicKey: publicKey,
+});
+
+const operation = await client.deposit({
+  from: publicKey,
+  to: privateAddress,
+  asset: env.assetId,
+  amount: 10_000_000n, // 1 XLM in stroops
+  disclosure: {
+    senderAddress: 'public',
+    recipientAddress: 'private',
+    assetAddress: 'public',
+    amount: 'public',
+  },
+});
+
+if (operation.status !== 'prepared') {
+  throw new Error(operation.errors[0]?.message ?? 'Deposit prepare failed');
+}
+
+const receipt = await operation.execute();
+```
+
+A deposit uses direct submission. The server signer signs the transaction. Check the transaction outcome and private balance before continuing; successful preparation alone does not mean funds have moved.
+
+## Send a private transfer
+
+The example resolves the recipient's private address and calls `client.transfer`:
+
+```ts
+const resolved = await client.resolveTransferRecipient({
+  recipientStellarAddress: recipientPublicKey,
+  walletPublicKey: senderPublicKey,
+});
+
+const operation = await client.transfer({
+  from: senderPrivateAddress,
+  to: resolved.recipientPrivateAddressStpl1,
+  asset: env.assetId,
+  amount: amountStroops,
+  disclosure: {
+    senderAddress: 'private',
+    recipientAddress: 'private',
+    assetAddress: 'private',
+    amount: 'private',
+  },
+});
+```
+
+Both accounts are registered in this example. After checking that preparation succeeded, the application submits through Relay, delivers the resulting private records to the recipient account, and marks the sender's consumed records as spent.
+
+The example implements that sequence in `submitRelayAndFinalize`. Keep the submission and state updates together; preparing a transfer is not sufficient to update either balance.
+
+## Withdraw funds
+
+The example withdraws to the selected account's public address:
+
+```ts
+const operation = await client.withdraw({
+  from: privateAddress,
+  to: publicKey,
+  asset: env.assetId,
+  amount: amountStroops,
+  disclosure: {
+    senderAddress: 'private',
+    recipientAddress: 'public',
+    assetAddress: 'public',
+    amount: 'public',
+  },
+});
+```
+
+After the preparation check, the example uses the same Relay submission and finalisation flow. The sender remains private; the recipient, asset, and amount are public. Do not reuse the deposit's direct `execute()` call for this private-sender withdrawal.
+
+## Check the result
+
+After each operation, inspect the transaction result and the affected accounts' balances. Restore saved state after restarting the application and verify that private records remain available.
+
+If submission times out, check the existing transaction before repeating it. Keep operations for the same account coordinated so two payments do not attempt to spend the same private records.
+
+## Explore the implementation
+
+| Task | Example source |
+| --- | --- |
+| Connect signers and clients | [privacy-account-clients.ts](https://github.com/arcanetechhq/pl-backend-sdk-demo/blob/main/src/privacy/clients/privacy-account-clients.ts) |
+| Register, deposit, transfer, and withdraw | [privacy-job-runner.ts](https://github.com/arcanetechhq/pl-backend-sdk-demo/blob/main/src/privacy/operations/privacy-job-runner.ts) |
+| Submit through Relay | [relay-submit.service.ts](https://github.com/arcanetechhq/pl-backend-sdk-demo/blob/main/src/relay/relay-submit.service.ts) |
+| Save and restore account state | [State integration](https://github.com/arcanetechhq/pl-backend-sdk-demo/tree/main/src/privacy/state) |
+
+{/* Source reviewed: 07a1dc9b177ecdee3632cf5f1421e1c0868395ca. TODO: Verify the walkthrough end to end against the deployed testnet services. */}

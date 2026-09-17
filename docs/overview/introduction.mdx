@@ -1,79 +1,57 @@
 ---
-title: Introduction
-description: Add auditable private payments with deposit, transfer, and withdraw
+title: Overview
+description: Build private transactions with the Arcane Privacy SDK.
 ---
 
-The Privacy Layer SDK is a TypeScript library for auditable private payments. Use `deposit`, `transfer`, and `withdraw` — the SDK prepares the transaction, drives wallet signing, and submits it.
+Use the Arcane Privacy SDK to deposit funds, send private transfers, and withdraw funds in your application. The SDK prepares transactions, validates operation inputs, and coordinates signing and submission to Arcane's smart contracts.
 
-## Packages
+The SDK is currently available in TypeScript and can be used in JavaScript and TypeScript applications, in the browser or on a Node.js backend. The integration guides in this section cover Stellar and Soroban.
 
-| Layer | Packages | Role |
-| --- | --- | --- |
-| **Core** | `@arcanetech/privacy-sdk-core` | Intents, operation lifecycle, errors, progress events |
-| **Relay** | [`@arcanetech/privacy-sdk-relay`](https://www.npmjs.com/package/@arcanetech/privacy-sdk-relay) | Optional Protocol Relay runtime: admission, polling, retry, fallback |
-| **State** | `@arcanetech/privacy-sdk-state-*` | Persistence for SDK domain state |
-| **Network preset** | `@arcanetech/privacy-sdk-stellar` | Stellar contracts, wallet format, bundled runtime assets |
+<div className="arcane-launchpad">
 
-The SDK runs private transactions on the client and keeps a **local cache** of domain state (private records, pool snapshot, registry lookups, wallet keys). It does **not** replace your backend or indexer. Those services still supply asset catalogs, delivery indexing, and audit interpretation.
+## Start building
 
-```mermaid
-flowchart LR
-  App[Your application]
-  Preset[Stellar preset]
-  Chain[Stellar]
-  Backend[Optional backend services]
-
-  App --> Preset
-  Preset --> Chain
-  App --> Backend
-  Preset -.-> Backend
-```
-
-## What the SDK does
-
-- **Prepare, then execute** — `prepare` validates and plans; `execute` signs, submits, and persists. The UI can show errors before the wallet prompt.
-- **Typed errors** and **progress events** for loading states and retry logic.
-- **State adapters** (in-memory, Redux) so you are not locked to one store.
-
-## What you can build
-
-- A Stellar wallet or payment client.
-- Private transfers inside an existing Stellar dApp.
-- A Node signing service (you supply a server-side wallet adapter).
-- Tests with a fake transact engine — no live chain required.
-
-## Next
-
-1. **[Packages](/overview/packages)** — npm map and Stellar entry points.
-2. **[Domain model](/concepts/domain-model)** — addresses, records, pool, and registry.
-3. **[Getting access](/integration/getting-access)** — npm install and live stand values.
-4. **[Quick start](/integration/quick-start)** — choose a frontend or backend demo and run a deposit.
-5. **[Stellar application development](/application-development/install)** — React package lines and operation how-tos.
-
-```mermaid
-flowchart TD
-  Intro[Introduction]
-  Pkg[Packages]
-  Domain[Domain model]
-  QS[Quick start chooser]
-  HowTo[How-to]
-
-  Intro --> Pkg --> Domain --> QS --> HowTo
-```
-
-## Related
-
-<CardGroup cols={2}>
-  <Card title="Getting access" icon="key" href="/integration/getting-access">
-    npm and where live stand values come from.
+<Columns cols={2}>
+  <Card title="Frontend integration" href="/application-development/setup">
+    Follow the frontend example: connect a wallet, deposit, transfer, and withdraw.
   </Card>
-  <Card title="Packages" icon="box" href="/overview/packages">
-    Map of `@arcanetech/*` packages and the Stellar preset.
+  <Card title="Backend integration" href="/integration/backend">
+    Follow the backend example: sign on the server and preserve account state.
   </Card>
-  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
-    Frontend or backend demo.
+  <Card title="Examples" href="/integration/quick-start">
+    Explore complete frontend and backend reference applications.
   </Card>
-  <Card title="Domain model" icon="sitemap" href="/concepts/domain-model">
-    Addresses, records, pool, and registry.
+  <Card title="SDK and APIs" href="/integration/integration-paths">
+    See how the SDK, smart contracts, and supporting APIs fit together.
   </Card>
-</CardGroup>
+</Columns>
+
+## Build transaction flows
+
+<Columns cols={2}>
+  <Card title="Deposit funds" href="/application-development/how-to/deposit">
+    Move funds from a public balance into the private pool.
+  </Card>
+  <Card title="Send a private transfer" href="/application-development/how-to/transfer-registered-recipient">
+    Transfer funds to a registered private recipient.
+  </Card>
+  <Card title="Withdraw funds" href="/application-development/how-to/withdraw">
+    Move funds from the private pool to a public address.
+  </Card>
+  <Card title="Transaction concepts" href="/concepts/domain-model">
+    Learn about private addresses, balances, and the state your integration maintains.
+  </Card>
+</Columns>
+
+## Reference
+
+<Columns cols={2}>
+  <Card title="Relayer API" href="/products/privacy-layer/api-reference/relayer">
+    Submit prepared transactions, track their status, and retry eligible failures.
+  </Card>
+  <Card title="KYT API" href="/products/privacy-layer/api-reference/kyt">
+    Request a transaction screening decision and signed authorisation.
+  </Card>
+</Columns>
+
+</div>

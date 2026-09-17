@@ -1,230 +1,160 @@
 ---
-title: Setup
-description: Bootstrap the Stellar privacy client with Redux state, a wallet adapter, and optional persistence
+title: Frontend integration
+description: Build a browser-based private payment app with the Arcane Privacy SDK.
 ---
 
-Add this once in a React app shell, then call deposit, transfer, or withdraw. All examples use TypeScript and React.
+<Card title="Frontend example on GitHub" href="https://github.com/arcanetechhq/pl-frontend-sdk-demo">
+  Follow the React and TypeScript application: connect a wallet, deposit XLM, send private transfers, and withdraw.
+</Card>
 
-For a runnable Freighter demo before you wire your own shell, see [Quick start](/integration/quick-start) (Frontend tab).
+This guide follows the example's SDK integration. Transactions run in the browser, and Freighter signs through Stellar Wallets Kit. React and Redux are choices made by the example, not requirements of the Arcane Privacy SDK.
 
-<Warning>
-  Network contract IDs, KYT, decimal `applicationId`, the wallet `G…` stub, and `auditPublicKeyHex` on this page are **tutorial fixtures**. The audit hex is the SDK bundled demo key (valid format), not your application key. Live `execute()` needs your stand’s real audit id and a real wallet. See [Data sources](/integration/data-sources).
-</Warning>
+## Run the example
 
-## Redux state adapter
+Use Node.js 20 or later and a browser with Freighter installed. Select Stellar testnet in the wallet and fund the account with test XLM.
 
-Create the SDK state branch, register it in your store, and bind the adapter before creating the client.
+```bash
+git clone https://github.com/arcanetechhq/pl-frontend-sdk-demo.git
+cd pl-frontend-sdk-demo
+cp .env.example .env
+npm install
+npm run dev
+```
 
-```tsx
+The example uses test application `3722412212248783`. Keep the matching settings from its environment file. See [Set up the SDK](/integration/getting-access) to register your own application.
+
+In the app, connect Freighter, select **Create private address** (or **Restore**), and make a small **Deposit**. Then try **Transfer** and **Withdraw**.
+
+## Connect the SDK
+
+[Client setup](https://github.com/arcanetechhq/pl-frontend-sdk-demo/blob/main/src/shared/api/privacy/bootstrap.ts) connects five inputs:
+
+- Network and application configuration from `.env`.
+- The connected wallet's address and signing functions.
+- The SDK state adapter.
+- The browser runtime asset.
+- KYT and transaction-submission configuration.
+
+The example calls `resolveStellarPrivacyClientConfig`, checks the result, and creates the client with `createStellarPrivacyClientFromResolvedConfig`. It also loads the XLM asset configuration with `upsertAssets`.
+
+Use `bootstrapPrivacyClient()` from the example to initialise that setup. Later operations obtain the same client through `getPrivacyClient()`. These are application helpers, not SDK exports.
+
+## Connect state to the UI
+
+The example uses `@arcanetech/privacy-sdk-state-redux`. The core wiring in [store.ts](https://github.com/arcanetechhq/pl-frontend-sdk-demo/blob/main/src/shared/api/privacy/store.ts) is:
+
+```ts
 import { configureStore } from '@reduxjs/toolkit';
 import {
   bindReduxStateAdapter,
   createReduxStateAdapter,
 } from '@arcanetech/privacy-sdk-state-redux';
 
-export const privacySdkState = createReduxStateAdapter({
+const privacySdkState = createReduxStateAdapter({
   reducerPath: 'privacySdkState',
 });
 
-export const store = configureStore({
-  reducer: {
-    [privacySdkState.reducerPath]: privacySdkState.reducer,
-  },
+const store = configureStore({
+  reducer: { [privacySdkState.reducerPath]: privacySdkState.reducer },
   middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(privacySdkState.middleware),
+    getDefaultMiddleware({ serializableCheck: false })
+      .concat(privacySdkState.middleware),
 });
 
 bindReduxStateAdapter(privacySdkState, store);
 ```
 
-## Wallet adapter
+Pass `privacySdkState.adapter` as the client's `state`. The full example also initialises the state and restores the connected account's saved snapshot.
 
-The client signs messages and transactions through a wallet adapter. The `G…` value below is **not** a valid Stellar public key — it is a stub. Implement the three methods against your wallet SDK.
+If your frontend does not use Redux, use `@arcanetech/privacy-sdk-state-memory` and update your UI after operations. In either case, saving and restoring account data is an application responsibility.
+
+## Create or restore a private address
+
+[Private-address setup](https://github.com/arcanetechhq/pl-frontend-sdk-demo/blob/main/src/shared/api/privacy/privateAddress.ts) asks the wallet to sign an SDK-generated message, derives the private address, saves the account data, and checks its registration.
+
+The example exposes `createOrRestorePrivateAddress(owner)` for this flow. Restore an existing address rather than treating a fresh browser store as a new account.
+
+This user-account step is separate from the test application's registration.
+
+## Deposit funds
+
+[operations.ts](https://github.com/arcanetechhq/pl-frontend-sdk-demo/blob/main/src/shared/api/privacy/operations.ts) exposes `runDeposit`, `runTransfer`, and `runWithdraw`. These helpers include pool synchronisation, preparation checks, and submission.
+
+Call them from your UI after account setup:
 
 ```ts
-import type { StellarWalletAdapter } from '@arcanetech/privacy-sdk-stellar';
+import { runDeposit } from '@shared/api/privacy';
 
-export const wallet: StellarWalletAdapter = {
-  getAddress: async () => 'GDSENDER7EXAMPLEPUBLICKEYAAAAAAAAAAAAAAAAAAAA',
-  authorizeMessage: async (message) =>
-    new TextEncoder().encode(typeof message === 'string' ? message : ''),
-  signTransactionPayload: async (payload) => ({ ...payload, signed: true }),
-};
+await runDeposit({
+  owner: connectedWalletAddress,
+  amount: 10_000_000n, // 1 XLM in stroops
+  onEvent: (message) => setStatus(message),
+});
 ```
 
-## Client bootstrap
-
-Load the bundled SDK WASM, pass network configuration, and create the client once at startup. When `zkConfigNonce` is omitted, the SDK default is binding nonce **`3`** (bundled 2×2). Nonce **`7`** (bundled 6×6) is also shipped. Pass `zkConfigNonce` only to match your pool’s on-chain `ZkConfig`. Override `zkArtifactBaseUrl` when the stand serves proving artifacts from a custom CDN.
+The import above belongs to the example application. Inside `runDeposit`, the SDK prepares the operation with:
 
 ```ts
-import {
-  createStellarPolicyAdapterFromEnvironment,
-  createStellarPrivacyClient,
-  isStellarPrivacyClient,
-  loadDefaultStellarBrowserAssets,
-  type StellarPrivacyClient,
-} from '@arcanetech/privacy-sdk-stellar';
-import type { StellarTransactEnvironment } from '@arcanetech/privacy-sdk-stellar/transact';
-import { privacySdkState } from './store';
-import { wallet } from './wallet';
-
-let privacyClient: StellarPrivacyClient | undefined;
-
-const transactEnvironment: StellarTransactEnvironment = {
-  network: {
-    id: 'stellar-testnet',
-    rpcUrl: 'https://soroban-testnet.stellar.org',
-    networkPassphrase: 'Test SDF Network ; September 2015',
-    poolContract: 'CBVQTSTSIJ4UZMN5FQBFHPUIYSW3ATGSP57BZDJNKTOBNQODQTRGE4K5',
-    registryContract: 'CCO5QRTS5HFVPR356FFC4NI62IMBQNDGMOAXR4K5UVTV3YMRWDZGKXGC',
-    applicationId: '1',
+const operation = await client.deposit({
+  from: input.owner,
+  to: privateAddress,
+  asset: env.assetId,
+  amount: input.amount,
+  disclosure: {
+    senderAddress: 'public',
+    recipientAddress: 'private',
+    assetAddress: 'public',
+    amount: 'public',
   },
-  kyt: {
-    apiBaseUrl: 'https://example.invalid',
-    kytPassageRegistryContract: 'CKYTEXAMPLECONTRACTIDAAAAAAAAAAAAAAAAAAAAAA',
-  },
-  signTransaction: async ({ xdr }) => ({ signedTxXdr: xdr }),
-  resolveTransferRecipientAtExecute: async ({
-    recipientStellarAddress,
-    walletPublicKey,
-  }) => {
-    if (!privacyClient) {
-      throw new Error('Privacy client is not ready.');
-    }
-    return privacyClient.resolveTransferRecipient({
-      recipientStellarAddress,
-      walletPublicKey,
-    });
-  },
-};
-
-export async function bootstrapPrivacyClient() {
-  const assets = await loadDefaultStellarBrowserAssets();
-  const created = await createStellarPrivacyClient({
-    network: transactEnvironment.network,
-    wallet,
-    state: privacySdkState.adapter,
-    assets,
-    // SDK bundled demo audit key. Replace with your application key in production.
-    auditPublicKeyHex:
-      '042fc449e2dd0c5349d06092adc126e213858984584e429842d87bcc705837c76529b060ee13f1da3bde25e0e11c23a145656ede61710ed78593d69b8bdbc1a581',
-    transactEnvironment,
-    policy: createStellarPolicyAdapterFromEnvironment(transactEnvironment),
-  });
-  if (!isStellarPrivacyClient(created)) {
-    throw new Error('Privacy client rejected during initialization.');
-  }
-  privacyClient = created;
-  return created;
-}
+});
 ```
 
-<Tip>
-  G-address transfers (registered lookup or escrow send) need `resolveTransferRecipientAtExecute` on the **same** `transactEnvironment` object you pass into `createStellarPrivacyClient`. Hold a client slot and assign it after bootstrap — do not close over `client` before it exists. The engine and bootstrap must share that one environment instance.
-</Tip>
+The submission helper uses direct submission for this deposit. Approve the wallet prompts and wait for confirmation before showing success.
 
-## React provider and hook
+## Transfer and withdraw
 
-Expose the client through context so feature code can call `usePrivacySdkClient()`.
+Use the same application helpers for the next operations:
 
-```tsx
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import type { StellarPrivacyClient } from '@arcanetech/privacy-sdk-stellar';
-import { bootstrapPrivacyClient } from './bootstrap-privacy-client';
+```ts
+import { runTransfer, runWithdraw } from '@shared/api/privacy';
 
-const PrivacySdkContext = createContext<{
-  client: StellarPrivacyClient | undefined;
-  ready: boolean;
-}>({ client: undefined, ready: false });
+await runTransfer({
+  owner: connectedWalletAddress,
+  recipient: recipientAddress,
+  amount: 1_000_000n, // 0.1 XLM
+  onEvent: (message) => setStatus(message),
+});
 
-export function usePrivacySdkClient() {
-  return useContext(PrivacySdkContext);
-}
-
-export function PrivacySdkProvider({ children }: { children: React.ReactNode }) {
-  const [client, setClient] = useState<StellarPrivacyClient>();
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    bootstrapPrivacyClient()
-      .then((created) => {
-        setClient(created);
-        setReady(true);
-      })
-      .catch(() => setReady(false));
-  }, []);
-
-  const value = useMemo(() => ({ client, ready }), [client, ready]);
-  return (
-    <PrivacySdkContext.Provider value={value}>{children}</PrivacySdkContext.Provider>
-  );
-}
+// Withdraw to the connected wallet.
+await runWithdraw({
+  owner: connectedWalletAddress,
+  amount: 1_000_000n,
+  onEvent: (message) => setStatus(message),
+});
 ```
 
-Wrap your app root with `PrivacySdkProvider` and read `client` from the hook before calling operations.
+A transfer accepts a private `stpl1` address or a Stellar `G` address. The example resolves whether the recipient is registered and selects the corresponding transfer flow.
 
-## Persist state in local storage
+Transfers and withdrawals in this example keep the sender private and use Relay. Keep the [submission helper](https://github.com/arcanetechhq/pl-frontend-sdk-demo/blob/main/src/shared/api/privacy/relay.ts) connected; calling `execute()` directly is not a substitute for Relay.
 
-SDK state lives in the Redux branch created above. Hydrate and save **that branch only**, keyed by wallet owner, so private records and registry cache survive reloads.
+## Preserve account state
+
+The example restores and saves an account-scoped snapshot so a page refresh does not discard its private records. When accounts change, it loads the selected account's state.
 
 <Warning>
-  The persisted JSON is the full SDK cache, including `coinNote` secrets and wallet scalars. Treat it like a private-key store: scope it per wallet, do not write the rest of the Redux store, and encrypt at rest if your threat model requires it. See [Security and privacy](/concepts/security-and-privacy).
+  The example stores private account data in browser local storage, including spending material. Treat it as a test application, not a secure-storage template for real funds. Its incoming-note mailbox is also local to the browser; it does not deliver notes across devices.
 </Warning>
 
-```tsx
-import { useEffect } from 'react';
-import { hydrateReduxPrivacySdkState } from '@arcanetech/privacy-sdk-state-redux';
-import { store } from './store';
+For your application, choose protected storage and a delivery mechanism suited to your users. Preserve private records and unresolved transaction state, and isolate accounts and networks.
 
-const STORAGE_KEY = 'privacy-sdk-state:v1';
+## Explore the implementation
 
-function loadSavedBranch(owner: string) {
-  const raw = localStorage.getItem(`${STORAGE_KEY}:${owner}`);
-  return raw ? (JSON.parse(raw) as Record<string, unknown>) : undefined;
-}
+| Task | Example source |
+| --- | --- |
+| Configure the client | [bootstrap.ts](https://github.com/arcanetechhq/pl-frontend-sdk-demo/blob/main/src/shared/api/privacy/bootstrap.ts) |
+| Create or restore an account | [privateAddress.ts](https://github.com/arcanetechhq/pl-frontend-sdk-demo/blob/main/src/shared/api/privacy/privateAddress.ts) |
+| Deposit, transfer, and withdraw | [operations.ts](https://github.com/arcanetechhq/pl-frontend-sdk-demo/blob/main/src/shared/api/privacy/operations.ts) |
+| Submit and track transactions | [relay.ts](https://github.com/arcanetechhq/pl-frontend-sdk-demo/blob/main/src/shared/api/privacy/relay.ts) |
+| Save and restore state | [store.ts](https://github.com/arcanetechhq/pl-frontend-sdk-demo/blob/main/src/shared/api/privacy/store.ts) |
 
-function saveBranch(owner: string, branch: Record<string, unknown>) {
-  localStorage.setItem(`${STORAGE_KEY}:${owner}`, JSON.stringify(branch));
-}
-
-export function usePrivacySdkPersistence(walletAddress: string | undefined) {
-  useEffect(() => {
-    const owner = walletAddress?.trim();
-    if (!owner) return;
-
-    const saved = loadSavedBranch(owner);
-    if (saved && Object.keys(store.getState().privacySdkState).length === 0) {
-      store.dispatch(hydrateReduxPrivacySdkState(saved));
-    }
-
-    let previous = store.getState().privacySdkState;
-    return store.subscribe(() => {
-      const branch = store.getState().privacySdkState;
-      if (branch === previous) {
-        return;
-      }
-      previous = branch;
-      saveBranch(owner, branch);
-    });
-  }, [walletAddress]);
-}
-```
-
-Call `usePrivacySdkPersistence(walletAddress)` inside `PrivacySdkProvider` after the client is ready. Write only when the SDK branch changes — not on every unrelated store update. Amount fields in private records are stored as strings in JSON; the SDK normalizes them on read.
-
-## Related
-
-<CardGroup cols={2}>
-  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
-    Frontend demo tab before this shell.
-  </Card>
-  <Card title="State integration" icon="database" href="/integration/state-integration">
-    Why the SDK needs state and when to use Redux.
-  </Card>
-  <Card title="Data sources" icon="server" href="/integration/data-sources">
-    Production vs documentation fixture state.
-  </Card>
-  <Card title="Operation lifecycle" icon="history" href="/concepts/operation-lifecycle">
-    Prepare, execute, errors, and progress events.
-  </Card>
-</CardGroup>
+{/* Source reviewed: 6a7378d1c549c64dd707884ea7be1c0e5226c9c1. TODO: Verify the walkthrough end to end against the deployed testnet services. */}

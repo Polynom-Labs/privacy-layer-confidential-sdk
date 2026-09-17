@@ -1,63 +1,56 @@
 ---
-title: Getting access
-description: Install the SDK and collect live stand values — not from a Stellar wallet
+title: Set up the SDK
+description: Install the Arcane Privacy SDK and choose a frontend or backend example.
 ---
 
-Install from the public npm registry under `@arcanetech`. Anonymous `npm install` is enough for the published **0.5.x** line of `@arcanetech/privacy-sdk-stellar`. There is no extra GitHub Packages token in this path.
+The Arcane Privacy SDK lets your application deposit funds, send private transfers, and withdraw funds on Privacy Layer. It is available for JavaScript and TypeScript and runs in a browser or on a Node.js server.
+
+Start with one of the two Stellar testnet examples. Both use the same SDK operations; they differ in where transactions are signed and how account state is stored.
+
+## Install the SDK
+
+The SDK is published on npm:
 
 ```bash
-npm install @arcanetech/privacy-sdk-stellar @arcanetech/privacy-sdk-state-memory
+npm install @arcanetech/privacy-sdk-stellar
 ```
 
-React apps: [Install](/application-development/install) (`state-redux` + Relayer when you need a private sender or escrow send).
+When working with an example repository, install its dependencies instead of adding packages individually. Its package files specify the SDK and adapters used by that example.
 
-## What a live client needs
+## Configure your application
 
-A Stellar **wallet** (Freighter or your adapter) only supplies a `G…` address and signatures. It does **not** supply pool IDs, KYT, Relayer, or tag issuance.
+Transactions require a registered application and its matching audit public key. Application registration identifies your integration.
 
-| You must have | What it is |
-| --- | --- |
-| `network.poolContract` | Soroban privacy pool (`C…`) |
-| `network.registryContract` | Private-address registry (`C…`) |
-| `network.applicationId` | Compliance `association.audit_id` — **decimal Fr string only**, not a UUID |
-| `auditPublicKeyHex` | Application audit public key (128 hex or `04`+X+Y). Not the SDK demo key |
-| `kyt.apiBaseUrl` | KYT / Passage HTTP API |
-| `kyt.kytPassageRegistryContract` | KYT passage registry (`C…`) |
-| `network.rpcUrl` / passphrase | Testnet defaults are public (`soroban-testnet.stellar.org`, SDF testnet passphrase) |
-| `relayConfig.origin` | Relayer base URL. Required for **private sender** and **escrow send**. Unset origin never contacts a relayer; escrow then fails with `escrow_relay_unconfigured` |
-| Tag issuance / storage origin (optional) | Stand-supplied base URL used for escrow note discovery after the recipient registers |
+The examples already include test application settings in their `.env.example` files:
 
-How-to pages use **tutorial fixtures**. Runnable demos ship live stand rows in `.env.example` — see [Quick start](/integration/quick-start). `execute()` will not confirm on testnet with how-to fixture IDs.
+| Example | Application ID | Configuration |
+| --- | --- | --- |
+| Frontend | `3722412212248783` | [Frontend environment file](https://github.com/arcanetechhq/pl-frontend-sdk-demo/blob/main/.env.example) |
+| Backend | `845068536382695` | [Backend environment file](https://github.com/arcanetechhq/pl-backend-sdk-demo/blob/main/.env.example) |
 
-## Where partners get the values
+Use the complete configuration from the example you choose, including its audit public key, contracts, network, KYT service, and Relayer URL. The SDK takes the decimal application ID shown above, not a Compliance Platform UUID.
 
-1. Create or receive a **`stellar-pool` application** in the [Compliance Platform](/products/compliance-platform/user-guide/organisation-management/application-management). The platform issues the **decimal** application id (`association.audit_id`) and the public audit key. Private audit material stays server-side.
-2. Take **pool, registry, KYT contract, KYT URL, Relayer origin**, and — when you need escrow discovery — a **tag-issuance / storage origin** from the stand Arcane gives you (or from your own deployment). Do not copy another product’s `.env` into a partner app unless that stand is explicitly yours.
-3. Put them in your environment. Demo stands configure a Relayer origin; yours must come from your stand owner.
+You do not need to register a new application to follow these examples. To register your own application and obtain its configuration, [contact the Arcane team](mailto:max@arcane.finance). Use the demo applications only for testing.
 
-Side-by-side tutorial / frontend demo / backend demo IDs: [Data sources](/integration/data-sources#where-each-config-field-comes-from).
+{/* Source: frontend 6a7378d1c549c64dd707884ea7be1c0e5226c9c1 and backend 07a1dc9b177ecdee3632cf5f1421e1c0868395ca, .env.example. */}
 
-When `zkConfigNonce` is omitted, the SDK default is binding nonce **`3`** (bundled 2×2). Nonce **`7`** (bundled 6×6) is also shipped. Match the on-chain pool `ZkConfig` — a mismatch fails with `no zk circuit configured for nonce …`. Do not copy another stand’s nonce into a new integration unless that stand is the target.
-
-## First live transaction
-
-Deposit with a **public sender** and Direct Submission (`operation.execute()`). That path does not need Relayer. You still need a funded testnet wallet (or HD account) and the stand row above.
-
-Fastest path: clone a demo — [Quick start](/integration/quick-start). Private sender, unregistered escrow send, and Relayer wiring are covered there and in the [withdraw](/application-development/how-to/withdraw) / [unregistered transfer](/application-development/how-to/transfer-unregistered-recipient) how-tos.
-
-## Related
+## Choose your integration
 
 <CardGroup cols={2}>
-  <Card title="Quick start" icon="rocket" href="/integration/quick-start">
-    Choose frontend or backend demo.
+  <Card title="Frontend integration" href="/application-development/setup">
+    Build a private payment interface. Connect a wallet, deposit funds, transfer, and withdraw in the browser.
   </Card>
-  <Card title="Data sources" icon="server" href="/integration/data-sources">
-    Fixtures vs frontend and backend demo config.
-  </Card>
-  <Card title="Install" icon="download" href="/application-development/install">
-    React + Relayer packages.
-  </Card>
-  <Card title="Application management" icon="building" href="/products/compliance-platform/user-guide/organisation-management/application-management">
-    `stellar-pool` application, audit public key.
+  <Card title="Backend integration" href="/integration/backend">
+    Run private payments from your server. Set up accounts, sign transactions, and preserve account state.
   </Card>
 </CardGroup>
+
+Both guides follow the example's code and link to its implementation. Start with a small testnet deposit before moving on to transfers and withdrawals.
+
+## Understand SDK state
+
+The SDK keeps private records, private-address data, and transaction state. It needs those records to calculate balances and prepare later payments.
+
+A state adapter connects this data to your application. The frontend example uses a Redux adapter to keep the interface in sync. The backend example uses an in-memory adapter with account snapshots saved by the application. Neither adapter alone provides durable storage.
+
+The integration guides cover the state setup for their runtime. Keep account data available across reloads or restarts, and isolate it by account and network.
