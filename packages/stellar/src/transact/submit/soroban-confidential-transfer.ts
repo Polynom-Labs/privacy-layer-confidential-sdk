@@ -2,7 +2,7 @@ import { readPoolClientFactory } from '../../contracts/contract-context.js';
 import { requestKytPassageForPoolInteraction } from '../kyt/passage-inspect.js';
 import type { KytApplicationIdHints } from '../pool/proof-types.js';
 import { submitPoolTransact } from './pool-transact.js';
-import { resolveZkConfigNonce } from '../environment/zk-config-nonce.js';
+import { transactNonceFromArtifacts } from '../environment/zk-config-nonce.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
 
 export interface SubmitSorobanConfidentialTransferInput {
@@ -13,6 +13,7 @@ export interface SubmitSorobanConfidentialTransferInput {
   ciphertextHex?: string;
   outputNoteEphemeralScalars?: string[];
   applicationIdsPlaintext?: KytApplicationIdHints;
+  zkConfigNonce?: bigint;
   networkPassphrase: string;
   sorobanRpcUrl: string;
   transactEnvironment: StellarTransactEnvironment;
@@ -27,6 +28,12 @@ export async function submitSorobanConfidentialTransfer(
     networkPassphrase: input.networkPassphrase,
     sorobanRpcUrl: input.sorobanRpcUrl,
   });
+  const nonce = transactNonceFromArtifacts(
+    input.zkConfigNonce === undefined
+      ? undefined
+      : { zkConfigNonce: input.zkConfigNonce },
+    input.transactEnvironment,
+  );
   const approval = await requestKytPassageForPoolInteraction({
     owner: input.walletPublicKey,
     poolContract: input.contractId,
@@ -39,6 +46,9 @@ export async function submitSorobanConfidentialTransfer(
     ...(input.applicationIdsPlaintext
       ? { applicationIdsPlaintext: input.applicationIdsPlaintext }
       : {}),
+    ...(input.zkConfigNonce === undefined
+      ? {}
+      : { zkConfigNonce: input.zkConfigNonce }),
     networkPassphrase: input.networkPassphrase,
     sorobanRpcUrl: input.sorobanRpcUrl,
     transactEnvironment: input.transactEnvironment,
@@ -47,7 +57,7 @@ export async function submitSorobanConfidentialTransfer(
     contractClient: poolClient,
     contractId: input.contractId,
     from: input.walletPublicKey,
-    nonce: resolveZkConfigNonce(input.transactEnvironment),
+    nonce,
     proofHex: input.proofHex,
     publicHex: input.publicHex,
     ...(input.ciphertextHex ? { ciphertextHex: input.ciphertextHex } : {}),

@@ -7,6 +7,7 @@ import type {
   TransferEscrowClaimantLimbs,
   TransferEscrowSend,
 } from '../../environment/types.js';
+import type { FeeOutputSpec } from '../../fees/append-fee-output.js';
 
 export type GeneratedOutputCoin = {
   commitment_hex: string;
@@ -106,13 +107,15 @@ async function buildTransferDepositsAndPublicInput(parameters: {
   privKeyScalar: string;
   escrowSend?: TransferEscrowSend;
   escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
+  feeOutput?: FeeOutputSpec;
 }): Promise<{
   recipientSlot: GeneratedOutputCoin;
-  deposits: [DepositSlot, DepositSlot];
+  deposits: DepositSlot[];
   changeCoin?: GeneratedOutputCoin;
+  feeCoin?: GeneratedOutputCoin;
   publicInput: ReturnType<typeof withTokenAddressPublicInputs>;
 }> {
-  const { recipientSlot, deposits, changeCoin } =
+  const { recipientSlot, deposits, changeCoin, feeCoin } =
     await buildRecipientAndOptionalChangeDeposits({
       recipientPrivateAddressStpl1: parameters.recipientPrivateAddressStpl1,
       transferStroops: parameters.transferStroops,
@@ -123,6 +126,7 @@ async function buildTransferDepositsAndPublicInput(parameters: {
       ...(parameters.escrowClaimantLimbs
         ? { escrowClaimantLimbs: parameters.escrowClaimantLimbs }
         : {}),
+      ...(parameters.feeOutput ? { feeOutput: parameters.feeOutput } : {}),
     });
   const publicInput = withTokenAddressPublicInputs(
     {
@@ -137,6 +141,7 @@ async function buildTransferDepositsAndPublicInput(parameters: {
     recipientSlot,
     deposits,
     ...(changeCoin ? { changeCoin } : {}),
+    ...(feeCoin ? { feeCoin } : {}),
     publicInput,
   };
 }
@@ -151,6 +156,7 @@ export async function buildSenderTransferDepositsAndPublicInput(parameters: {
   stateRoot: string;
   escrowSend?: TransferEscrowSend;
   escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
+  feeOutput?: FeeOutputSpec;
 }): ReturnType<typeof buildTransferDepositsAndPublicInput> {
   return buildTransferDepositsAndPublicInput({
     recipientPrivateAddressStpl1: parameters.recipientPrivateAddressStpl1,
@@ -166,5 +172,6 @@ export async function buildSenderTransferDepositsAndPublicInput(parameters: {
     ...(parameters.escrowClaimantLimbs
       ? { escrowClaimantLimbs: parameters.escrowClaimantLimbs }
       : {}),
+    ...(parameters.feeOutput ? { feeOutput: parameters.feeOutput } : {}),
   });
 }

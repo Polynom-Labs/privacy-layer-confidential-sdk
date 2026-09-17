@@ -9,6 +9,8 @@ import {
   resolveTokenContractId,
   resolveWalletPublicKey,
 } from './shared.js';
+import { quoteFeeOutputForPrepared } from '../../fees/quote-fee-output-for-prepared.js';
+import { zkConfigNonceForFeeBearingKind } from '../../fees/zk-config-nonce-for-kind.js';
 
 const STROOPS_PER_UNIT = 10_000_000n;
 
@@ -19,9 +21,15 @@ async function createAlignedDepositWithProof(parameters: {
   walletPublicKey: string;
   tokenAddress: string;
 }) {
+  const feeOutput = await quoteFeeOutputForPrepared(parameters);
+  const instructed = parameters.prepared.intent.amount;
+  const userAmount = instructed - (feeOutput?.requiredFee ?? 0n);
+  if (userAmount <= 0n) {
+    throw new Error('Required Fee leaves no spendable deposit note');
+  }
   const aligned = await parameters.poolService.createAlignedShieldCoinData({
     privateAddressStpl1: parameters.prepared.intent.to,
-    amountStroops: parameters.prepared.intent.amount,
+    amountStroops: userAmount,
     tokenAddress: parameters.tokenAddress,
   });
   const poolClient = readPoolClientFactory(parameters.environment)({
@@ -37,6 +45,8 @@ async function createAlignedDepositWithProof(parameters: {
     depositScalarHex: aligned.depositScalarHex,
     merkleRootBytes: merkleTx.result,
     tokenAddress: parameters.tokenAddress,
+    publicDepositStroops: instructed,
+    ...(feeOutput ? { feeOutput } : {}),
   });
   return { ...aligned, proof };
 }
@@ -60,8 +70,8 @@ export async function prepareDepositOperation(
     privateAddress: prepared.intent.to,
     assetId: prepared.intent.asset,
     poolContract: environment.network.poolContract,
-    amount: prepared.intent.amount,
-    amountDisplay: Number(prepared.intent.amount) / Number(STROOPS_PER_UNIT),
+    amount: BigInt(depositProof.coin.value),
+    amountDisplay: Number(depositProof.coin.value) / Number(STROOPS_PER_UNIT),
     commitmentHex: depositProof.commitment_hex,
     coin: depositProof.coin,
     depositScalarHex: depositProof.depositScalarHex,
@@ -78,5 +88,6 @@ export async function prepareDepositOperation(
     precommitementHex: depositProof.precommitementHex,
     commitmentHex: depositProof.commitment_hex,
     walletPublicKey,
+    zkConfigNonce: zkConfigNonceForFeeBearingKind({ kind: 'deposit' }),
   });
 }

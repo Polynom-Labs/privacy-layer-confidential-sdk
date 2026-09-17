@@ -49,12 +49,12 @@ function requirePreparedArtifacts(
 export function prepareRelayTransactPackageFromPrepared(
   input: PrepareRelayTransactPackageFromPreparedInput,
 ): RelayTransactPackageV1 {
+  const zkConfigNonce =
+    input.zkConfigNonce ?? input.prepared.transactArtifacts?.zkConfigNonce;
   return prepareRelayTransactPackage({
     poolSelector: input.poolSelector,
     ...requirePreparedArtifacts(input.prepared),
-    ...(input.zkConfigNonce === undefined
-      ? {}
-      : { zkConfigNonce: input.zkConfigNonce }),
+    ...(zkConfigNonce === undefined ? {} : { zkConfigNonce }),
     ...(input.keyVersionHints ? { keyVersionHints: input.keyVersionHints } : {}),
   });
 }

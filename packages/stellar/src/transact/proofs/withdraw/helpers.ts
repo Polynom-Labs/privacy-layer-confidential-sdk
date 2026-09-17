@@ -21,6 +21,9 @@ import {
 } from '../../proofs/transaction-input.js';
 import { buildPoolTransactionAuditParameters } from '../../audit/parameters.js';
 import type { TransactionAuditParams } from '@arcanetech/stellar-privacy-pool-zk-sdk';
+import type { FeeOutputCoin, FeeOutputSpec } from '../../fees/append-fee-output.js';
+import { appendFeeOutputSlot } from '../../fees/append-fee-output.js';
+import { remainingAfterRequiredFee } from '../../fees/quote-fee-output-for-prepared.js';
 
 export type AlignedDepositSlotBuilder = (parameters: {
   privateAddressStpl1: string;
@@ -55,6 +58,7 @@ export type DualWithdrawProofParameters = {
   changePrivateAddressStpl1: string | undefined;
   tokenAddress: string;
   auditPublicKey?: [string, string];
+  feeOutput?: FeeOutputSpec;
 };
 
 function destinationWithdrawFrAndScalar(parameters: {
@@ -138,14 +142,16 @@ function validateDualWithdrawAmounts(
   withdrawAmountStroops: bigint,
   totalNotes: bigint,
   changePrivateAddressStpl1: string | undefined,
+  requiredFee: bigint,
 ): bigint {
   if (withdrawAmountStroops < MIN_CONFIDENTIAL_TRANSFER_STROOPS) {
     throw new Error('Withdraw amount must be positive');
   }
-  if (withdrawAmountStroops > totalNotes) {
-    throw new Error('Withdraw amount exceeds combined note value');
-  }
-  const changeStroops = totalNotes - withdrawAmountStroops;
+  const changeStroops = remainingAfterRequiredFee({
+    available: totalNotes,
+    instructed: withdrawAmountStroops,
+    requiredFee,
+  });
   requireChangeRecipientWhenPartial(changeStroops, changePrivateAddressStpl1);
   return changeStroops;
 }
@@ -172,7 +178,34 @@ type DualWithdrawProofInputs = {
   withdrawLegs: [WithdrawObject, WithdrawObject];
   deposits: DepositSlot[];
   changeCoin?: WithdrawChangeCoin;
+  feeCoin?: FeeOutputCoin;
 };
+
+async function withdrawOutputsWithOptionalFee(parameters: {
+  changeStroops: bigint;
+  changePrivateAddressStpl1: string | undefined;
+  buildAlignedDepositSlot: AlignedDepositSlotBuilder;
+  tokenAddress: string;
+  feeOutput?: FeeOutputSpec;
+}) {
+  const { deposits: changeDeposits, changeCoin } = await resolveWithdrawChangeDeposits({
+    changeStroops: parameters.changeStroops,
+    changePrivateAddressStpl1: parameters.changePrivateAddressStpl1,
+    buildAlignedDepositSlot: parameters.buildAlignedDepositSlot,
+    tokenAddress: parameters.tokenAddress,
+  });
+  const withFee = await appendFeeOutputSlot({
+    deposits: changeDeposits,
+    tokenAddress: parameters.tokenAddress,
+    buildAlignedDepositSlot: parameters.buildAlignedDepositSlot,
+    ...(parameters.feeOutput ? { feeOutput: parameters.feeOutput } : {}),
+  });
+  return {
+    deposits: withFee.deposits,
+    ...(changeCoin ? { changeCoin } : {}),
+    ...(withFee.feeCoin ? { feeCoin: withFee.feeCoin } : {}),
+  };
+}
 
 export async function prepareDualWithdrawProofInputs(
   parameters: DualWithdrawProofParameters & { applicationId: string },
@@ -181,6 +214,7 @@ export async function prepareDualWithdrawProofInputs(
     parameters.withdrawAmountStroops,
     BigInt(parameters.coinA.value) + BigInt(parameters.coinB.value),
     parameters.changePrivateAddressStpl1,
+    parameters.feeOutput?.requiredFee ?? 0n,
   );
   const { legA, legB } = dualWithdrawLegsWithSharedRoot({
     sdk: parameters.sdk,
@@ -195,11 +229,12 @@ export async function prepareDualWithdrawProofInputs(
     ),
     applicationId: parameters.applicationId,
   });
-  const { deposits, changeCoin } = await resolveWithdrawChangeDeposits({
+  const { deposits, changeCoin, feeCoin } = await withdrawOutputsWithOptionalFee({
     changeStroops,
     changePrivateAddressStpl1: parameters.changePrivateAddressStpl1,
     buildAlignedDepositSlot: parameters.buildAlignedDepositSlot,
     tokenAddress: parameters.tokenAddress,
+    ...(parameters.feeOutput ? { feeOutput: parameters.feeOutput } : {}),
   });
   const publicInput = buildDualWithdrawPublicInput({
     destinationStellarAddress: parameters.destinationStellarAddress,
@@ -219,5 +254,6 @@ export async function prepareDualWithdrawProofInputs(
     deposits,
     withdrawLegs: [legA.withdrawObject, legB.withdrawObject],
     ...(changeCoin ? { changeCoin } : {}),
+    ...(feeCoin ? { feeCoin } : {}),
   };
 }

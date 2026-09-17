@@ -1,53 +1,36 @@
 import {
   PrivacyPoolSDK,
   decodeDecodedEphemeralKey,
-  randomFrDecimal253,
-  scalarHexToFrDecimal,
   type CoinData,
   type StateFile,
 } from '@arcanetech/stellar-privacy-pool-zk-sdk';
-import { merkleRootBufferToFrDecimal } from '../merkle/field-decimal.js';
-import {
-  privateAddressSdk,
-  recipientPublicKeysDecimalFromPrivateAddress,
-  type SpendScalarDomain,
-} from '../private-address/codec.js';
+import { privateAddressSdk, type SpendScalarDomain } from '../private-address/codec.js';
 import {
   proveWithdrawTransact,
   proveWithdrawTransactDual,
 } from '../proofs/withdraw/transact-proof.js';
 import { Buffer } from 'buffer';
-import {
-  buildPublicDepositLegs,
-  withTokenAddressPublicInputs,
-} from '../proofs/transaction-input.js';
-import {
-  buildPoolTransactionAuditParameters,
-  resolvePoolApplicationId,
-} from '../audit/parameters.js';
+import { resolvePoolApplicationId } from '../audit/parameters.js';
 import type { StellarBrowserAssets } from '../../types.js';
 import {
-  materializeSelectedZkCircuit,
   optionalZkArtifactBaseUrl,
   type StellarZkCircuitDefinition,
 } from '../zk/circuit-config.js';
 import { DEFAULT_ZK_CONFIG_NONCE } from '../environment/zk-config-nonce.js';
-import {
-  buildApplicationIdHints,
-  padDepositSlotsToLayout,
-  padPublicLegsToLayout,
-  padWithdrawSlotsToLayout,
-} from '../zk/slots.js';
 import type {
   AlignedDepositSlot,
   ProofResult,
   ProofWithChange,
 } from '../pool/proof-types.js';
 import { buildAlignedDepositSlotForSdk } from '../pool/aligned-deposit.js';
+import { initializePrivacyPoolSdk } from '../pool/initialize-sdk.js';
+import type { FeeOutputSpec } from '../fees/append-fee-output.js';
+import { zkConfigNonceForFeeBearingKind } from '../fees/zk-config-nonce-for-kind.js';
+import { proveDepositTransact } from '../pool/prepare-deposit-proof.js';
 
 export class PrivacyPoolService {
-  private sdk: PrivacyPoolSDK | undefined = undefined;
-  private initPromise: Promise<void> | undefined = undefined;
+  private readonly sdks = new Map<string, PrivacyPoolSDK>();
+  private readonly initPromises = new Map<string, Promise<PrivacyPoolSDK>>();
 
   constructor(
     private readonly assets?: StellarBrowserAssets,
@@ -58,41 +41,45 @@ export class PrivacyPoolService {
     private readonly zkArtifactBaseUrl?: string,
   ) {}
 
-  private async ensureInit(): Promise<void> {
-    if (this.sdk) {
-      return;
+  async getInitializedSdk(nonce?: bigint): Promise<PrivacyPoolSDK> {
+    const zkConfigNonce = nonce ?? this.zkConfigNonce ?? DEFAULT_ZK_CONFIG_NONCE;
+    const key = zkConfigNonce.toString();
+    const existing = this.sdks.get(key);
+    if (existing) {
+      return existing;
     }
-    if (this.initPromise) {
-      return this.initPromise;
+    const pending = this.initPromises.get(key);
+    if (pending) {
+      return pending;
     }
-    this.initPromise = (async () => {
-      if (!this.assets) {
-        throw new Error(
-          'PrivacyPoolService requires browser ZK assets before initialization.',
-        );
-      }
-      const zkConfigNonce = this.zkConfigNonce ?? DEFAULT_ZK_CONFIG_NONCE;
-      const zkCircuits = await materializeSelectedZkCircuit(
-        this.zkCircuits,
-        zkConfigNonce,
-        this.zkArtifactBaseUrl,
-      );
-      this.sdk = await PrivacyPoolSDK.init({
-        wasmBinary: this.assets.sdkWasm,
-        zkCircuits,
-        zkConfigNonce,
-        ...optionalZkArtifactBaseUrl(this.zkArtifactBaseUrl),
-      });
-    })();
-    return this.initPromise;
+    const started = this.initializeSdk(zkConfigNonce);
+    this.initPromises.set(key, started);
+    try {
+      const sdk = await started;
+      this.sdks.set(key, sdk);
+      return sdk;
+    } finally {
+      this.initPromises.delete(key);
+    }
   }
 
-  async getInitializedSdk(): Promise<PrivacyPoolSDK> {
-    await this.ensureInit();
-    if (!this.sdk) {
-      throw new Error('SDK not initialized');
+  private async initializeSdk(nonce: bigint): Promise<PrivacyPoolSDK> {
+    if (!this.assets) {
+      throw new Error(
+        'PrivacyPoolService requires browser ZK assets before initialization.',
+      );
     }
-    return this.sdk;
+    return initializePrivacyPoolSdk(
+      {
+        assets: this.assets,
+        ...(this.zkCircuits ? { zkCircuits: this.zkCircuits } : {}),
+        ...(this.zkConfigNonce === undefined
+          ? {}
+          : { zkConfigNonce: this.zkConfigNonce }),
+        ...optionalZkArtifactBaseUrl(this.zkArtifactBaseUrl),
+      },
+      nonce,
+    );
   }
 
   getAuditPublicKey(): [string, string] | undefined {
@@ -155,49 +142,27 @@ export class PrivacyPoolService {
     depositScalarHex: string;
     merkleRootBytes: Buffer;
     tokenAddress: string;
+    publicDepositStroops?: bigint;
+    feeOutput?: FeeOutputSpec;
   }): Promise<ProofResult> {
-    const sdk = await this.getInitializedSdk();
-    const stateRoot = merkleRootBufferToFrDecimal(parameters.merkleRootBytes);
-    const recipientPublicKeys = recipientPublicKeysDecimalFromPrivateAddress(
-      parameters.privateAddressStpl1,
-    ) as [string, string];
-    const applicationId = this.getApplicationId();
-    const audit = buildPoolTransactionAuditParameters({
-      applicationId,
-      nAuditSlots: sdk.getLayout().nAuditSlots,
-      ...(this.auditPublicKey ? { auditPublicKey: this.auditPublicKey } : {}),
-    });
-    const deposit = {
-      value: parameters.coin.value,
-      nullifier: parameters.coin.nullifier,
-      ephemeralKeyScalar: scalarHexToFrDecimal(parameters.depositScalarHex),
-      asset: [parameters.coin.asset_hi, parameters.coin.asset_lo] as [string, string],
-      applicationId,
-      recipientPublicKeys,
-    };
-    const publicInput = withTokenAddressPublicInputs(
-      {
-        stateRoot,
-        privKeyScalar: randomFrDecimal253(),
-      },
-      parameters.tokenAddress,
+    const sdk = await this.getInitializedSdk(
+      zkConfigNonceForFeeBearingKind({ kind: 'deposit' }),
     );
-    const proof = await sdk.proveTransaction(
-      publicInput as unknown as Parameters<typeof sdk.proveTransaction>[0],
-      padPublicLegsToLayout(
-        sdk,
-        buildPublicDepositLegs(parameters.tokenAddress, parameters.coin.value),
-      ),
-      padWithdrawSlotsToLayout(sdk, []),
-      padDepositSlotsToLayout(sdk, [deposit]),
-      audit,
-    );
-    const applicationIdsPlaintext = buildApplicationIdHints({
+    return proveDepositTransact({
       sdk,
-      inputIds: [],
-      outputIds: [applicationId],
+      applicationId: this.getApplicationId(),
+      privateAddressStpl1: parameters.privateAddressStpl1,
+      coin: parameters.coin,
+      depositScalarHex: parameters.depositScalarHex,
+      merkleRootBytes: parameters.merkleRootBytes,
+      tokenAddress: parameters.tokenAddress,
+      buildAlignedDepositSlot: (input) => this.buildAlignedDepositSlot(input),
+      ...(this.auditPublicKey ? { auditPublicKey: this.auditPublicKey } : {}),
+      ...(parameters.publicDepositStroops === undefined
+        ? {}
+        : { publicDepositStroops: parameters.publicDepositStroops }),
+      ...(parameters.feeOutput ? { feeOutput: parameters.feeOutput } : {}),
     });
-    return { ...proof, applicationIdsPlaintext };
   }
 
   async calculateNullifierHash(
@@ -216,14 +181,25 @@ export class PrivacyPoolService {
     withdrawAmountStroops: bigint;
     changePrivateAddressStpl1: string | undefined;
     tokenAddress: string;
+    feeOutput?: FeeOutputSpec;
   }): Promise<ProofWithChange> {
-    const sdk = await this.getInitializedSdk();
+    const sdk = await this.getInitializedSdk(
+      zkConfigNonceForFeeBearingKind({ kind: 'withdraw' }),
+    );
     return proveWithdrawTransact({
       sdk,
       applicationId: this.getApplicationId(),
       buildAlignedDepositSlot: (input) => this.buildAlignedDepositSlot(input),
       ...(this.auditPublicKey ? { auditPublicKey: this.auditPublicKey } : {}),
-      ...parameters,
+      coin: parameters.coin,
+      state: parameters.state,
+      destinationStellarAddress: parameters.destinationStellarAddress,
+      privKeyScalarHex: parameters.privKeyScalarHex,
+      depositorEphemeralKey: parameters.depositorEphemeralKey,
+      withdrawAmountStroops: parameters.withdrawAmountStroops,
+      changePrivateAddressStpl1: parameters.changePrivateAddressStpl1,
+      tokenAddress: parameters.tokenAddress,
+      ...(parameters.feeOutput ? { feeOutput: parameters.feeOutput } : {}),
     });
   }
   async prepareWithdrawTransactProofDual(parameters: {
@@ -237,8 +213,11 @@ export class PrivacyPoolService {
     withdrawAmountStroops: bigint;
     changePrivateAddressStpl1: string | undefined;
     tokenAddress: string;
+    feeOutput?: FeeOutputSpec;
   }): Promise<ProofWithChange> {
-    const sdk = await this.getInitializedSdk();
+    const sdk = await this.getInitializedSdk(
+      zkConfigNonceForFeeBearingKind({ kind: 'withdraw' }),
+    );
     return proveWithdrawTransactDual({
       sdk,
       applicationId: this.getApplicationId(),
@@ -254,6 +233,7 @@ export class PrivacyPoolService {
       withdrawAmountStroops: parameters.withdrawAmountStroops,
       changePrivateAddressStpl1: parameters.changePrivateAddressStpl1,
       tokenAddress: parameters.tokenAddress,
+      ...(parameters.feeOutput ? { feeOutput: parameters.feeOutput } : {}),
     });
   }
 }

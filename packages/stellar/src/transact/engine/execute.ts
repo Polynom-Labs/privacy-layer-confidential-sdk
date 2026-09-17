@@ -16,6 +16,8 @@ import {
   readCoinEphemeralForRecord,
 } from './spend-proof-context.js';
 import { finalizeTransferAtExecute } from './transfer-finalize.js';
+import { withdrawFeeProofFields } from './withdraw-fee.js';
+import { zkConfigNonceForFeeBearingKind } from '../fees/zk-config-nonce-for-kind.js';
 
 function enrichWithdrawOutputRecords(
   prepared: StellarPreparedOperation,
@@ -47,6 +49,7 @@ function buildWithdrawFinalizeArtifacts(
     tokenAddress: context.tokenAddress,
     walletPublicKey: context.walletPublicKey,
     executeFinalizeRequired: false,
+    zkConfigNonce: zkConfigNonceForFeeBearingKind({ kind: 'withdraw' }),
   };
 }
 
@@ -61,7 +64,13 @@ async function finalizeSingleWithdrawAtExecute(
     environment,
     recipientPrivateAddressStpl1: withdrawFrom,
   });
-  const changeStroops = BigInt(context.coin.value) - prepared.intent.amount;
+  const feeFields = await withdrawFeeProofFields({
+    prepared,
+    environment,
+    tokenAddress: context.tokenAddress,
+    available: BigInt(context.coin.value),
+    withdrawFrom,
+  });
   const proof = await poolService.prepareWithdrawTransactProof({
     coin: context.coin,
     state: { commitments: context.commitments },
@@ -72,11 +81,28 @@ async function finalizeSingleWithdrawAtExecute(
       yHex: context.ephemeral.yHex,
     }),
     withdrawAmountStroops: prepared.intent.amount,
-    changePrivateAddressStpl1: changeStroops > 0n ? withdrawFrom : undefined,
+    changePrivateAddressStpl1: feeFields.changePrivateAddressStpl1,
     tokenAddress: context.tokenAddress,
+    ...(feeFields.feeOutput ? { feeOutput: feeFields.feeOutput } : {}),
   });
   enrichWithdrawOutputRecords(prepared, proof);
   return buildWithdrawFinalizeArtifacts(proof, context);
+}
+
+function dualWithdrawEphemeralKeys(input: {
+  context: Awaited<ReturnType<typeof buildSpendProofContextAtExecute>>;
+  secondary: Awaited<ReturnType<typeof readCoinEphemeralForRecord>>;
+}) {
+  return {
+    depositorEphemeralAKey: serializeEphemeralKeyString({
+      xHex: input.context.ephemeral.xHex,
+      yHex: input.context.ephemeral.yHex,
+    }),
+    depositorEphemeralBKey: serializeEphemeralKeyString({
+      xHex: input.secondary.ephemeral.xHex,
+      yHex: input.secondary.ephemeral.yHex,
+    }),
+  };
 }
 
 async function finalizeDualWithdrawAtExecute(
@@ -100,25 +126,24 @@ async function finalizeDualWithdrawAtExecute(
     walletPublicKey: context.walletPublicKey,
     commitments: context.commitments,
   });
-  const totalNotes = BigInt(context.coin.value) + BigInt(secondary.coin.value);
-  const changeStroops = totalNotes - prepared.intent.amount;
+  const feeFields = await withdrawFeeProofFields({
+    prepared,
+    environment,
+    tokenAddress: context.tokenAddress,
+    available: BigInt(context.coin.value) + BigInt(secondary.coin.value),
+    withdrawFrom,
+  });
   const proof = await poolService.prepareWithdrawTransactProofDual({
     coinA: context.coin,
     coinB: secondary.coin,
     state: { commitments: context.commitments },
     destinationStellarAddress: prepared.intent.to,
     privKeyScalarHex: context.senderPrivKeyScalarHex,
-    depositorEphemeralAKey: serializeEphemeralKeyString({
-      xHex: context.ephemeral.xHex,
-      yHex: context.ephemeral.yHex,
-    }),
-    depositorEphemeralBKey: serializeEphemeralKeyString({
-      xHex: secondary.ephemeral.xHex,
-      yHex: secondary.ephemeral.yHex,
-    }),
+    ...dualWithdrawEphemeralKeys({ context, secondary }),
     withdrawAmountStroops: prepared.intent.amount,
-    changePrivateAddressStpl1: changeStroops > 0n ? withdrawFrom : undefined,
+    changePrivateAddressStpl1: feeFields.changePrivateAddressStpl1,
     tokenAddress: context.tokenAddress,
+    ...(feeFields.feeOutput ? { feeOutput: feeFields.feeOutput } : {}),
   });
   enrichWithdrawOutputRecords(prepared, proof);
   return buildWithdrawFinalizeArtifacts(proof, context);

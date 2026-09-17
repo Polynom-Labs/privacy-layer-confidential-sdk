@@ -8,8 +8,8 @@ import {
   padWithdrawSlotsToLayout,
 } from '../../zk/slots.js';
 import {
-  changeStroopsAfterDualTransfer,
   dualWithdrawLegsWithSharedRoot,
+  MIN_CONFIDENTIAL_TRANSFER_STROOPS,
   requireChangeRecipientWhenPartial,
 } from '../../proofs/confidential/helpers.js';
 import { buildPoolTransactionAuditParameters } from '../../audit/parameters.js';
@@ -26,6 +26,9 @@ import type {
   TransferEscrowClaimantLimbs,
   TransferEscrowSend,
 } from '../../environment/types.js';
+import type { FeeOutputSpec } from '../../fees/append-fee-output.js';
+import { remainingAfterRequiredFee } from '../../fees/quote-fee-output-for-prepared.js';
+import { zkConfigNonceForFeeBearingKind } from '../../fees/zk-config-nonce-for-kind.js';
 
 type PrepareConfidentialTransferProofDualParameters = {
   coinA: CoinData;
@@ -40,6 +43,7 @@ type PrepareConfidentialTransferProofDualParameters = {
   tokenAddress: string;
   escrowSend?: TransferEscrowSend;
   escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
+  feeOutput?: FeeOutputSpec;
 };
 
 type PrepareConfidentialTransferProofDualResult = {
@@ -86,11 +90,21 @@ function buildDualTransferApplicationIds(
   >,
   applicationId: string,
   changeCoin?: GeneratedOutputCoin,
+  feeCoin?: GeneratedOutputCoin,
 ): KytApplicationIdHints {
+  const outputIds = [applicationId];
+  if (changeCoin) {
+    outputIds.push(applicationId);
+  } else if (!feeCoin) {
+    outputIds.push('0');
+  }
+  if (feeCoin) {
+    outputIds.push(applicationId);
+  }
   return buildApplicationIdHints({
     sdk,
     inputIds: [applicationId, applicationId],
-    outputIds: [applicationId, changeCoin ? applicationId : '0'],
+    outputIds,
   });
 }
 
@@ -128,6 +142,25 @@ async function proveDualConfidentialTransfer(parameters: {
   );
 }
 
+function dualTransferChangeStroops(
+  parameters: PrepareConfidentialTransferProofDualParameters,
+): bigint {
+  const totalNotes = BigInt(parameters.coinA.value) + BigInt(parameters.coinB.value);
+  if (parameters.transferStroops < MIN_CONFIDENTIAL_TRANSFER_STROOPS) {
+    throw new Error('Transfer amount must be positive');
+  }
+  const changeStroops = remainingAfterRequiredFee({
+    available: totalNotes,
+    instructed: parameters.transferStroops,
+    requiredFee: parameters.feeOutput?.requiredFee ?? 0n,
+  });
+  requireChangeRecipientWhenPartial(
+    changeStroops,
+    parameters.selfPrivateAddressStpl1ForChange,
+  );
+  return changeStroops;
+}
+
 async function buildDualTransferProofContext(
   parameters: PrepareConfidentialTransferProofDualParameters,
   applicationId: string,
@@ -135,15 +168,7 @@ async function buildDualTransferProofContext(
     ReturnType<ReturnType<typeof getPrivacyPoolService>['getInitializedSdk']>
   >,
 ) {
-  const totalNotes = BigInt(parameters.coinA.value) + BigInt(parameters.coinB.value);
-  const changeStroops = changeStroopsAfterDualTransfer(
-    parameters.transferStroops,
-    totalNotes,
-  );
-  requireChangeRecipientWhenPartial(
-    changeStroops,
-    parameters.selfPrivateAddressStpl1ForChange,
-  );
+  const changeStroops = dualTransferChangeStroops(parameters);
   const privKeyScalar = privKeyScalarDecimalFromRecipientScalarHex(
     parameters.senderPrivKeyScalarHex,
   );
@@ -171,6 +196,7 @@ async function buildDualTransferProofContext(
     tokenAddress: parameters.tokenAddress,
     stateRoot: legA.witness.stateRoot,
     ...confidentialEscrowFields(parameters),
+    ...(parameters.feeOutput ? { feeOutput: parameters.feeOutput } : {}),
   });
   return { legA, legB, applicationId, ...transferInputs };
 }
@@ -179,9 +205,14 @@ export async function prepareConfidentialTransferProofDual(
   parameters: PrepareConfidentialTransferProofDualParameters,
 ): Promise<PrepareConfidentialTransferProofDualResult> {
   const poolService = getPrivacyPoolService();
-  const sdk = await poolService.getInitializedSdk();
+  const sdk = await poolService.getInitializedSdk(
+    zkConfigNonceForFeeBearingKind({
+      kind: 'transfer',
+      ...(parameters.escrowClaimantLimbs ? { spendSource: 'escrow' } : {}),
+    }),
+  );
   const applicationId = poolService.getApplicationId();
-  const { legA, legB, recipientSlot, deposits, changeCoin, publicInput } =
+  const { legA, legB, recipientSlot, deposits, changeCoin, feeCoin, publicInput } =
     await buildDualTransferProofContext(parameters, applicationId, sdk);
   const auditPublicKey = poolService.getAuditPublicKey();
   const proof = await (auditPublicKey
@@ -208,6 +239,7 @@ export async function prepareConfidentialTransferProofDual(
       sdk,
       applicationId,
       changeCoin,
+      feeCoin,
     ),
     recipientCoin: generatedOutputCoinFromSlot(recipientSlot),
     ...(changeCoin ? { changeCoin } : {}),

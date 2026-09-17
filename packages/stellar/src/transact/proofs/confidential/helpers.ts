@@ -72,16 +72,3 @@ export function requireChangeRecipientWhenPartial(
     }
   }
 }
-
-export function changeStroopsAfterDualTransfer(
-  transferStroops: bigint,
-  totalNotes: bigint,
-): bigint {
-  if (transferStroops < MIN_CONFIDENTIAL_TRANSFER_STROOPS) {
-    throw new Error('Transfer amount must be positive');
-  }
-  if (transferStroops > totalNotes) {
-    throw new Error('Transfer amount exceeds combined note value');
-  }
-  return totalNotes - transferStroops;
-}

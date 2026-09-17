@@ -12,3 +12,10 @@ export function resolveZkConfigNonce(
 ): bigint {
   return transactEnvironment.zkConfigNonce ?? DEFAULT_ZK_CONFIG_NONCE;
 }
+
+export function transactNonceFromArtifacts(
+  artifacts: { zkConfigNonce?: bigint } | undefined,
+  transactEnvironment: StellarTransactEnvironment,
+): bigint {
+  return artifacts?.zkConfigNonce ?? resolveZkConfigNonce(transactEnvironment);
+}

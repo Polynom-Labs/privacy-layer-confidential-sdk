@@ -6,6 +6,11 @@ import type {
   TransferEscrowClaimantLimbs,
   TransferEscrowSend,
 } from '../../environment/types.js';
+import {
+  appendFeeOutputSlot,
+  type FeeOutputCoin,
+  type FeeOutputSpec,
+} from '../../fees/append-fee-output.js';
 
 type ChangeCoin = {
   commitment_hex: string;
@@ -30,16 +35,12 @@ function escrowOutputFields(input: EscrowSlotInput) {
   };
 }
 
-function paddingDepositPair(recipientDeposit: DepositSlot): [DepositSlot, DepositSlot] {
-  return [recipientDeposit, 'dummy'];
-}
-
 async function buildChangeDepositPair(parameters: {
   selfPrivateAddressStpl1ForChange: string;
   changeStroops: bigint;
   tokenAddress: string;
   recipientDeposit: DepositSlot;
-}): Promise<{ deposits: [DepositSlot, DepositSlot]; changeCoin: ChangeCoin }> {
+}): Promise<{ deposits: DepositSlot[]; changeCoin: ChangeCoin }> {
   const changeSlot = await getPrivacyPoolService().buildAlignedDepositSlot({
     privateAddressStpl1: parameters.selfPrivateAddressStpl1ForChange.trim(),
     amountStroops: parameters.changeStroops,
@@ -56,6 +57,36 @@ async function buildChangeDepositPair(parameters: {
   };
 }
 
+function recipientOnlyDeposits(
+  recipientDeposit: DepositSlot,
+  hasFeeOutput: boolean,
+): DepositSlot[] {
+  if (hasFeeOutput) {
+    return [recipientDeposit];
+  }
+  return [recipientDeposit, 'dummy'];
+}
+
+async function depositsWithoutFee(input: {
+  recipientDeposit: DepositSlot;
+  changeStroops: bigint;
+  selfPrivateAddressStpl1ForChange: string | undefined;
+  tokenAddress: string;
+  hasFeeOutput: boolean;
+}): Promise<{ deposits: DepositSlot[]; changeCoin?: ChangeCoin }> {
+  if (input.changeStroops <= ZERO_STROOPS) {
+    return {
+      deposits: recipientOnlyDeposits(input.recipientDeposit, input.hasFeeOutput),
+    };
+  }
+  return buildChangeDepositPair({
+    selfPrivateAddressStpl1ForChange: input.selfPrivateAddressStpl1ForChange!,
+    changeStroops: input.changeStroops,
+    tokenAddress: input.tokenAddress,
+    recipientDeposit: input.recipientDeposit,
+  });
+}
+
 export async function buildRecipientAndOptionalChangeDeposits(parameters: {
   recipientPrivateAddressStpl1: string;
   transferStroops: bigint;
@@ -64,10 +95,12 @@ export async function buildRecipientAndOptionalChangeDeposits(parameters: {
   tokenAddress: string;
   escrowSend?: TransferEscrowSend;
   escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
+  feeOutput?: FeeOutputSpec;
 }): Promise<{
   recipientSlot: AlignedDepositSlot;
-  deposits: [DepositSlot, DepositSlot];
+  deposits: DepositSlot[];
   changeCoin?: ChangeCoin;
+  feeCoin?: FeeOutputCoin;
 }> {
   const escrow: EscrowSlotInput = {
     ...(parameters.escrowSend ? { escrowSend: parameters.escrowSend } : {}),
@@ -75,28 +108,30 @@ export async function buildRecipientAndOptionalChangeDeposits(parameters: {
       ? { escrowClaimantLimbs: parameters.escrowClaimantLimbs }
       : {}),
   };
-  const recipientPrivateAddress = parameters.recipientPrivateAddressStpl1.trim();
   const recipientSlot = await getPrivacyPoolService().buildAlignedDepositSlot({
-    privateAddressStpl1: recipientPrivateAddress,
+    privateAddressStpl1: parameters.recipientPrivateAddressStpl1.trim(),
     amountStroops: parameters.transferStroops,
     tokenAddress: parameters.tokenAddress,
     ...escrowOutputFields(escrow),
   });
-  if (parameters.changeStroops <= ZERO_STROOPS) {
-    return {
-      recipientSlot,
-      deposits: paddingDepositPair(recipientSlot.deposit),
-    };
-  }
-  const changeResult = await buildChangeDepositPair({
-    selfPrivateAddressStpl1ForChange: parameters.selfPrivateAddressStpl1ForChange!,
-    changeStroops: parameters.changeStroops,
-    tokenAddress: parameters.tokenAddress,
+  const withoutFee = await depositsWithoutFee({
     recipientDeposit: recipientSlot.deposit,
+    changeStroops: parameters.changeStroops,
+    selfPrivateAddressStpl1ForChange: parameters.selfPrivateAddressStpl1ForChange,
+    tokenAddress: parameters.tokenAddress,
+    hasFeeOutput: (parameters.feeOutput?.requiredFee ?? ZERO_STROOPS) > ZERO_STROOPS,
+  });
+  const withFee = await appendFeeOutputSlot({
+    deposits: withoutFee.deposits,
+    tokenAddress: parameters.tokenAddress,
+    buildAlignedDepositSlot: (aligned) =>
+      getPrivacyPoolService().buildAlignedDepositSlot(aligned),
+    ...(parameters.feeOutput ? { feeOutput: parameters.feeOutput } : {}),
   });
   return {
     recipientSlot,
-    deposits: changeResult.deposits,
-    changeCoin: changeResult.changeCoin,
+    deposits: withFee.deposits,
+    ...('changeCoin' in withoutFee ? { changeCoin: withoutFee.changeCoin } : {}),
+    ...(withFee.feeCoin ? { feeCoin: withFee.feeCoin } : {}),
   };
 }

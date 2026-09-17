@@ -6,7 +6,7 @@ import { finalizeSpendOperationAtExecute } from './execute.js';
 import { submitSorobanConfidentialTransfer } from '../submit/soroban-confidential-transfer.js';
 import { requestKytPassageForPoolInteraction } from '../kyt/passage-inspect.js';
 import { submitPoolTransact } from '../submit/pool-transact.js';
-import { resolveZkConfigNonce } from '../environment/zk-config-nonce.js';
+import { transactNonceFromArtifacts } from '../environment/zk-config-nonce.js';
 
 function optionalInspectCiphertext(
   artifacts: NonNullable<StellarPreparedOperation['transactArtifacts']>,
@@ -46,12 +46,16 @@ async function submitPreparedDeposit(
     networkPassphrase: environment.network.networkPassphrase,
     sorobanRpcUrl: environment.network.rpcUrl,
   });
+  const nonce = transactNonceFromArtifacts(artifacts, environment);
   const approval = await requestKytPassageForPoolInteraction({
     owner: artifacts.walletPublicKey,
     poolContract: environment.network.poolContract,
     proofHex: artifacts.proofHex,
     publicHex: artifacts.publicHex,
     ...optionalInspectCiphertext(artifacts),
+    ...(artifacts.zkConfigNonce === undefined
+      ? {}
+      : { zkConfigNonce: artifacts.zkConfigNonce }),
     networkPassphrase: environment.network.networkPassphrase,
     sorobanRpcUrl: environment.network.rpcUrl,
     transactEnvironment: environment,
@@ -60,7 +64,7 @@ async function submitPreparedDeposit(
     contractClient: poolClient,
     contractId: environment.network.poolContract,
     from: artifacts.walletPublicKey,
-    nonce: resolveZkConfigNonce(environment),
+    nonce,
     proofHex: artifacts.proofHex,
     publicHex: artifacts.publicHex,
     ...(artifacts.ciphertextHex ? { ciphertextHex: artifacts.ciphertextHex } : {}),
@@ -85,6 +89,9 @@ async function submitPreparedPoolTransact(
     proofHex: artifacts.proofHex,
     publicHex: artifacts.publicHex,
     ...optionalInspectCiphertext(artifacts),
+    ...(artifacts.zkConfigNonce === undefined
+      ? {}
+      : { zkConfigNonce: artifacts.zkConfigNonce }),
     networkPassphrase: environment.network.networkPassphrase,
     sorobanRpcUrl: environment.network.rpcUrl,
     transactEnvironment: environment,

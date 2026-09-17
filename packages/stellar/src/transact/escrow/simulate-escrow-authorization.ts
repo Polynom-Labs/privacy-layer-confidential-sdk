@@ -12,7 +12,7 @@ import { Buffer } from 'buffer';
 import { createStellarRpcServer } from '../../rpc/server.js';
 import type { StellarPreparedOperation } from '../../types.js';
 import type { StellarTransactEnvironment } from '../environment/types.js';
-import { resolveZkConfigNonce } from '../environment/zk-config-nonce.js';
+import { transactNonceFromArtifacts } from '../environment/zk-config-nonce.js';
 import { requestKytPassageForPoolInteraction } from '../kyt/passage-inspect.js';
 import { approvalSignatureToBytes } from '../kyt/passage/submit.js';
 import { kytAuthorizationScValue } from './kyt-authorization-sc-value.js';
@@ -93,6 +93,9 @@ async function inspectRelayerSweepKyt(input: {
             input.prepared.transactArtifacts.applicationIdsPlaintext,
         }
       : {}),
+    ...(input.prepared.transactArtifacts?.zkConfigNonce === undefined
+      ? {}
+      : { zkConfigNonce: input.prepared.transactArtifacts.zkConfigNonce }),
     networkPassphrase: environment.network.networkPassphrase,
     sorobanRpcUrl: environment.network.rpcUrl,
     transactEnvironment: environment,
@@ -101,6 +104,7 @@ async function inspectRelayerSweepKyt(input: {
 
 async function simulateSweepAuthEntries(input: {
   artifacts: SweepArtifacts;
+  prepared: StellarPreparedOperation;
   transactEnvironment: StellarTransactEnvironment;
   relayerPublicKey: string;
   approval: InspectKytPassageApproved;
@@ -111,7 +115,10 @@ async function simulateSweepAuthEntries(input: {
   const operation = new Contract(environment.network.poolContract).call(
     'transact',
     new Address(input.relayerPublicKey).toScVal(),
-    nativeToScVal(resolveZkConfigNonce(environment), { type: 'u64' }),
+    nativeToScVal(
+      transactNonceFromArtifacts(input.prepared.transactArtifacts, environment),
+      { type: 'u64' },
+    ),
     nativeToScVal(hexToBytes(input.artifacts.proofHex), { type: 'bytes' }),
     nativeToScVal(hexToBytes(input.artifacts.publicHex), { type: 'bytes' }),
     nativeToScVal(hexToBytes(input.artifacts.ciphertextHex ?? ''), { type: 'bytes' }),
@@ -156,6 +163,7 @@ export async function unsignedEscrowAuthorizationForSweep(input: {
   });
   const auth = await simulateSweepAuthEntries({
     artifacts,
+    prepared: input.prepared,
     transactEnvironment: input.transactEnvironment,
     relayerPublicKey,
     approval,

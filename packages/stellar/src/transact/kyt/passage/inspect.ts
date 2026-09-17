@@ -38,6 +38,7 @@ export interface RequestKytPassageForPoolInteractionInput {
   outputNoteEphemeralScalars?: string[];
   decryptedAuditSlots?: DecryptedKytAuditSlot[];
   applicationIdsPlaintext?: KytApplicationIdHints;
+  zkConfigNonce?: bigint;
   networkPassphrase: string;
   sorobanRpcUrl: string;
   transactEnvironment: StellarTransactEnvironment;
@@ -136,7 +137,8 @@ export async function requestKytPassageForPoolInteraction(
   const applicationId = resolvePoolApplicationId(
     input.transactEnvironment.network.applicationId,
   );
-  const zkConfigNonce = resolveZkConfigNonce(input.transactEnvironment);
+  const zkConfigNonce =
+    input.zkConfigNonce ?? resolveZkConfigNonce(input.transactEnvironment);
   const applicationIdsPlaintext =
     input.applicationIdsPlaintext ??
     buildApplicationIdHints(

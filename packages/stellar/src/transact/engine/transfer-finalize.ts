@@ -7,6 +7,8 @@ import { buildTransferProofAtExecute } from './transfer-proof-at-execute.js';
 import type { buildSpendProofContextAtExecute } from './spend-proof-context.js';
 import type { prepareConfidentialTransferProof } from '../proofs/confidential/single.js';
 import { ciphertextArtifactsFromProof } from '../pool/proof-types.js';
+import { feeOutputKindFromPrepared } from '../fees/should-attach-fee-output.js';
+import { zkConfigNonceForFeeBearingKind } from '../fees/zk-config-nonce-for-kind.js';
 
 function stampEscrowOutputRecords(input: {
   prepared: StellarPreparedOperation;
@@ -178,11 +180,16 @@ async function runTransferFinalizeSteps(input: {
       ? { escrowSendPrivateAddress: recipient.recipientPrivateAddressStpl1 }
       : {}),
   });
-  return buildTransferFinalizeArtifacts({
-    proof,
-    context,
-    ...sweepFinalizeStamp(input.prepared, recipient),
-  });
+  return {
+    ...buildTransferFinalizeArtifacts({
+      proof,
+      context,
+      ...sweepFinalizeStamp(input.prepared, recipient),
+    }),
+    zkConfigNonce: zkConfigNonceForFeeBearingKind(
+      feeOutputKindFromPrepared(input.prepared),
+    ),
+  };
 }
 
 function sweepArtifactStamp(artifacts: StellarPreparedOperation['transactArtifacts']) {

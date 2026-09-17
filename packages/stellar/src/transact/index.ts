@@ -48,8 +48,10 @@ export type {
   TransferEscrowClaimantLimbs,
 } from './environment/types.js';
 export {
+  BINDING_ZK_NONCE,
   COMMITMENT_V2_ZK_NONCE,
   DEFAULT_ZK_CONFIG_NONCE,
+  SIX_BY_SIX_BINDING_ZK_NONCE,
   SIX_BY_SIX_ZK_NONCE,
   STANDARD_ZK_CONFIG_NONCE,
   resolveZkConfigNonce,

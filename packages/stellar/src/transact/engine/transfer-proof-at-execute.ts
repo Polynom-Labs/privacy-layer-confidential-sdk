@@ -14,6 +14,7 @@ import {
 } from './spend-proof-context.js';
 import { serializeEphemeralKeyString } from '../encoding/ephemeral-key.js';
 import { readTransferFromPrivateAddress } from '../transfer-source/index.js';
+import { quoteFeeOutputForPrepared } from '../fees/quote-fee-output-for-prepared.js';
 
 function readChangeRecipient(
   input: { prepared: StellarPreparedOperation },
@@ -46,7 +47,15 @@ async function buildSingleTransferProofAtExecute(input: {
   escrowClaimantLimbs?: TransferEscrowClaimantLimbs;
 }) {
   const context = await buildSpendProofContextAtExecute(input);
-  const changeStroops = BigInt(context.coin.value) - input.prepared.intent.amount;
+  const feeOutput = await quoteFeeOutputForPrepared({
+    prepared: input.prepared,
+    environment: input.environment,
+    tokenAddress: context.tokenAddress,
+  });
+  const changeStroops =
+    BigInt(context.coin.value) -
+    input.prepared.intent.amount -
+    (feeOutput?.requiredFee ?? 0n);
   const proof = await prepareConfidentialTransferProof({
     coin: context.coin,
     state: { commitments: context.commitments },
@@ -60,6 +69,7 @@ async function buildSingleTransferProofAtExecute(input: {
     selfPrivateAddressStpl1ForChange: readChangeRecipient(input, changeStroops),
     tokenAddress: context.tokenAddress,
     ...proofEscrowFields(input),
+    ...(feeOutput ? { feeOutput } : {}),
   });
   return { context, proof };
 }
@@ -83,7 +93,13 @@ async function buildDualTransferProofAtExecute(input: {
     commitments: context.commitments,
   });
   const totalNotes = BigInt(context.coin.value) + BigInt(secondary.coin.value);
-  const changeStroops = totalNotes - input.prepared.intent.amount;
+  const feeOutput = await quoteFeeOutputForPrepared({
+    prepared: input.prepared,
+    environment: input.environment,
+    tokenAddress: context.tokenAddress,
+  });
+  const changeStroops =
+    totalNotes - input.prepared.intent.amount - (feeOutput?.requiredFee ?? 0n);
   const proof = await prepareConfidentialTransferProofDual({
     coinA: context.coin,
     coinB: secondary.coin,
@@ -102,6 +118,7 @@ async function buildDualTransferProofAtExecute(input: {
     selfPrivateAddressStpl1ForChange: readChangeRecipient(input, changeStroops),
     tokenAddress: context.tokenAddress,
     ...proofEscrowFields(input),
+    ...(feeOutput ? { feeOutput } : {}),
   });
   return { context, proof };
 }

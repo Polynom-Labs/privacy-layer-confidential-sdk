@@ -79,6 +79,7 @@ export interface StellarTransactArtifacts {
   };
   executeFinalizeRequired?: boolean;
   spendSource?: 'privateAddress' | 'escrow';
+  zkConfigNonce?: bigint;
 }
 
 export interface StellarOperationReceipt {

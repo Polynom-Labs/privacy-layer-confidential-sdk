@@ -1,6 +1,7 @@
 import { withdrawObjectFromMerkleWitness } from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import type {
   CoinData,
+  DepositSlot,
   PrivacyPoolSDK,
   StateFile,
 } from '@arcanetech/stellar-privacy-pool-zk-sdk';
@@ -12,29 +13,36 @@ import {
   padWithdrawSlotsToLayout,
 } from '../../zk/slots.js';
 import { MIN_CONFIDENTIAL_TRANSFER_STROOPS } from '../../proofs/confidential/helpers.js';
+import { remainingAfterRequiredFee } from '../../fees/quote-fee-output-for-prepared.js';
+import type { FeeOutputSpec } from '../../fees/append-fee-output.js';
 import { buildPoolTransactionAuditParameters } from '../../audit/parameters.js';
 import {
   buildWithdrawPublicInput,
   prepareDualWithdrawProofInputs,
-  resolveWithdrawChangeDeposits,
   type AlignedDepositSlotBuilder,
   type DualWithdrawProofParameters,
   type WithdrawChangeCoin,
 } from '../../proofs/withdraw/helpers.js';
+import {
+  withdrawDepositsWithFee,
+  withdrawOutputApplicationIds,
+} from '../../proofs/withdraw/fee-deposits.js';
 import type { KytApplicationIdHints } from '../../pool/proof-types.js';
 import { privKeyScalarDecimalFromRecipientScalarHex } from '../../encoding/priv-key-scalar-from-recipient-hex.js';
 
 function validateSingleWithdrawAmounts(
   withdrawAmountStroops: bigint,
   noteStroops: bigint,
+  requiredFee: bigint,
 ): bigint {
   if (withdrawAmountStroops < MIN_CONFIDENTIAL_TRANSFER_STROOPS) {
     throw new Error('Withdraw amount must be positive');
   }
-  if (withdrawAmountStroops > noteStroops) {
-    throw new Error('Withdraw amount exceeds note value');
-  }
-  return noteStroops - withdrawAmountStroops;
+  return remainingAfterRequiredFee({
+    available: noteStroops,
+    instructed: withdrawAmountStroops,
+    requiredFee,
+  });
 }
 
 async function proveSingleWithdrawTransaction(parameters: {
@@ -42,7 +50,7 @@ async function proveSingleWithdrawTransaction(parameters: {
   publicInput: ReturnType<typeof buildWithdrawPublicInput>;
   audit: ReturnType<typeof buildPoolTransactionAuditParameters>;
   primaryWithdraw: ReturnType<typeof withdrawObjectFromMerkleWitness>;
-  deposits: Awaited<ReturnType<typeof resolveWithdrawChangeDeposits>>['deposits'];
+  deposits: DepositSlot[];
   tokenAddress: string;
   withdrawAmountStroops: bigint;
 }) {
@@ -102,6 +110,7 @@ type SingleWithdrawProofInputParams = {
   changePrivateAddressStpl1: string | undefined;
   tokenAddress: string;
   auditPublicKey?: [string, string];
+  feeOutput?: FeeOutputSpec;
 };
 
 async function prepareSingleWithdrawProofInputs(
@@ -110,6 +119,7 @@ async function prepareSingleWithdrawProofInputs(
   const changeStroops = validateSingleWithdrawAmounts(
     parameters.withdrawAmountStroops,
     BigInt(parameters.coin.value),
+    parameters.feeOutput?.requiredFee ?? 0n,
   );
   const { witness, primaryWithdraw } = buildPrimaryWithdrawForCoin({
     sdk: parameters.sdk,
@@ -118,11 +128,12 @@ async function prepareSingleWithdrawProofInputs(
     state: parameters.state,
     privKeyScalarHex: parameters.privKeyScalarHex,
   });
-  const { deposits, changeCoin } = await resolveWithdrawChangeDeposits({
+  const { deposits, changeCoin, feeCoin } = await withdrawDepositsWithFee({
     changeStroops,
     changePrivateAddressStpl1: parameters.changePrivateAddressStpl1,
     buildAlignedDepositSlot: parameters.buildAlignedDepositSlot,
     tokenAddress: parameters.tokenAddress,
+    ...(parameters.feeOutput ? { feeOutput: parameters.feeOutput } : {}),
   });
   const publicInput = buildWithdrawPublicInput({
     stateRoot: witness.stateRoot,
@@ -135,6 +146,7 @@ async function prepareSingleWithdrawProofInputs(
     primaryWithdraw,
     deposits,
     changeCoin,
+    feeCoin,
     publicInput,
     audit: buildPoolTransactionAuditParameters({
       applicationId: parameters.applicationId,
@@ -159,6 +171,7 @@ export async function proveWithdrawTransact(parameters: {
   changePrivateAddressStpl1: string | undefined;
   tokenAddress: string;
   auditPublicKey?: [string, string];
+  feeOutput?: FeeOutputSpec;
 }): Promise<{
   proof_hex: string;
   public_hex: string;
@@ -167,7 +180,7 @@ export async function proveWithdrawTransact(parameters: {
   applicationIdsPlaintext: KytApplicationIdHints;
   changeCoin?: WithdrawChangeCoin;
 }> {
-  const { primaryWithdraw, deposits, changeCoin, publicInput, audit } =
+  const { primaryWithdraw, deposits, changeCoin, feeCoin, publicInput, audit } =
     await prepareSingleWithdrawProofInputs(parameters);
   const proof = await proveSingleWithdrawTransaction({
     sdk: parameters.sdk,
@@ -183,7 +196,11 @@ export async function proveWithdrawTransact(parameters: {
     applicationIdsPlaintext: buildApplicationIdHints({
       sdk: parameters.sdk,
       inputIds: [parameters.applicationId],
-      outputIds: [changeCoin ? parameters.applicationId : '0'],
+      outputIds: withdrawOutputApplicationIds({
+        applicationId: parameters.applicationId,
+        hasChange: Boolean(changeCoin),
+        hasFeeOutput: Boolean(feeCoin),
+      }),
     }),
     ...(changeCoin ? { changeCoin } : {}),
   };
@@ -199,7 +216,7 @@ export async function proveWithdrawTransactDual(
   applicationIdsPlaintext: KytApplicationIdHints;
   changeCoin?: WithdrawChangeCoin;
 }> {
-  const { publicInput, audit, withdrawLegs, deposits, changeCoin } =
+  const { publicInput, audit, withdrawLegs, deposits, changeCoin, feeCoin } =
     await prepareDualWithdrawProofInputs(parameters);
   const proof = await parameters.sdk.proveTransaction(
     publicInput as unknown as Parameters<typeof parameters.sdk.proveTransaction>[0],
@@ -219,7 +236,11 @@ export async function proveWithdrawTransactDual(
     applicationIdsPlaintext: buildApplicationIdHints({
       sdk: parameters.sdk,
       inputIds: [audit.applicationId, audit.applicationId],
-      outputIds: [changeCoin ? audit.applicationId : '0'],
+      outputIds: withdrawOutputApplicationIds({
+        applicationId: audit.applicationId,
+        hasChange: Boolean(changeCoin),
+        hasFeeOutput: Boolean(feeCoin),
+      }),
     }),
     ...(changeCoin ? { changeCoin } : {}),
   };
