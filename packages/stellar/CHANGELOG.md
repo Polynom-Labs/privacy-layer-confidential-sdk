@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.3](https://github.com/arcanetechhq/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.5.2...privacy-sdk-stellar-v0.5.3) (2026-09-18)
+
+
+### Bug Fixes
+
+* document protocol Fee Output on Stellar deposit, transfer, and withdraw ([ccc7cdc](https://github.com/arcanetechhq/privacy-layer-confidential-sdk/commit/ccc7cdc540cd29680f14ad0ed66eaa1fd39d3b9c))
+
 ## [0.5.2](https://github.com/Polynom-Labs/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.5.1...privacy-sdk-stellar-v0.5.2) (2026-09-16)
 
 
