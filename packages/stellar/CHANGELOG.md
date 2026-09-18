@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.5.4](https://github.com/arcanetechhq/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.5.3...privacy-sdk-stellar-v0.5.4) (2026-09-18)
+
+
+### Bug Fixes
+
+* new repo refs ([56238e3](https://github.com/arcanetechhq/privacy-layer-confidential-sdk/commit/56238e326c97a1fb8dba0d74cd1a3bca860df0f4))
+
+
+### Dependencies
+
+* The following workspace dependencies were updated
+  * dependencies
+    * @arcanetech/privacy-sdk-core bumped from 0.3.0 to 0.3.1
+  * devDependencies
+    * @arcanetech/privacy-sdk-state-memory bumped from 0.2.2 to 0.2.3
+    * @arcanetech/privacy-sdk-state-redux bumped from 0.2.2 to 0.2.3
+
 ## [0.5.3](https://github.com/arcanetechhq/privacy-layer-confidential-sdk/compare/privacy-sdk-stellar-v0.5.2...privacy-sdk-stellar-v0.5.3) (2026-09-18)
 
 
