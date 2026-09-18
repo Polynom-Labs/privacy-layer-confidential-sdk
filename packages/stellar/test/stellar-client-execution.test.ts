@@ -44,7 +44,7 @@ describe('StellarPrivacyClient execution', () => {
   });
 
   it('executes transfer and marks consumed records after confirmation', async () => {
-    const record = createRecord('private-sender', 'USDC', 25n, 'spent');
+    const record = createRecord('private-sender', 'USDC', 26n, 'spent');
     const { client } = await createTestClient({ records: [record] });
     const result = await client.transfer({
       from: 'private-sender',
@@ -71,7 +71,7 @@ describe('StellarPrivacyClient execution', () => {
   });
 
   it('does not commit state when submission fails', async () => {
-    const record = createRecord('private-sender', 'USDC', 25n, 'spent');
+    const record = createRecord('private-sender', 'USDC', 26n, 'spent');
     const { client } = await createTestClient({
       records: [record],
       engine: createFakeTransactEngine({
@@ -101,7 +101,7 @@ describe('StellarPrivacyClient execution', () => {
   });
 
   it('reports storageCommit failure after confirmed submit', async () => {
-    const record = createRecord('private-sender', 'USDC', 25n, 'spent');
+    const record = createRecord('private-sender', 'USDC', 26n, 'spent');
     const baseState = createInMemoryStateAdapter({
       privateRecords: [record],
     });

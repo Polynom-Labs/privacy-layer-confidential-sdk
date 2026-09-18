@@ -8,7 +8,10 @@ import type { buildSpendProofContextAtExecute } from './spend-proof-context.js';
 import type { prepareConfidentialTransferProof } from '../proofs/confidential/single.js';
 import { ciphertextArtifactsFromProof } from '../pool/proof-types.js';
 import { feeOutputKindFromPrepared } from '../fees/should-attach-fee-output.js';
-import { zkConfigNonceForFeeBearingKind } from '../fees/zk-config-nonce-for-kind.js';
+import {
+  configuredNonceSpread,
+  zkConfigNonceForFeeBearingKind,
+} from '../fees/zk-config-nonce-for-kind.js';
 
 function stampEscrowOutputRecords(input: {
   prepared: StellarPreparedOperation;
@@ -186,9 +189,10 @@ async function runTransferFinalizeSteps(input: {
       context,
       ...sweepFinalizeStamp(input.prepared, recipient),
     }),
-    zkConfigNonce: zkConfigNonceForFeeBearingKind(
-      feeOutputKindFromPrepared(input.prepared),
-    ),
+    zkConfigNonce: zkConfigNonceForFeeBearingKind({
+      ...feeOutputKindFromPrepared(input.prepared),
+      ...configuredNonceSpread(input.environment.zkConfigNonce),
+    }),
   };
 }
 

@@ -177,6 +177,28 @@ describe('Fee Output prepare', () => {
     ).toBe(SIX_BY_SIX_BINDING_ZK_NONCE);
   });
 
+  it('uses the configured 6x6 nonce when the pool only registered that shape', () => {
+    expect(
+      zkConfigNonceForFeeBearingKind({
+        kind: 'deposit',
+        configuredNonce: SIX_BY_SIX_BINDING_ZK_NONCE,
+      }),
+    ).toBe(SIX_BY_SIX_BINDING_ZK_NONCE);
+    expect(
+      zkConfigNonceForFeeBearingKind({
+        kind: 'withdraw',
+        configuredNonce: SIX_BY_SIX_BINDING_ZK_NONCE,
+      }),
+    ).toBe(SIX_BY_SIX_BINDING_ZK_NONCE);
+    expect(
+      zkConfigNonceForFeeBearingKind({
+        kind: 'transfer',
+        spendSource: 'escrow',
+        configuredNonce: SIX_BY_SIX_BINDING_ZK_NONCE,
+      }),
+    ).toBe(SIX_BY_SIX_BINDING_ZK_NONCE);
+  });
+
   it('proves a transfer with recipient, change and Fee Output', async () => {
     installRecordingPoolService();
     const built = await buildRecipientAndOptionalChangeDeposits({

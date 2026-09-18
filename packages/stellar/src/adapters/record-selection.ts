@@ -70,6 +70,14 @@ async function filterUnspentPrivateRecords(input: {
   return unspent;
 }
 
+function spendAmountCoveringProtocolFee(amount: bigint): bigint {
+  if (amount <= 0n) {
+    return amount;
+  }
+  const hundredths = (amount + 99n) / 100n;
+  return amount + (hundredths === 0n ? 1n : hundredths);
+}
+
 function pickRecordsForSpendAmount(input: {
   available: StellarPrivateRecord[];
   kind: 'transfer' | 'withdraw';
@@ -149,7 +157,7 @@ export async function selectPrivateRecords(input: {
   return pickRecordsForSpendAmount({
     available,
     kind: input.kind,
-    amount: input.intent.amount,
+    amount: spendAmountCoveringProtocolFee(input.intent.amount),
   });
 }
 

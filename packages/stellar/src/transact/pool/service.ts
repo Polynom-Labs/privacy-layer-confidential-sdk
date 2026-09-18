@@ -25,7 +25,11 @@ import type {
 import { buildAlignedDepositSlotForSdk } from '../pool/aligned-deposit.js';
 import { initializePrivacyPoolSdk } from '../pool/initialize-sdk.js';
 import type { FeeOutputSpec } from '../fees/append-fee-output.js';
-import { zkConfigNonceForFeeBearingKind } from '../fees/zk-config-nonce-for-kind.js';
+import type { FeeOutputKindInput } from '../fees/should-attach-fee-output.js';
+import {
+  configuredNonceSpread,
+  zkConfigNonceForFeeBearingKind,
+} from '../fees/zk-config-nonce-for-kind.js';
 import { proveDepositTransact } from '../pool/prepare-deposit-proof.js';
 
 export class PrivacyPoolService {
@@ -61,6 +65,13 @@ export class PrivacyPoolService {
     } finally {
       this.initPromises.delete(key);
     }
+  }
+
+  feeBearingZkConfigNonce(input: FeeOutputKindInput): bigint {
+    return zkConfigNonceForFeeBearingKind({
+      ...input,
+      ...configuredNonceSpread(this.zkConfigNonce),
+    });
   }
 
   private async initializeSdk(nonce: bigint): Promise<PrivacyPoolSDK> {
@@ -146,7 +157,7 @@ export class PrivacyPoolService {
     feeOutput?: FeeOutputSpec;
   }): Promise<ProofResult> {
     const sdk = await this.getInitializedSdk(
-      zkConfigNonceForFeeBearingKind({ kind: 'deposit' }),
+      this.feeBearingZkConfigNonce({ kind: 'deposit' }),
     );
     return proveDepositTransact({
       sdk,
@@ -184,7 +195,7 @@ export class PrivacyPoolService {
     feeOutput?: FeeOutputSpec;
   }): Promise<ProofWithChange> {
     const sdk = await this.getInitializedSdk(
-      zkConfigNonceForFeeBearingKind({ kind: 'withdraw' }),
+      this.feeBearingZkConfigNonce({ kind: 'withdraw' }),
     );
     return proveWithdrawTransact({
       sdk,
@@ -216,7 +227,7 @@ export class PrivacyPoolService {
     feeOutput?: FeeOutputSpec;
   }): Promise<ProofWithChange> {
     const sdk = await this.getInitializedSdk(
-      zkConfigNonceForFeeBearingKind({ kind: 'withdraw' }),
+      this.feeBearingZkConfigNonce({ kind: 'withdraw' }),
     );
     return proveWithdrawTransactDual({
       sdk,

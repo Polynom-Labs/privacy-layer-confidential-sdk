@@ -17,7 +17,10 @@ import {
 } from './spend-proof-context.js';
 import { finalizeTransferAtExecute } from './transfer-finalize.js';
 import { withdrawFeeProofFields } from './withdraw-fee.js';
-import { zkConfigNonceForFeeBearingKind } from '../fees/zk-config-nonce-for-kind.js';
+import {
+  configuredNonceSpread,
+  zkConfigNonceForFeeBearingKind,
+} from '../fees/zk-config-nonce-for-kind.js';
 
 function enrichWithdrawOutputRecords(
   prepared: StellarPreparedOperation,
@@ -40,6 +43,7 @@ function enrichWithdrawOutputRecords(
 function buildWithdrawFinalizeArtifacts(
   proof: ProofWithChange,
   context: Awaited<ReturnType<typeof buildSpendProofContextAtExecute>>,
+  environment: StellarTransactEnvironment,
 ) {
   return {
     proofHex: proof.proof_hex,
@@ -49,7 +53,10 @@ function buildWithdrawFinalizeArtifacts(
     tokenAddress: context.tokenAddress,
     walletPublicKey: context.walletPublicKey,
     executeFinalizeRequired: false,
-    zkConfigNonce: zkConfigNonceForFeeBearingKind({ kind: 'withdraw' }),
+    zkConfigNonce: zkConfigNonceForFeeBearingKind({
+      kind: 'withdraw',
+      ...configuredNonceSpread(environment.zkConfigNonce),
+    }),
   };
 }
 
@@ -86,7 +93,7 @@ async function finalizeSingleWithdrawAtExecute(
     ...(feeFields.feeOutput ? { feeOutput: feeFields.feeOutput } : {}),
   });
   enrichWithdrawOutputRecords(prepared, proof);
-  return buildWithdrawFinalizeArtifacts(proof, context);
+  return buildWithdrawFinalizeArtifacts(proof, context, environment);
 }
 
 function dualWithdrawEphemeralKeys(input: {
@@ -146,7 +153,7 @@ async function finalizeDualWithdrawAtExecute(
     ...(feeFields.feeOutput ? { feeOutput: feeFields.feeOutput } : {}),
   });
   enrichWithdrawOutputRecords(prepared, proof);
-  return buildWithdrawFinalizeArtifacts(proof, context);
+  return buildWithdrawFinalizeArtifacts(proof, context, environment);
 }
 
 async function finalizeWithdrawAtExecute(

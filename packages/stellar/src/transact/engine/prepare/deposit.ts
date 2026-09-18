@@ -10,7 +10,10 @@ import {
   resolveWalletPublicKey,
 } from './shared.js';
 import { quoteFeeOutputForPrepared } from '../../fees/quote-fee-output-for-prepared.js';
-import { zkConfigNonceForFeeBearingKind } from '../../fees/zk-config-nonce-for-kind.js';
+import {
+  configuredNonceSpread,
+  zkConfigNonceForFeeBearingKind,
+} from '../../fees/zk-config-nonce-for-kind.js';
 
 const STROOPS_PER_UNIT = 10_000_000n;
 
@@ -88,6 +91,9 @@ export async function prepareDepositOperation(
     precommitementHex: depositProof.precommitementHex,
     commitmentHex: depositProof.commitment_hex,
     walletPublicKey,
-    zkConfigNonce: zkConfigNonceForFeeBearingKind({ kind: 'deposit' }),
+    zkConfigNonce: zkConfigNonceForFeeBearingKind({
+      kind: 'deposit',
+      ...configuredNonceSpread(environment.zkConfigNonce),
+    }),
   });
 }

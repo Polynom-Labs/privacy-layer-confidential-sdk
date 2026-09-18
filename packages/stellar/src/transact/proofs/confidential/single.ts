@@ -28,7 +28,6 @@ import type {
 } from '../../environment/types.js';
 import type { FeeOutputSpec } from '../../fees/append-fee-output.js';
 import { remainingAfterRequiredFee } from '../../fees/quote-fee-output-for-prepared.js';
-import { zkConfigNonceForFeeBearingKind } from '../../fees/zk-config-nonce-for-kind.js';
 type PrepareConfidentialTransferProofParameters = {
   coin: CoinData;
   state: StateFile;
@@ -216,7 +215,7 @@ export async function prepareConfidentialTransferProof(
 ): Promise<PrepareConfidentialTransferProofResult> {
   const poolService = getPrivacyPoolService();
   const sdk = await poolService.getInitializedSdk(
-    zkConfigNonceForFeeBearingKind({
+    poolService.feeBearingZkConfigNonce({
       kind: 'transfer',
       ...(parameters.escrowClaimantLimbs ? { spendSource: 'escrow' } : {}),
     }),
