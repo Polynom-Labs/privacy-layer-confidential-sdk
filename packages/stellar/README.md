@@ -16,6 +16,7 @@ This package provides:
 - `buildBlindedRecipientTagChallengeMessage()` (`@arcanetech/privacy-sdk-stellar/transact`) — builds the wallet-signed challenge used to issue blinded recipient tags so a recipient can discover escrow notes after they register
 - `fetchEscrowOutputNoteEvents({ transactEnvironment, txId, poolAddress })` — loads escrow output-note ciphertexts for a claim using the environment's network configuration
 - `unsignedEscrowAuthorizationForSweep({ prepared, transactEnvironment, relayerPublicKey })` — simulates the relayer invocation and returns the unsigned claimant authorization entry to sign offline
+- Protocol fee: deposit, transfer, and withdraw quote Required Fee and attach a private Fee Output (2×2 for deposit/withdraw, 6×6 for transfer with change). Escrow sweep does not attach a Fee Output.
 
 ## Browser Example
 
