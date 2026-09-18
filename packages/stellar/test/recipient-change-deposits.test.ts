@@ -1,5 +1,9 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import type { CoinData, DepositObject } from '@arcanetech/stellar-privacy-pool-zk-sdk';
+import type {
+  CoinData,
+  DepositObject,
+  DepositSlot,
+} from '@arcanetech/stellar-privacy-pool-zk-sdk';
 import {
   configurePrivacyPoolService,
   type PrivacyPoolService,
@@ -70,6 +74,16 @@ function slotFromCall(input: DepositCall): AlignedDepositSlot {
   };
 }
 
+function requireLiveDeposit(
+  slot: DepositSlot | undefined,
+  label: string,
+): Exclude<DepositSlot, 'dummy'> {
+  if (slot === undefined || slot === 'dummy') {
+    throw new Error(`expected a live ${label} deposit`);
+  }
+  return slot;
+}
+
 function installRecordingPoolService(): void {
   depositCalls.length = 0;
   configurePrivacyPoolService({
@@ -96,11 +110,8 @@ describe('escrow transfer change-note witness', () => {
       escrowSend: ESCROW_SEND,
     });
 
-    const recipientDeposit = built.deposits[0];
-    const changeDeposit = built.deposits[1];
-    if (recipientDeposit === 'dummy' || changeDeposit === 'dummy') {
-      throw new Error('expected live recipient and change deposits');
-    }
+    const recipientDeposit = requireLiveDeposit(built.deposits[0], 'recipient');
+    const changeDeposit = requireLiveDeposit(built.deposits[1], 'change');
     expect(changeDeposit.value).toBe('6000000');
     expect(recipientDeposit.recipientStellar).toEqual([JOHN_HI, JOHN_LO]);
     expect(changeDeposit.recipientStellar).toBeUndefined();
@@ -125,10 +136,7 @@ describe('escrow transfer change-note witness', () => {
       tokenAddress: TOKEN,
     });
 
-    const changeDeposit = built.deposits[1];
-    if (changeDeposit === 'dummy') {
-      throw new Error('expected a live change deposit');
-    }
+    const changeDeposit = requireLiveDeposit(built.deposits[1], 'change');
     expect(changeDeposit.recipientStellar).toBeUndefined();
     expect(built.changeCoin?.coin.secret).toBe(`spend:${SENDER_STPL1}`);
     const changeCall = depositCalls.find((call) => call.amountStroops === 6_000_000n);
@@ -165,11 +173,8 @@ describe('escrow transfer change-note witness', () => {
       stateRoot: '1',
       escrowSend: ESCROW_SEND,
     });
-    const recipientDeposit = built.deposits[0];
-    const changeDeposit = built.deposits[1];
-    if (recipientDeposit === 'dummy' || changeDeposit === 'dummy') {
-      throw new Error('expected live recipient and change deposits');
-    }
+    const recipientDeposit = requireLiveDeposit(built.deposits[0], 'recipient');
+    const changeDeposit = requireLiveDeposit(built.deposits[1], 'change');
     expect(built.publicInput.escrowRecipientHi).toBe('0');
     expect(built.publicInput.escrowRecipientLo).toBe('0');
     expect(built.publicInput.sweepOutputOwnerPubX).toBe('0');
@@ -198,10 +203,7 @@ describe('escrow transfer change-note witness', () => {
         recipientLo: JOHN_LO,
       },
     });
-    const recipientDeposit = built.deposits[0];
-    if (recipientDeposit === 'dummy') {
-      throw new Error('expected a live sweep output deposit');
-    }
+    const recipientDeposit = requireLiveDeposit(built.deposits[0], 'sweep output');
     expect(built.publicInput.escrowRecipientHi).toBe(JOHN_HI);
     expect(built.publicInput.escrowRecipientLo).toBe(JOHN_LO);
     expect(built.publicInput.withdrawAddressHi).toBe('0');
@@ -232,10 +234,7 @@ describe('escrow transfer change-note witness', () => {
     expect(built.publicInput.escrowRecipientLo).toBe('0');
     expect(built.publicInput.withdrawAddressHi).toBe('0');
     expect(built.publicInput.withdrawAddressLo).toBe('0');
-    const changeDeposit = built.deposits[1];
-    if (changeDeposit === 'dummy') {
-      throw new Error('expected a live change deposit');
-    }
+    const changeDeposit = requireLiveDeposit(built.deposits[1], 'change');
     expect(changeDeposit.recipientStellar).toBeUndefined();
   });
 

@@ -82,8 +82,8 @@ function installRecordingPoolService(): void {
   } as unknown as PrivacyPoolService);
 }
 
-function liveDepositValue(slot: DepositSlot): string | undefined {
-  if (slot === 'dummy') {
+function liveDepositValue(slot: DepositSlot | undefined): string | undefined {
+  if (slot === undefined || slot === 'dummy') {
     return undefined;
   }
   return slot.value;
@@ -113,16 +113,17 @@ afterEach(() => {
 
 describe('Fee Quote Request', () => {
   it('returns Required Fee, Fee Asset, collector Private Address and Fee Rate without secrets', async () => {
-    const fetchMock = vi.fn(async () =>
-      Response.json(
-        {
-          requiredFee: DEPOSIT_FEE.toString(),
-          feeAsset: TOKEN,
-          feeCollectorPrivateAddress: COLLECTOR_STPL1,
-          feeRate: FEE_RATE,
-        },
-        { status: 201, headers: { 'content-type': 'application/json' } },
-      ),
+    const fetchMock = vi.fn(
+      async (_input: RequestInfo | URL, _init?: RequestInit): Promise<Response> =>
+        Response.json(
+          {
+            requiredFee: DEPOSIT_FEE.toString(),
+            feeAsset: TOKEN,
+            feeCollectorPrivateAddress: COLLECTOR_STPL1,
+            feeRate: FEE_RATE,
+          },
+          { status: 201, headers: { 'content-type': 'application/json' } },
+        ),
     );
     vi.stubGlobal('fetch', fetchMock);
 
@@ -142,7 +143,11 @@ describe('Fee Quote Request', () => {
       feeRate: FEE_RATE,
     });
     expect(fetchMock).toHaveBeenCalledTimes(1);
-    const [url, init] = fetchMock.mock.calls[0] ?? [];
+    const quoteCall = fetchMock.mock.calls[0];
+    if (quoteCall === undefined) {
+      throw new Error('expected a Fee Quote request');
+    }
+    const [url, init] = quoteCall;
     expect(String(url)).toBe('http://transfers.test/api/kyt/fees/quote');
     const body = JSON.parse(String((init as RequestInit | undefined)?.body)) as Record<
       string,
