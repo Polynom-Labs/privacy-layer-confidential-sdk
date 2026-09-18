@@ -26,7 +26,7 @@
   "sideEffects": false,
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Polynom-Labs/privacy-layer-confidential-sdk.git",
+    "url": "git+https://github.com/arcanetechhq/privacy-layer-confidential-sdk.git",
     "directory": "packages/state/memory"
   },
   "license": "UNLICENSED",
